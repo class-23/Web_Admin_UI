@@ -12,6 +12,10 @@ import subprocess
 import re
 import socket
 import json
+import platform
+import time
+
+IS_WINDOWS = platform.system() == "Windows"
 
 app = FastAPI(title="QuantClaw Network Scanner")
 
@@ -46,17 +50,28 @@ class ScanResult(BaseModel):
 def get_gateway() -> str:
     """获取默认网关"""
     try:
-        result = subprocess.run(
-            ["ip", "route", "show", "default"],
-            capture_output=True, text=True, timeout=5
-        )
-        match = re.search(r'default via (\d+\.\d+\.\d+\.\d+)', result.stdout)
-        if match:
-            return match.group(1)
+        if IS_WINDOWS:
+            result = subprocess.run(
+                ["powershell", "-Command", "ipconfig"],
+                capture_output=True, text=True, timeout=5
+            )
+            for line in result.stdout.split('\n'):
+                line = line.strip()
+                if 'Default Gateway' in line or '默认网关' in line:
+                    match = re.search(r'(\d+\.\d+\.\d+\.\d+)', line)
+                    if match:
+                        return match.group(1)
+        else:
+            result = subprocess.run(
+                ["ip", "route", "show", "default"],
+                capture_output=True, text=True, timeout=5
+            )
+            match = re.search(r'default via (\d+\.\d+\.\d+\.\d+)', result.stdout)
+            if match:
+                return match.group(1)
     except Exception:
         pass
     
-    # 备用方法
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -84,14 +99,9 @@ def scan_with_arp() -> List[Device]:
     """使用 arp 扫描局域网"""
     devices = []
     
-    # 先尝试刷新 ARP 缓存 (需要 root)
-    subprocess.run(["ip", "neigh", "flush", "all"], capture_output=True)
-    
-    # 扫描常见端口触发 ARP 缓存
     gateway = get_gateway()
     local_ip = get_local_ip()
     
-    # 获取网段
     if local_ip == "127.0.0.1":
         return devices
     
@@ -99,82 +109,137 @@ def scan_with_arp() -> List[Device]:
     network_prefix = f"{parts[0]}.{parts[1]}.{parts[2]}"
     
     try:
-        # 并行 ping 扫描
-        subprocess.run(
-            ["sh", "-c", f"for i in $(seq 1 254); do (ping -c 1 -W 1 {network_prefix}.$i > /dev/null 2>&1 &); done"],
-            capture_output=True, timeout=10
-        )
+        if IS_WINDOWS:
+            result = subprocess.run(
+                ["powershell", "-Command", 
+                 f"$jobs = 1..254 | ForEach-Object {{ Start-Job -ScriptBlock {{ param($ip) ping -n 1 -w 200 $ip | Out-Null }} -ArgumentList '{network_prefix}.$_' }}; $jobs | Wait-Job | Remove-Job"],
+                capture_output=True, timeout=15
+            )
+        else:
+            subprocess.run(
+                ["sh", "-c", f"for i in $(seq 1 254); do (ping -c 1 -W 1 {network_prefix}.$i > /dev/null 2>&1 &); done"],
+                capture_output=True, timeout=10
+            )
     except Exception:
         pass
     
-    # 等待一下让 ARP 缓存填充
-    import time
-    time.sleep(2)
+    time.sleep(3)
     
-    # 读取 ARP 缓存
     try:
-        result = subprocess.run(["ip", "neigh", "show"], capture_output=True, text=True)
-        
-        for line in result.stdout.strip().split('\n'):
-            if not line:
-                continue
-            
-            parts_line = line.split()
-            if len(parts_line) < 4:
-                continue
-            
-            ip = parts_line[0]
-            mac = ""
-            hostname = ""
-            
-            # 解析 MAC 地址
-            for i, p in enumerate(parts_line):
-                if re.match(r'([0-9a-f]{2}:){5}[0-9a-f]{2}', p.lower()):
-                    mac = p.upper()
-                    break
-            
-            if not mac or ip == gateway:
-                continue
-            
-            # 尝试反向 DNS 查询
-            try:
-                hostname = socket.gethostbyaddr(ip)[0]
-            except Exception:
-                pass
-            
-            # 判断是否为 quant 设备
-            name = None
-            is_quant = False
-            
-            # 检查 hostname 或 MAC 厂商名称
-            check_str = (hostname or "").lower()
-            
-            # 尝试从 /etc/hosts 或其他方式获取设备名
-            if "quant" in check_str:
-                name = hostname
-                is_quant = True
-            
-            # 常见的 Raspberry Pi MAC 前缀
-            pi_prefixes = ["B8:27:EB", "DC:A6:32", "E4:5F:01", "28:CD:C1", "2C:CF:67"]
-            if mac:
-                for prefix in pi_prefixes:
-                    if mac.startswith(prefix):
-                        try:
-                            # Raspberry Pi 默认用户名是 pi/quant
-                            # 这里只是标记为可能的树莓派
-                            pass
-                        except Exception:
-                            pass
-            
-            device = Device(
-                ip=ip,
-                mac=mac,
-                hostname=hostname if hostname else None,
-                name=name,
-                is_quant=is_quant
+        if IS_WINDOWS:
+            result = subprocess.run(
+                ["powershell", "-Command", "arp -a"],
+                capture_output=True, text=True, timeout=5
             )
-            devices.append(device)
             
+            current_interface = None
+            for line in result.stdout.split('\n'):
+                line = line.strip()
+                
+                if 'Interface:' in line:
+                    match = re.search(r'Interface:\s*(\d+\.\d+\.\d+\.\d+)', line)
+                    if match:
+                        current_interface = match.group(1)
+                    continue
+                
+                if not line or 'Internet 地址' in line or 'Physical Address' in line:
+                    continue
+                
+                match = re.match(r'(\d+\.\d+\.\d+\.\d+)\s+([0-9a-f-]+)\s+(\S+)', line, re.IGNORECASE)
+                if match:
+                    ip = match.group(1)
+                    mac_raw = match.group(2)
+                    mac = mac_raw.replace('-', ':').upper() if '-' in mac_raw else mac_raw.upper()
+                    entry_type = match.group(3).lower()
+                    
+                    if not mac or mac == "FF:FF:FF:FF:FF:FF":
+                        continue
+                    if entry_type not in ('dynamic', '动态'):
+                        continue
+                    
+                    try:
+                        hostname = socket.gethostbyaddr(ip)[0]
+                    except Exception:
+                        hostname = ""
+                    
+                    name = None
+                    is_quant = False
+                    check_str = (hostname or "").lower()
+                    
+                    if "quant" in check_str:
+                        name = hostname
+                        is_quant = True
+                    
+                    pi_prefixes = ["B8:27:EB", "DC:A6:32", "E4:5F:01", "28:CD:C1", "2C:CF:67"]
+                    for prefix in pi_prefixes:
+                        if mac.startswith(prefix):
+                            name = "Raspberry Pi (possible quant)"
+                            is_quant = True
+                            break
+                    
+                    device = Device(
+                        ip=ip,
+                        mac=mac,
+                        hostname=hostname if hostname else None,
+                        name=name,
+                        is_quant=is_quant
+                    )
+                    devices.append(device)
+        else:
+            subprocess.run(["ip", "neigh", "flush", "all"], capture_output=True)
+            
+            result = subprocess.run(["ip", "neigh", "show"], capture_output=True, text=True)
+            
+            for line in result.stdout.strip().split('\n'):
+                if not line:
+                    continue
+                
+                parts_line = line.split()
+                if len(parts_line) < 4:
+                    continue
+                
+                ip = parts_line[0]
+                mac = ""
+                hostname = ""
+                
+                for i, p in enumerate(parts_line):
+                    if re.match(r'([0-9a-f]{2}:){5}[0-9a-f]{2}', p.lower()):
+                        mac = p.upper()
+                        break
+                
+                if not mac or ip == gateway:
+                    continue
+                
+                try:
+                    hostname = socket.gethostbyaddr(ip)[0]
+                except Exception:
+                    pass
+                
+                name = None
+                is_quant = False
+                check_str = (hostname or "").lower()
+                
+                if "quant" in check_str:
+                    name = hostname
+                    is_quant = True
+                
+                pi_prefixes = ["B8:27:EB", "DC:A6:32", "E4:5F:01", "28:CD:C1", "2C:CF:67"]
+                if mac:
+                    for prefix in pi_prefixes:
+                        if mac.startswith(prefix):
+                            name = "Raspberry Pi (possible quant)"
+                            is_quant = True
+                            break
+                
+                device = Device(
+                    ip=ip,
+                    mac=mac,
+                    hostname=hostname if hostname else None,
+                    name=name,
+                    is_quant=is_quant
+                )
+                devices.append(device)
+                
     except Exception as e:
         print(f"ARP scan error: {e}")
     
@@ -183,6 +248,9 @@ def scan_with_arp() -> List[Device]:
 
 def scan_with_nmap() -> List[Device]:
     """使用 nmap 扫描 (如果可用)"""
+    if IS_WINDOWS:
+        return []
+    
     devices = []
     
     try:
@@ -212,7 +280,6 @@ def scan_with_nmap() -> List[Device]:
                     current_mac = match.group(1).upper()
             
             elif 'Host is up' in line and current_ip and current_mac:
-                # 尝试反向 DNS
                 hostname = None
                 try:
                     hostname = socket.gethostbyaddr(current_ip)[0]
