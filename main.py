@@ -15,7 +15,7 @@ import json
 import platform
 import time
 
-IS_WINDOWS = platform.system() == "Windows"
+IS_WINDOWS = platform.system().lower() in ('windows', 'windows_nt')
 
 app = FastAPI(title="QuantClaw Network Scanner")
 
@@ -110,11 +110,26 @@ def scan_with_arp() -> List[Device]:
     
     try:
         if IS_WINDOWS:
-            result = subprocess.run(
-                ["powershell", "-Command", 
-                 f"$jobs = 1..254 | ForEach-Object {{ Start-Job -ScriptBlock {{ param($ip) ping -n 1 -w 200 $ip | Out-Null }} -ArgumentList '{network_prefix}.$_' }}; $jobs | Wait-Job | Remove-Job"],
-                capture_output=True, timeout=15
-            )
+            import threading
+            
+            def ping_host(ip):
+                try:
+                    subprocess.run(
+                        ["ping", "-n", "1", "-w", "200", ip],
+                        capture_output=True, timeout=2
+                    )
+                except Exception:
+                    pass
+            
+            threads = []
+            for i in range(1, 255):
+                ip = f"{network_prefix}.{i}"
+                thread = threading.Thread(target=ping_host, args=(ip,))
+                threads.append(thread)
+                thread.start()
+            
+            for thread in threads:
+                thread.join(timeout=2)
         else:
             subprocess.run(
                 ["sh", "-c", f"for i in $(seq 1 254); do (ping -c 1 -W 1 {network_prefix}.$i > /dev/null 2>&1 &); done"],
