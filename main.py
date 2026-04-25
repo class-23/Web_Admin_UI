@@ -227,23 +227,31 @@ async def scan_device_fast(ip: str, mac: str) -> Optional[Device]:
     if open_port:
         try:
             import http.client
+            import socket
+            
+            socket.setdefaulttimeout(2)
             conn = http.client.HTTPConnection(ip, 7681, timeout=2)
-            conn.request("GET", "/")
-            response = conn.getresponse()
             
-            headers = dict(response.getheaders())
-            server_header = headers.get('server', '') or headers.get('Server', '')
-            
-            if 'ttyd' in server_header.lower():
-                hostname = f"{ip} (ttyd)"
-                device_type = DeviceType.QUANT
-            elif response.status == 200:
-                content = response.read().decode('utf-8', errors='ignore')
-                hostname_match = re.search(r'<title>([^<]+)</title>', content, re.IGNORECASE)
-                if hostname_match:
-                    hostname = hostname_match.group(1)
-            
-            conn.close()
+            try:
+                conn.request("GET", "/")
+                response = conn.getresponse()
+                
+                headers = dict(response.getheaders())
+                server_header = headers.get('server', '') or headers.get('Server', '')
+                
+                if 'ttyd' in server_header.lower():
+                    hostname = f"{ip} (ttyd)"
+                    device_type = DeviceType.QUANT
+                elif response.status == 200:
+                    content = response.read().decode('utf-8', errors='ignore')
+                    hostname_match = re.search(r'<title>([^<]+)</title>', content, re.IGNORECASE)
+                    if hostname_match:
+                        hostname = hostname_match.group(1)
+            finally:
+                conn.close()
+                
+        except (socket.timeout, TimeoutError, OSError):
+            pass
         except Exception:
             pass
     
