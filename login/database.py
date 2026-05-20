@@ -1,5 +1,6 @@
 import psycopg2
 import psycopg2.pool
+from psycopg2 import sql
 from login import config
 
 _pool = psycopg2.pool.ThreadedConnectionPool(
@@ -13,6 +14,41 @@ _pool = psycopg2.pool.ThreadedConnectionPool(
 )
 
 _tables_initialized = False
+TIMESTAMPTZ_COLUMNS = {
+    "users": ("password_changed_at", "created_at", "updated_at"),
+    "settings": ("created_at", "updated_at"),
+    "ssh_configs": ("created_at", "updated_at"),
+}
+
+
+def _ensure_timestamptz_columns(cur):
+    for table_name, column_names in TIMESTAMPTZ_COLUMNS.items():
+        for column_name in column_names:
+            cur.execute(
+                """
+                SELECT data_type
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND table_name = %s
+                  AND column_name = %s
+                """,
+                (table_name, column_name),
+            )
+            row = cur.fetchone()
+            if row and row[0] == "timestamp without time zone":
+                cur.execute(
+                    sql.SQL(
+                        """
+                        ALTER TABLE {table_name}
+                        ALTER COLUMN {column_name}
+                        TYPE TIMESTAMPTZ
+                        USING {column_name} AT TIME ZONE 'UTC'
+                        """
+                    ).format(
+                        table_name=sql.Identifier(table_name),
+                        column_name=sql.Identifier(column_name),
+                    )
+                )
 
 
 def init_db():
@@ -22,6 +58,7 @@ def init_db():
     conn = _pool.getconn()
     try:
         cur = conn.cursor()
+        cur.execute("SET TIME ZONE 'UTC'")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -29,17 +66,17 @@ def init_db():
                 username VARCHAR(50) UNIQUE NOT NULL,
                 miyao_key VARCHAR(100) NOT NULL DEFAULT '',
                 password VARCHAR(255) NOT NULL,
-                password_changed_at TIMESTAMP DEFAULT NOW(),
-                created_at TIMESTAMP DEFAULT NOW(),
-                updated_at TIMESTAMP DEFAULT NOW()
+                password_changed_at TIMESTAMPTZ DEFAULT NOW(),
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS settings (
                 user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
                 data JSONB NOT NULL DEFAULT '{}',
-                created_at TIMESTAMP DEFAULT NOW(),
-                updated_at TIMESTAMP DEFAULT NOW()
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
         cur.execute("""
@@ -50,10 +87,11 @@ def init_db():
                 username VARCHAR(100) DEFAULT '',
                 password VARCHAR(255) DEFAULT '',
                 remote_path VARCHAR(500) DEFAULT '/home/quant',
-                created_at TIMESTAMP DEFAULT NOW(),
-                updated_at TIMESTAMP DEFAULT NOW()
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
+        _ensure_timestamptz_columns(cur)
         conn.commit()
         cur.close()
     finally:
