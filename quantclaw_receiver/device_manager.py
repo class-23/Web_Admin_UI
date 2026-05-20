@@ -6,6 +6,7 @@ QuantClaw 核心设备管理类
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 from datetime import datetime, timezone
@@ -21,7 +22,7 @@ from .exceptions import (
 from .udp_receiver import UDPBroadcastReceiver
 from .utils import (
     HEARTBEAT_FIELDS, REGISTER_FIELDS, client_ip_from_headers,
-    make_sign, normalize_payload_defaults, normalize_signature,
+    first_value, make_sign, normalize_payload_defaults, normalize_signature,
     parse_text_body, parse_utc_timestamp, pick
 )
 
@@ -56,6 +57,7 @@ class QuantClawDeviceManager:
     
     async def startup(self) -> None:
         """启动设备管理器（在FastAPI lifespan中调用）"""
+        self.db_manager.ensure_schema()
         if self.config.udp_enabled:
             self.udp_receiver.start()
         logger.info("QuantClaw 设备管理器已启动")
