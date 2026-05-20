@@ -2,39 +2,56 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-*.egg-info/
-dist/
-build/
-eggs/
-*.egg
 
-# Virtual Environment
-.venv/
-venv/
-ENV/
-env/
+# Configuration files
+settings.json
+ssh_config.json
+config_history.json
 
-# pip
-pip-log.txt
-pip-delete-this-directory.txt
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
+# Backup directories
+config_backups/
 
 # Logs
 *.log
 
-# Environment variables
+# IDE
+.vscode/
+.idea/
+.claude/
+.opencode/
+.trae/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
 .env
 .env.local
+.env.*.local
+.venv/
+venv/
 
-# Static files (if generated at runtime)
-static/*
-!static/.gitkeep
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Testing
+coverage/
+.coverage
+.pytest_cache/
+.playwright/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database / runtime
+*.db
+*.sqlite
+runtime/*.sqlite
+
+# Python tooling
+.mypy_cache/
+.ruff_cache/

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户注册</title>
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  min-height: 100vh;
+  background: #f5f5f5;
+  background-image: radial-gradient(circle, #ffffff 1px, transparent 1px);
+  background-size: 20px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.card h1 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 28px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  color: #4a5568;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #2d3748;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  background: #f7fafc;
+}
+
+.input-wrapper input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  background: #fff;
+}
+
+.input-wrapper input.error {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.error-text {
+  color: #e53e3e;
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+}
+
+.error-text.show {
+  display: block;
+}
+
+.code-row {
+  display: flex;
+  gap: 10px;
+}
+
+.code-row .input-wrapper {
+  flex: 1;
+}
+
+.code-row .input-wrapper input {
+  width: 100%;
+}
+
+.btn-code {
+  height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 10px;
+  background: #667eea;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.25s ease, opacity 0.25s ease;
+  flex-shrink: 0;
+}
+
+.btn-code:hover {
+  background: #5a67d8;
+}
+
+.btn-code:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.hint-text {
+  color: #a0aec0;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #a0aec0;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #4a5568;
+}
+
+.strength-bar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.strength-segment {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #e2e8f0;
+  transition: background 0.3s ease;
+}
+
+.strength-segment.weak {
+  background: #e53e3e;
+}
+
+.strength-segment.medium {
+  background: #ed8936;
+}
+
+.strength-segment.strong {
+  background: #38a169;
+}
+
+.strength-text {
+  font-size: 12px;
+  margin-left: 6px;
+  font-weight: 500;
+  white-space: nowrap;
+  min-width: 20px;
+}
+
+.strength-text.weak {
+  color: #e53e3e;
+}
+
+.strength-text.medium {
+  color: #ed8936;
+}
+
+.strength-text.strong {
+  color: #38a169;
+}
+
+.btn-submit {
+  width: 100%;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: #667eea;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.25s ease, opacity 0.25s ease;
+}
+
+.btn-submit:hover {
+  background: #5a67d8;
+}
+
+.btn-submit:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.footer-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #718096;
+}
+
+.footer-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer-link a:hover {
+  color: #5a67d8;
+}
+
+.message-box {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 14px;
+  display: none;
+  text-align: center;
+}
+
+.message-box.show {
+  display: block;
+}
+
+.message-box.success {
+  background: #c6f6d5;
+  color: #276749;
+  border: 1px solid #9ae6b4;
+}
+
+.message-box.error {
+  background: #fed7d7;
+  color: #9b2c2c;
+  border: 1px solid #feb2b2;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 28px 20px;
+    border-radius: 12px;
+    margin: 0;
+  }
+
+  .card h1 {
+    font-size: 22px;
+    margin-bottom: 22px;
+  }
+
+  .btn-code {
+    padding: 0 12px;
+    font-size: 13px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>注册</h1>
+
+  <div id="messageBox" class="message-box"></div>
+
+  <form id="registerForm" novalidate>
+
+    <div class="form-group">
+      <label>手机号</label>
+      <div class="input-wrapper">
+        <input type="tel" id="phone" placeholder="请输入手机号" maxlength="11" autocomplete="tel">
+      </div>
+      <div id="phoneError" class="error-text"></div>
+    </div>
+
+    <div class="form-group">
+      <label>用户名</label>
+      <div class="input-wrapper">
+        <input type="text" id="username" placeholder="请输入用户名（3-20个字符）" maxlength="20" autocomplete="username">
+      </div>
+      <div id="usernameError" class="error-text"></div>
+    </div>
+
+    <div class="form-group">
+      <label>验证码</label>
+      <div class="code-row">
+        <div class="input-wrapper">
+          <input type="text" id="code" placeholder="请输入验证码" maxlength="6" autocomplete="off">
+        </div>
+        <button type="button" id="btnSendCode" class="btn-code">获取验证码</button>
+      </div>
+      <div id="codeError" class="error-text"></div>
+    </div>
+
+    <div class="form-group">
+      <label>输入你配网时的密钥</label>
+      <div class="input-wrapper">
+        <input type="text" id="secretKey" placeholder="请输入你配网时的密钥(仅支持数字与字母)" autocomplete="off">
+      </div>
+      <div id="secretKeyError" class="error-text"></div>
+    </div>
+
+    <div class="form-group">
+      <label>密码</label>
+      <div class="input-wrapper">
+        <input type="password" id="password" placeholder="请输入密码(至少8位，含大小写字母和数字)" autocomplete="new-password">
+        <button type="button" class="password-toggle" data-target="password">🙈</button>
+      </div>
+      <div class="strength-bar" id="strengthBar">
+        <span class="strength-segment" id="seg1"></span>
+        <span class="strength-segment" id="seg2"></span>
+        <span class="strength-segment" id="seg3"></span>
+        <span class="strength-text" id="strengthText"></span>
+      </div>
+      <div id="passwordError" class="error-text"></div>
+    </div>
+
+    <div class="form-group">
+      <label>确认密码</label>
+      <div class="input-wrapper">
+        <input type="password" id="confirmPassword" placeholder="请再次输入密码" autocomplete="new-password">
+        <button type="button" class="password-toggle" data-target="confirmPassword">🙈</button>
+      </div>
+      <div id="confirmPasswordError" class="error-text"></div>
+    </div>
+
+    <button type="submit" id="btnSubmit" class="btn-submit">注册</button>
+  </form>
+
+  <div class="footer-link">
+    已有账号？<a href="/login">立即登录</a>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var phoneInput = document.getElementById('phone');
+  var usernameInput = document.getElementById('username');
+  var codeInput = document.getElementById('code');
+  var secretKeyInput = document.getElementById('secretKey');
+  var passwordInput = document.getElementById('password');
+  var confirmPasswordInput = document.getElementById('confirmPassword');
+  var btnSendCode = document.getElementById('btnSendCode');
+  var btnSubmit = document.getElementById('btnSubmit');
+  var registerForm = document.getElementById('registerForm');
+  var messageBox = document.getElementById('messageBox');
+
+  var phoneError = document.getElementById('phoneError');
+  var usernameError = document.getElementById('usernameError');
+  var codeError = document.getElementById('codeError');
+  var secretKeyError = document.getElementById('secretKeyError');
+  var passwordError = document.getElementById('passwordError');
+  var confirmPasswordError = document.getElementById('confirmPasswordError');
+
+  var seg1 = document.getElementById('seg1');
+  var seg2 = document.getElementById('seg2');
+  var seg3 = document.getElementById('seg3');
+  var strengthText = document.getElementById('strengthText');
+
+  var countdownTimer = null;
+  var countdownSeconds = 0;
+
+  function showMessage(text, type) {
+    messageBox.textContent = text;
+    messageBox.className = 'message-box ' + type + ' show';
+    clearTimeout(messageBox._timeout);
+    messageBox._timeout = setTimeout(function () {
+      messageBox.className = 'message-box';
+    }, 3000);
+  }
+
+  function setError(el, inputEl, msg) {
+    if (msg) {
+      el.textContent = msg;
+      el.classList.add('show');
+      inputEl.classList.add('error');
+    } else {
+      el.textContent = '';
+      el.classList.remove('show');
+      inputEl.classList.remove('error');
+    }
+  }
+
+  function validatePhone(value) {
+    return /^1[3-9]\d{9}$/.test(value);
+  }
+
+  function validateUsername(value) {
+    return value.length >= 3 && value.length <= 20;
+  }
+
+  function validateSecretKey(value) {
+    return /^[a-zA-Z0-9]+$/.test(value);
+  }
+
+  function getPasswordStrength(password) {
+    if (password.length < 8) return 'weak';
+    var hasUpper = /[A-Z]/.test(password);
+    var hasLower = /[a-z]/.test(password);
+    var hasDigit = /\d/.test(password);
+    var types = (hasUpper ? 1 : 0) + (hasLower ? 1 : 0) + (hasDigit ? 1 : 0);
+    if (types === 3 && hasUpper && hasLower && hasDigit) return 'strong';
+    if (types >= 2) return 'medium';
+    return 'weak';
+  }
+
+  function updateStrengthBar(password) {
+    var strength = getPasswordStrength(password);
+    seg1.className = 'strength-segment';
+    seg2.className = 'strength-segment';
+    seg3.className = 'strength-segment';
+    strengthText.className = 'strength-text';
+    strengthText.textContent = '';
+
+    if (!password) return;
+
+    if (strength === 'weak') {
+      seg1.classList.add('weak');
+      strengthText.textContent = '弱';
+      strengthText.classList.add('weak');
+    } else if (strength === 'medium') {
+      seg1.classList.add('medium');
+      seg2.classList.add('medium');
+      strengthText.textContent = '中';
+      strengthText.classList.add('medium');
+    } else if (strength === 'strong') {
+      seg1.classList.add('strong');
+      seg2.classList.add('strong');
+      seg3.classList.add('strong');
+      strengthText.textContent = '强';
+      strengthText.classList.add('strong');
+    }
+  }
+
+  phoneInput.addEventListener('input', function () {
+    var val = phoneInput.value.trim();
+    if (val && !validatePhone(val)) {
+      setError(phoneError, phoneInput, '请输入正确的手机号');
+    } else {
+      setError(phoneError, phoneInput, '');
+    }
+  });
+
+  phoneInput.addEventListener('blur', function () {
+    var val = phoneInput.value.trim();
+    if (val && !validatePhone(val)) {
+      setError(phoneError, phoneInput, '请输入正确的手机号');
+    }
+  });
+
+  usernameInput.addEventListener('input', function () {
+    var val = usernameInput.value.trim();
+    if (val && !validateUsername(val)) {
+      setError(usernameError, usernameInput, '请输入3-20个字符的用户名');
+    } else {
+      setError(usernameError, usernameInput, '');
+    }
+  });
+
+  usernameInput.addEventListener('blur', function () {
+    var val = usernameInput.value.trim();
+    if (val && !validateUsername(val)) {
+      setError(usernameError, usernameInput, '请输入3-20个字符的用户名');
+    }
+  });
+
+  passwordInput.addEventListener('input', function () {
+    updateStrengthBar(passwordInput.value);
+  });
+
+  secretKeyInput.addEventListener('input', function () {
+    var val = secretKeyInput.value;
+    if (val && !validateSecretKey(val)) {
+      setError(secretKeyError, secretKeyInput, '密钥只能包含数字和字母');
+    } else {
+      setError(secretKeyError, secretKeyInput, '');
+    }
+  });
+
+  secretKeyInput.addEventListener('blur', function () {
+    var val = secretKeyInput.value.trim();
+    if (val && !validateSecretKey(val)) {
+      setError(secretKeyError, secretKeyInput, '密钥只能包含数字和字母');
+    }
+  });
+
+  confirmPasswordInput.addEventListener('input', function () {
+    var pw = passwordInput.value;
+    var cpw = confirmPasswordInput.value;
+    if (cpw && pw !== cpw) {
+      setError(confirmPasswordError, confirmPasswordInput, '两次密码输入不一致');
+    } else {
+      setError(confirmPasswordError, confirmPasswordInput, '');
+    }
+  });
+
+  confirmPasswordInput.addEventListener('blur', function () {
+    var pw = passwordInput.value;
+    var cpw = confirmPasswordInput.value;
+    if (cpw && pw !== cpw) {
+      setError(confirmPasswordError, confirmPasswordInput, '两次密码输入不一致');
+    }
+  });
+
+  btnSendCode.addEventListener('click', function () {
+    var phone = phoneInput.value.trim();
+    if (!phone || !validatePhone(phone)) {
+      showMessage('请先输入正确的手机号', 'error');
+      return;
+    }
+
+    btnSendCode.disabled = true;
+    btnSendCode.textContent = '发送中...';
+
+    fetch('/api/send-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone })
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data.code === 0) {
+        showMessage('验证码已发送', 'success');
+        countdownSeconds = 60;
+        btnSendCode.textContent = countdownSeconds + '秒后重试';
+        countdownTimer = setInterval(function () {
+          countdownSeconds--;
+          if (countdownSeconds <= 0) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+            btnSendCode.disabled = false;
+            btnSendCode.textContent = '获取验证码';
+          } else {
+            btnSendCode.textContent = countdownSeconds + '秒后重试';
+          }
+        }, 1000);
+      } else {
+        showMessage(data.message || '发送验证码失败', 'error');
+        btnSendCode.disabled = false;
+        btnSendCode.textContent = '获取验证码';
+      }
+    })
+    .catch(function () {
+      showMessage('网络错误，请稍后重试', 'error');
+      btnSendCode.disabled = false;
+      btnSendCode.textContent = '获取验证码';
+    });
+  });
+
+  registerForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var phone = phoneInput.value.trim();
+    var username = usernameInput.value.trim();
+    var code = codeInput.value.trim();
+    var secretKey = secretKeyInput.value.trim();
+    var password = passwordInput.value;
+    var confirmPassword = confirmPasswordInput.value;
+
+    var valid = true;
+
+    if (!phone || !validatePhone(phone)) {
+      setError(phoneError, phoneInput, '请输入正确的手机号');
+      valid = false;
+    }
+
+    if (!username || !validateUsername(username)) {
+      setError(usernameError, usernameInput, '请输入3-20个字符的用户名');
+      valid = false;
+    }
+
+    if (!code) {
+      setError(codeError, codeInput, '请输入验证码');
+      valid = false;
+    } else {
+      setError(codeError, codeInput, '');
+    }
+
+    if (!secretKey) {
+      setError(secretKeyError, secretKeyInput, '请输入注册密钥');
+      valid = false;
+    } else if (!validateSecretKey(secretKey)) {
+      setError(secretKeyError, secretKeyInput, '密钥只能包含数字和字母');
+      valid = false;
+    } else {
+      setError(secretKeyError, secretKeyInput, '');
+    }
+
+    if (!password || password.length < 8) {
+      setError(passwordError, passwordInput, '密码至少需要8位');
+      valid = false;
+    } else {
+      setError(passwordError, passwordInput, '');
+    }
+
+    if (!confirmPassword) {
+      setError(confirmPasswordError, confirmPasswordInput, '请再次输入密码');
+      valid = false;
+    } else if (password !== confirmPassword) {
+      setError(confirmPasswordError, confirmPasswordInput, '两次密码输入不一致');
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    btnSubmit.textContent = '注册中...';
+    btnSubmit.disabled = true;
+
+    fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: phone,
+        username: username,
+        code: code,
+        secret_key: secretKey,
+        password: password,
+        confirm_password: confirmPassword
+      })
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data.code === 0) {
+        showMessage('注册成功！即将跳转登录页...', 'success');
+        setTimeout(function () {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        showMessage(data.message || '注册失败', 'error');
+        btnSubmit.textContent = '注册';
+        btnSubmit.disabled = false;
+      }
+    })
+    .catch(function () {
+      showMessage('网络错误，请稍后重试', 'error');
+      btnSubmit.textContent = '注册';
+      btnSubmit.disabled = false;
+    });
+  });
+
+  document.querySelectorAll('.password-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var targetId = this.getAttribute('data-target');
+      var input = document.getElementById(targetId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        this.textContent = '👁️';
+      } else {
+        input.type = 'password';
+        this.textContent = '🙈';
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

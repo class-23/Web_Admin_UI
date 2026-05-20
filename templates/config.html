@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}设备配置 - QuantClaw{% endblock %}
+{% block content %}
+<div x-data="configApp()" x-init="load()">
+    <div class="flex items-center gap-3 mb-5">
+        <a href="javascript:history.back()" style="color:var(--text-muted);text-decoration:none;transition:color 0.15s" onmouseover="this.style.color='var(--text-secondary)'" onmouseout="this.style.color='var(--text-muted)'">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="page-title">设备配置</h1>
+    </div>
+
+    <div x-show="loading" class="text-center py-16"><div class="spinner" style="margin:0 auto"></div></div>
+
+    <div x-show="!loading" x-cloak style="max-width:42rem;display:flex;flex-direction:column;gap:1rem">
+        <div x-show="msg" x-cloak class="alert" :class="msgType === 'ok' ? 'alert-success' : 'alert-error'" x-text="msg"></div>
+
+        <div class="card p-5">
+            <h2 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem">LLM 配置</h2>
+            <div style="display:flex;flex-direction:column;gap:0.875rem">
+                <div>
+                    <label class="label-dark">LLM 服务商</label>
+                    <select x-model="config.llm_provider" class="input-dark">
+                        <option value="deepseek">DeepSeek</option>
+                        <option value="openai">OpenAI</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-dark">模型</label>
+                    <input type="text" x-model="config.llm_model" class="input-dark" placeholder="deepseek-v3">
+                </div>
+                <div>
+                    <label class="label-dark">API Key</label>
+                    <input type="password" x-model="config.api_key" class="input-dark" placeholder="sk-...">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="label-dark">Temperature</label>
+                        <input type="number" x-model.number="config.temperature" step="0.1" min="0" max="2" class="input-dark">
+                    </div>
+                    <div>
+                        <label class="label-dark">Max Tokens</label>
+                        <input type="number" x-model.number="config.max_tokens" min="1" max="32768" class="input-dark">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-5">
+            <h2 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem">WiFi 配置</h2>
+            <div style="display:flex;flex-direction:column;gap:0.875rem">
+                <div>
+                    <label class="label-dark">WiFi 名称 (SSID)</label>
+                    <input type="text" x-model="config.wifi_ssid" class="input-dark" placeholder="YourWiFiName">
+                </div>
+                <div>
+                    <label class="label-dark">WiFi 密码</label>
+                    <input type="password" x-model="config.wifi_password" class="input-dark" placeholder="WiFi密码">
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-5">
+            <h2 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem">系统配置</h2>
+            <div style="display:flex;flex-direction:column;gap:0.875rem">
+                <div>
+                    <label class="label-dark">语言</label>
+                    <select x-model="config.language" class="input-dark">
+                        <option value="auto">自动检测</option>
+                        <option value="zh">中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-dark">系统提示词</label>
+                    <textarea x-model="config.system_prompt" rows="4" class="input-dark" placeholder="自定义系统提示词（可选）"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <button @click="save()" :disabled="saving" class="btn-accent" style="width:100%;padding:0.75rem">
+            <span x-show="!saving">保存配置</span>
+            <span x-show="saving">保存中...</span>
+        </button>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function configApp() {
+    return {
+        config: { llm_provider: 'deepseek', llm_model: 'deepseek-v3', api_key: '', temperature: 0.7, max_tokens: 2048, wifi_ssid: '', wifi_password: '', language: 'auto', system_prompt: '' },
+        loading: true, saving: false, msg: '', msgType: 'ok', deviceId: null,
+        async load() {
+            if (!checkAuth()) return;
+            this.deviceId = window.location.pathname.split('/').pop();
+            try {
+                const r = await apiFetch('/api/device/' + this.deviceId + '/config');
+                if (r && r.ok) {
+                    const d = await r.json();
+                    if (d.code === 0 && d.data) {
+                        Object.assign(this.config, d.data);
+                    }
+                }
+            } catch(e) { console.error(e); } finally { this.loading = false; }
+        },
+        async save() {
+            this.saving = true; this.msg = '';
+            try {
+                const r = await apiFetch('/api/device/' + this.deviceId + '/config', {
+                    method: 'PUT', body: JSON.stringify(this.config)
+                });
+                if (!r) return;
+                if (r.ok) { this.msg = '配置已保存'; this.msgType = 'ok'; }
+                else { const d = await r.json(); this.msg = d.detail || '保存失败'; this.msgType = 'err'; }
+            } catch(e) { this.msg = '网络错误'; this.msgType = 'err'; } finally { this.saving = false; }
+        }
+    };
+}
+</script>
+{% endblock %}
