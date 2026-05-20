@@ -244,6 +244,18 @@ async def register():
         return f.read()
 
 
+@app.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password():
+    with open("templates/forgot-password.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
+@app.get("/reset-password", response_class=HTMLResponse)
+async def reset_password():
+    with open("templates/reset-password.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
 @app.get("/change-password", response_class=HTMLResponse)
 async def change_password_page():
     with open("templates/change-password.html", "r", encoding="utf-8") as f:

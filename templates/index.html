@@ -252,6 +252,10 @@
 
             try {
                 const response = await fetch('/api/devices');
+                if (response.status === 401) {
+                    renderError('登录后可查看设备信息');
+                    return;
+                }
                 if (!response.ok) {
                     throw new Error('服务器响应异常（状态码：' + response.status + '）');
                 }
@@ -321,14 +325,18 @@
             }
         }
 
-        function init() {
+        async function init() {
             var unauthDiv = document.getElementById('unauth-buttons');
             var authDiv = document.getElementById('auth-user-info');
             if (unauthDiv) unauthDiv.style.display = 'flex';
             if (authDiv) authDiv.style.display = 'none';
-            checkLoginStatus();
-            fetchDevices();
-            setInterval(fetchDevices, 30000);
+            var isLoggedIn = await checkLoginStatus();
+            if (isLoggedIn) {
+                fetchDevices();
+                setInterval(fetchDevices, 30000);
+            } else {
+                renderError('登录后可查看设备信息');
+            }
         }
 
         window.addEventListener('DOMContentLoaded', init);

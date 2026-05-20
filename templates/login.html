@@ -205,8 +205,8 @@ body {
   </form>
 
   <div class="footer-links">
-    <a href="forgot-password.html">忘记密码？</a>
-    <a href="register.html">注册账号</a>
+    <a href="/forgot-password">忘记密码？</a>
+    <a href="/register">注册账号</a>
   </div>
 </div>
 
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (data) {
       if (data.code === 0) {
         localStorage.setItem('username', data.data.username || account);
-        window.location.href = 'index.html';
+        window.location.href = '/';
       } else {
         showMessage(data.message || '登录失败', 'error');
         btnSubmit.textContent = '登录';

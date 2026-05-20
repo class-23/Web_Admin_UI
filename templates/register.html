@@ -361,7 +361,7 @@ body {
   </form>
 
   <div class="footer-link">
-    已有账号？<a href="login.html">立即登录</a>
+    已有账号？<a href="/login">立即登录</a>
   </div>
 </div>
 
@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (data.code === 0) {
         showMessage('注册成功！即将跳转登录页...', 'success');
         setTimeout(function () {
-          window.location.href = 'login.html';
+          window.location.href = '/login';
         }, 1500);
       } else {
         showMessage(data.message || '注册失败', 'error');
