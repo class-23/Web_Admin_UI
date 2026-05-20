@@ -5,6 +5,7 @@ from fastapi import Response, Request, HTTPException, Depends
 import psycopg2.extras
 from login import config
 from login.database import get_db
+from login.password_policy import PASSWORD_MAX_BYTES_MESSAGE, validate_password_max_bytes
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -14,7 +15,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    validate_password_max_bytes(password)
+    try:
+        return pwd_context.hash(password)
+    except ValueError as exc:
+        if "72 bytes" in str(exc):
+            raise ValueError(PASSWORD_MAX_BYTES_MESSAGE) from exc
+        raise
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
