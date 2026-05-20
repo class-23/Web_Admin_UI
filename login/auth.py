@@ -5,6 +5,8 @@ from fastapi import Response, Request, HTTPException, Depends
 import psycopg2.extras
 from login import config
 from login.database import get_db
+from login.password_policy import PASSWORD_MAX_BYTES_MESSAGE, validate_password_max_bytes
+from login.time_utils import is_newer_than_issued_at
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -14,7 +16,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    validate_password_max_bytes(password)
+    try:
+        return pwd_context.hash(password)
+    except ValueError as exc:
+        if "72 bytes" in str(exc):
+            raise ValueError(PASSWORD_MAX_BYTES_MESSAGE) from exc
+        raise
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
@@ -69,10 +77,8 @@ def get_current_user_from_cookie(request: Request, db):
         if user is None:
             return None
         iat = payload.get("iat")
-        if iat is not None and user["password_changed_at"] is not None:
-            iat_dt = datetime.fromtimestamp(iat, tz=timezone.utc)
-            if user["password_changed_at"] > iat_dt:
-                return None
+        if is_newer_than_issued_at(user["password_changed_at"], iat):
+            return None
         return user
     except JWTError:
         return None
@@ -103,10 +109,8 @@ def require_auth(request: Request, response: Response, db = Depends(get_db)):
         raise HTTPException(status_code=401, detail="用户不存在，请重新登录")
 
     iat = payload.get("iat")
-    if iat is not None and user["password_changed_at"] is not None:
-        iat_dt = datetime.fromtimestamp(iat, tz=timezone.utc)
-        if user["password_changed_at"] > iat_dt:
-            clear_auth_cookie(response)
-            raise HTTPException(status_code=401, detail="密码已变更，请重新登录")
+    if is_newer_than_issued_at(user["password_changed_at"], iat):
+        clear_auth_cookie(response)
+        raise HTTPException(status_code=401, detail="密码已变更，请重新登录")
 
     return user

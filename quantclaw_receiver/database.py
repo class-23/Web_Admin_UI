@@ -8,13 +8,44 @@ from __future__ import annotations
 
 import psycopg2
 import psycopg2.extras
+from psycopg2 import sql
 from psycopg2.pool import ThreadedConnectionPool
 from datetime import datetime, timezone
 from typing import Any, Callable, Optional
 
 from .config import QuantClawConfig
 from .exceptions import DatabaseError
-from .utils import as_bool, as_int, row_to_device, server_time_str
+from .utils import as_bool, as_int, format_server_time, row_to_device, server_time_str
+
+
+DEVICE_COLUMNS = {
+    "user_id": "INTEGER NOT NULL DEFAULT 1",
+    "device_name": "VARCHAR(100) NOT NULL DEFAULT ''",
+    "mac": "VARCHAR(17) NOT NULL",
+    "hostname": "VARCHAR(128) NOT NULL DEFAULT ''",
+    "model": "VARCHAR(128) NOT NULL DEFAULT ''",
+    "firmware_version": "VARCHAR(64) NOT NULL DEFAULT ''",
+    "ip": "VARCHAR(64) NOT NULL DEFAULT ''",
+    "ssid": "VARCHAR(128) NOT NULL DEFAULT ''",
+    "internet_available": "BOOLEAN NOT NULL DEFAULT FALSE",
+    "status": "device_status NOT NULL DEFAULT 'registered'",
+    "heartbeat_interval_sec": "INTEGER NOT NULL DEFAULT 60",
+    "ttyd_enabled": "BOOLEAN NOT NULL DEFAULT FALSE",
+    "ttyd_port": "INTEGER NOT NULL DEFAULT 7681",
+    "mdns_host": "VARCHAR(128) NOT NULL DEFAULT ''",
+    "http_port": "INTEGER NOT NULL DEFAULT 80",
+    "access_scope": "VARCHAR(32) NOT NULL DEFAULT 'lan'",
+    "interfaces_json": "TEXT",
+    "device_secret": "VARCHAR(100) NOT NULL DEFAULT ''",
+    "is_quant": "BOOLEAN NOT NULL DEFAULT FALSE",
+    "paired_at": "TIMESTAMPTZ",
+    "first_seen_at": "TIMESTAMPTZ NOT NULL DEFAULT NOW()",
+    "last_seen_at": "TIMESTAMPTZ NOT NULL DEFAULT NOW()",
+    "created_at": "TIMESTAMPTZ NOT NULL DEFAULT NOW()",
+    "updated_at": "TIMESTAMPTZ NOT NULL DEFAULT NOW()",
+}
+
+TIMESTAMPTZ_DEVICE_COLUMNS = ("paired_at", "first_seen_at", "last_seen_at", "created_at", "updated_at")
 
 
 class DatabaseManager:
@@ -31,11 +62,144 @@ class DatabaseManager:
             password=config.pg_password,
             dbname=config.pg_dbname,
         )
+        self._schema_initialized = False
+
+    def ensure_schema(self) -> None:
+        """确保旧版设备表 schema 已初始化，可供 main.py 旧路径直接使用。"""
+        if self._schema_initialized:
+            return
+
+        conn = self._pool.getconn()
+        try:
+            cur = conn.cursor()
+            cur.execute("SET TIME ZONE 'UTC'")
+            self._ensure_device_status_enum(cur)
+            self._ensure_devices_table(cur)
+            self._ensure_devices_columns(cur)
+            self._ensure_devices_indexes(cur)
+            conn.commit()
+            cur.close()
+            self._schema_initialized = True
+        except psycopg2.Error:
+            conn.rollback()
+            raise
+        finally:
+            self._pool.putconn(conn)
+
+    def _ensure_device_status_enum(self, cur) -> None:
+        cur.execute(
+            """
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'device_status') THEN
+                    CREATE TYPE device_status AS ENUM ('registered', 'online', 'offline', 'disconnected', 'unknown');
+                END IF;
+            END
+            $$;
+            """
+        )
+
+    def _ensure_devices_table(self, cur) -> None:
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS devices (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL DEFAULT 1,
+                device_name VARCHAR(100) NOT NULL DEFAULT '',
+                mac VARCHAR(17) NOT NULL,
+                hostname VARCHAR(128) NOT NULL DEFAULT '',
+                model VARCHAR(128) NOT NULL DEFAULT '',
+                firmware_version VARCHAR(64) NOT NULL DEFAULT '',
+                ip VARCHAR(64) NOT NULL DEFAULT '',
+                ssid VARCHAR(128) NOT NULL DEFAULT '',
+                internet_available BOOLEAN NOT NULL DEFAULT FALSE,
+                status device_status NOT NULL DEFAULT 'registered',
+                heartbeat_interval_sec INTEGER NOT NULL DEFAULT 60,
+                ttyd_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                ttyd_port INTEGER NOT NULL DEFAULT 7681,
+                mdns_host VARCHAR(128) NOT NULL DEFAULT '',
+                http_port INTEGER NOT NULL DEFAULT 80,
+                access_scope VARCHAR(32) NOT NULL DEFAULT 'lan',
+                interfaces_json TEXT,
+                device_secret VARCHAR(100) NOT NULL DEFAULT '',
+                is_quant BOOLEAN NOT NULL DEFAULT FALSE,
+                paired_at TIMESTAMPTZ,
+                first_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            )
+            """
+        )
+
+    def _ensure_devices_columns(self, cur) -> None:
+        for column_name, column_definition in DEVICE_COLUMNS.items():
+            cur.execute(
+                sql.SQL("ALTER TABLE devices ADD COLUMN IF NOT EXISTS {column_name} {column_definition}").format(
+                    column_name=sql.Identifier(column_name),
+                    column_definition=sql.SQL(column_definition),
+                )
+            )
+
+        for column_name in TIMESTAMPTZ_DEVICE_COLUMNS:
+            cur.execute(
+                """
+                SELECT data_type
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND table_name = 'devices'
+                  AND column_name = %s
+                """,
+                (column_name,),
+            )
+            row = cur.fetchone()
+            if row and row[0] == "timestamp without time zone":
+                cur.execute(
+                    sql.SQL(
+                        """
+                        ALTER TABLE devices
+                        ALTER COLUMN {column_name}
+                        TYPE TIMESTAMPTZ
+                        USING {column_name} AT TIME ZONE 'UTC'
+                        """
+                    ).format(column_name=sql.Identifier(column_name))
+                )
+
+        cur.execute("ALTER TABLE devices ALTER COLUMN mac SET NOT NULL")
+        cur.execute("ALTER TABLE devices ALTER COLUMN user_id SET DEFAULT 1")
+
+    def _ensure_devices_indexes(self, cur) -> None:
+        cur.execute(
+            """
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conname = 'devices_mac_unique'
+                ) THEN
+                    ALTER TABLE devices ADD CONSTRAINT devices_mac_unique UNIQUE (mac);
+                END IF;
+            END
+            $$;
+            """
+        )
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_user_last_seen ON devices (user_id, last_seen_at DESC)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_status ON devices (status)")
+
+    def _prepare_connection(self, conn) -> None:
+        cur = conn.cursor()
+        try:
+            cur.execute("SET TIME ZONE 'UTC'")
+        finally:
+            cur.close()
 
     def with_db(self, fn: Callable[[Any], Any]) -> Any:
         """线程安全的数据库操作包装器"""
+        self.ensure_schema()
         conn = self._pool.getconn()
         try:
+            self._prepare_connection(conn)
             return fn(conn)
         except psycopg2.Error as e:
             raise DatabaseError(f"数据库错误: {str(e)}") from e
@@ -351,7 +515,7 @@ class DatabaseManager:
 
             return {
                 "online": is_online,
-                "lastSeenAt": row["last_seen_at"],
+                "lastSeenAt": format_server_time(row["last_seen_at"]),
                 "status": row["status"],
                 "internetAvailable": bool(row["internet_available"]),
                 "lastIp": row["ip"],

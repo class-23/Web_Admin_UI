@@ -108,12 +108,24 @@ def server_time_str() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def parse_server_time(s: str) -> Optional[datetime]:
-    """解析服务器时间字符串"""
+def parse_server_time(s: Any) -> Optional[datetime]:
+    """解析服务器时间字符串或数据库 datetime，并统一转为 UTC。"""
+    if isinstance(s, datetime):
+        if s.tzinfo is None:
+            s = s.replace(tzinfo=timezone.utc)
+        return s.astimezone(timezone.utc)
     try:
         return datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
     except (TypeError, ValueError):
         return None
+
+
+def format_server_time(value: Any) -> str:
+    """将服务器时间统一格式化为 UTC Z 字符串。"""
+    dt = parse_server_time(value)
+    if dt is None:
+        return ""
+    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def as_bool(v: Any) -> bool:
@@ -263,7 +275,7 @@ def row_to_device(row: dict[str, Any], now: datetime) -> dict[str, Any]:
         "lastSsid": row["ssid"],
         "internetAvailable": bool(row["internet_available"]),
         "status": row["status"],
-        "lastSeenAt": row["last_seen_at"],
+        "lastSeenAt": format_server_time(row["last_seen_at"]),
         "isOnline": is_online,
         "ttydEnabled": bool(row["ttyd_enabled"]),
         "ttydPort": row["ttyd_port"],

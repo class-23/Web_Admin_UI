@@ -52,7 +52,10 @@ def register(request: Request, req: RegisterRequest, db = Depends(get_db)):
         cur.close()
         raise HTTPException(status_code=409, detail="该用户名已存在")
 
-    hashed_pw = get_password_hash(req.password)
+    try:
+        hashed_pw = get_password_hash(req.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     cur.execute(
         "INSERT INTO users (phone, username, password, miyao_key) VALUES (%s,%s,%s,%s) RETURNING id",
         (req.phone, req.username, hashed_pw, req.secret_key)
@@ -140,7 +143,10 @@ def forgot_password_reset(request: Request, req: ResetPasswordRequest, db = Depe
     if user is None:
         cur.close()
         raise HTTPException(status_code=400, detail="用户不存在")
-    hashed = get_password_hash(req.password)
+    try:
+        hashed = get_password_hash(req.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     cur.execute(
         "UPDATE users SET password = %s, password_changed_at = NOW(), updated_at = NOW() WHERE phone = %s",
         (hashed, phone)
@@ -188,7 +194,10 @@ def change_password(request: Request, response: Response, req: ChangePasswordReq
     if req.old_password == req.new_password:
         raise HTTPException(status_code=400, detail="新密码不能与旧密码相同")
 
-    hashed = get_password_hash(req.new_password)
+    try:
+        hashed = get_password_hash(req.new_password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     cur = db.cursor()
     cur.execute(
         "UPDATE users SET password = %s, password_changed_at = NOW(), updated_at = NOW() WHERE id = %s",

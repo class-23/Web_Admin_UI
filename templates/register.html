@@ -392,6 +392,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var countdownTimer = null;
   var countdownSeconds = 0;
+  var PASSWORD_MAX_BYTES = 72;
+  var PASSWORD_MAX_BYTES_MESSAGE = '密码最多支持72字节（约72个英文字符，包含中文或其他特殊字符时上限更低）';
 
   function showMessage(text, type) {
     messageBox.textContent = text;
@@ -424,6 +426,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function validateSecretKey(value) {
     return /^[a-zA-Z0-9]+$/.test(value);
+  }
+
+  function getUtf8ByteLength(value) {
+    return new TextEncoder().encode(value).length;
+  }
+
+  function getErrorMessage(data, fallback) {
+    if (data && typeof data.message === 'string' && data.message) {
+      return data.message;
+    }
+    if (data && typeof data.detail === 'string' && data.detail) {
+      return data.detail;
+    }
+    if (data && Array.isArray(data.detail) && data.detail.length > 0) {
+      var firstError = data.detail[0];
+      if (firstError && typeof firstError.msg === 'string' && firstError.msg) {
+        return firstError.msg;
+      }
+    }
+    return fallback;
+  }
+
+  function validateRegisterPassword(value) {
+    if (!value || value.length < 8) {
+      return '密码长度至少为8位';
+    }
+    if (getUtf8ByteLength(value) > PASSWORD_MAX_BYTES) {
+      return PASSWORD_MAX_BYTES_MESSAGE;
+    }
+    if (!/[a-z]/.test(value)) {
+      return '密码必须包含小写字母';
+    }
+    if (!/[A-Z]/.test(value)) {
+      return '密码必须包含大写字母';
+    }
+    if (!/\d/.test(value)) {
+      return '密码必须包含数字';
+    }
+    return '';
+  }
+
+  function validateConfirmPassword(password, confirmPassword) {
+    if (!confirmPassword) {
+      return '请再次输入密码';
+    }
+    if (password !== confirmPassword) {
+      return '两次密码输入不一致';
+    }
+    return '';
   }
 
   function getPasswordStrength(password) {
@@ -498,7 +549,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   passwordInput.addEventListener('input', function () {
-    updateStrengthBar(passwordInput.value);
+    var password = passwordInput.value;
+    updateStrengthBar(password);
+    setError(passwordError, passwordInput, validateRegisterPassword(password));
+    setError(
+      confirmPasswordError,
+      confirmPasswordInput,
+      validateConfirmPassword(password, confirmPasswordInput.value)
+    );
+  });
+
+  passwordInput.addEventListener('blur', function () {
+    setError(passwordError, passwordInput, validateRegisterPassword(passwordInput.value));
   });
 
   secretKeyInput.addEventListener('input', function () {
@@ -520,19 +582,13 @@ document.addEventListener('DOMContentLoaded', function () {
   confirmPasswordInput.addEventListener('input', function () {
     var pw = passwordInput.value;
     var cpw = confirmPasswordInput.value;
-    if (cpw && pw !== cpw) {
-      setError(confirmPasswordError, confirmPasswordInput, '两次密码输入不一致');
-    } else {
-      setError(confirmPasswordError, confirmPasswordInput, '');
-    }
+    setError(confirmPasswordError, confirmPasswordInput, validateConfirmPassword(pw, cpw));
   });
 
   confirmPasswordInput.addEventListener('blur', function () {
     var pw = passwordInput.value;
     var cpw = confirmPasswordInput.value;
-    if (cpw && pw !== cpw) {
-      setError(confirmPasswordError, confirmPasswordInput, '两次密码输入不一致');
-    }
+    setError(confirmPasswordError, confirmPasswordInput, validateConfirmPassword(pw, cpw));
   });
 
   btnSendCode.addEventListener('click', function () {
@@ -619,19 +675,20 @@ document.addEventListener('DOMContentLoaded', function () {
       setError(secretKeyError, secretKeyInput, '');
     }
 
-    if (!password || password.length < 8) {
-      setError(passwordError, passwordInput, '密码至少需要8位');
+    var passwordValidationMessage = validateRegisterPassword(password);
+    if (passwordValidationMessage) {
+      setError(passwordError, passwordInput, passwordValidationMessage);
       valid = false;
     } else {
       setError(passwordError, passwordInput, '');
     }
 
-    if (!confirmPassword) {
-      setError(confirmPasswordError, confirmPasswordInput, '请再次输入密码');
+    var confirmPasswordValidationMessage = validateConfirmPassword(password, confirmPassword);
+    if (confirmPasswordValidationMessage) {
+      setError(confirmPasswordError, confirmPasswordInput, confirmPasswordValidationMessage);
       valid = false;
-    } else if (password !== confirmPassword) {
-      setError(confirmPasswordError, confirmPasswordInput, '两次密码输入不一致');
-      valid = false;
+    } else {
+      setError(confirmPasswordError, confirmPasswordInput, '');
     }
 
     if (!valid) return;
@@ -659,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function () {
           window.location.href = '/login';
         }, 1500);
       } else {
-        showMessage(data.message || '注册失败', 'error');
+        showMessage(getErrorMessage(data, '注册失败'), 'error');
         btnSubmit.textContent = '注册';
         btnSubmit.disabled = false;
       }

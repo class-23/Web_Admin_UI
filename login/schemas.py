@@ -1,6 +1,11 @@
 import re
 from typing import Optional
 from pydantic import BaseModel, field_validator, model_validator
+from login.password_policy import (
+    validate_change_password,
+    validate_register_password,
+    validate_reset_password,
+)
 
 
 class ApiResponse(BaseModel):
@@ -48,15 +53,7 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password(cls, v):
-        if len(v) < 8:
-            raise ValueError("密码长度至少为8位")
-        if not re.search(r"[a-z]", v):
-            raise ValueError("密码必须包含小写字母")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("密码必须包含大写字母")
-        if not re.search(r"\d", v):
-            raise ValueError("密码必须包含数字")
-        return v
+        return validate_register_password(v)
 
     @model_validator(mode="after")
     def validate_passwords_match(self):
@@ -121,15 +118,7 @@ class ResetPasswordRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password(cls, v):
-        if len(v) < 8:
-            raise ValueError("密码长度至少为8位")
-        if not re.search(r"[a-zA-Z]", v):
-            raise ValueError("密码必须包含字母")
-        if not re.search(r"\d", v):
-            raise ValueError("密码必须包含数字")
-        if not re.search(r"[^a-zA-Z0-9]", v):
-            raise ValueError("密码必须包含特殊符号")
-        return v
+        return validate_reset_password(v)
 
     @model_validator(mode="after")
     def validate_passwords_match(self):
@@ -150,15 +139,7 @@ class ChangePasswordRequest(BaseModel):
     @field_validator("new_password")
     @classmethod
     def validate_new_password(cls, v):
-        if len(v) < 8:
-            raise ValueError("密码长度至少为8位")
-        if not re.search(r"[a-z]", v):
-            raise ValueError("密码必须包含小写字母")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("密码必须包含大写字母")
-        if not re.search(r"\d", v):
-            raise ValueError("密码必须包含数字")
-        return v
+        return validate_change_password(v)
 
     @model_validator(mode="after")
     def validate_passwords_match(self):
