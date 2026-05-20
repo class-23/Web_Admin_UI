@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}控制面板 - QuantClaw{% endblock %}
+{% block content %}
+<div x-data="dashboardApp()" x-init="load()">
+    <div class="flex justify-between items-center mb-5">
+        <div>
+            <h1 class="page-title">控制面板</h1>
+            <p class="page-subtitle">管理您的设备和配置</p>
+        </div>
+        <button @click="load()" class="btn-ghost" style="font-size:0.75rem">刷新</button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="card p-5">
+            <div class="stat-label">设备总数</div>
+            <div class="stat-value" style="color:var(--accent)" x-text="stats.total">-</div>
+        </div>
+        <div class="card p-5">
+            <div class="stat-label">在线设备</div>
+            <div class="stat-value" style="color:var(--green)" x-text="stats.online">-</div>
+        </div>
+        <div class="card p-5">
+            <div class="stat-label">离线设备</div>
+            <div class="stat-value" style="color:var(--red)" x-text="stats.offline">-</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="px-5 py-4 flex justify-between items-center" style="border-bottom:1px solid var(--border)">
+            <h2 style="font-size:0.9375rem;font-weight:600;color:var(--text-primary)">我的设备</h2>
+        </div>
+        <div x-show="loading" class="p-10 text-center"><div class="spinner" style="margin:0 auto"></div></div>
+        <div x-show="!loading && devices.length === 0" class="p-10 text-center text-muted" style="font-size:0.8125rem">
+            暂无设备 — 设备将通过 UDP 广播或 HTTP 端点自动注册
+        </div>
+        <div x-show="!loading && devices.length > 0" class="divide-y" style="border-color:var(--border)">
+            <template x-for="d in devices" :key="d.id">
+                <a :href="'/device/' + d.id" class="flex items-center justify-between px-5 py-3.5" style="text-decoration:none;color:inherit;transition:background 0.1s" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='transparent'">
+                    <div>
+                        <div style="font-weight:600;color:var(--text-primary);font-size:0.875rem" x-text="d.hostname || d.mac"></div>
+                        <div class="text-muted" style="font-family:var(--font-mono);font-size:0.6875rem" x-text="d.mac"></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span style="display:inline-flex;align-items:center;font-size:0.75rem;font-weight:500"
+                              :style="d.isOnline ? 'color:var(--green)' : 'color:var(--text-muted)'">
+                            <span class="status-dot" :class="d.isOnline ? 'status-online' : 'status-offline'"></span>
+                            <span x-text="d.isOnline ? 'Online' : 'Offline'"></span>
+                        </span>
+                        <svg class="w-4 h-4" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                </a>
+            </template>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function dashboardApp() {
+    return {
+        devices: [], stats: { total: 0, online: 0, offline: 0 }, loading: true,
+        async load() {
+            if (!checkAuth()) return;
+            this.loading = true;
+            try {
+                const r = await apiFetch('/api/devices');
+                if (!r) return;
+                const d = await r.json();
+                if (d.code === 0 && d.data) {
+                    const devices = d.data.devices || [];
+                    this.devices = devices;
+                    this.stats.total = devices.length;
+                    this.stats.online = devices.filter(x => x.isOnline).length;
+                    this.stats.offline = devices.filter(x => !x.isOnline).length;
+                }
+            } catch(e) { console.error(e); } finally { this.loading = false; }
+        }
+    };
+}
+</script>
+{% endblock %}

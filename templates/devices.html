@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}设备管理 - QuantClaw{% endblock %}
+{% block content %}
+<div x-data="devicesApp()" x-init="load()">
+    <div class="flex justify-between items-center mb-5">
+        <div>
+            <h1 class="page-title">设备管理</h1>
+            <p class="page-subtitle">所有已注册设备列表</p>
+        </div>
+        <button @click="load()" class="btn-ghost" style="font-size:0.75rem">刷新</button>
+    </div>
+
+    <div x-show="loading" class="text-center py-16"><div class="spinner" style="margin:0 auto"></div></div>
+
+    <div x-show="!loading && devices.length === 0" class="card p-12 text-center">
+        <div style="color:var(--text-muted);font-size:0.875rem;margin-bottom:0.5rem">暂无设备</div>
+        <div style="color:var(--text-muted);font-size:0.75rem">设备将通过 UDP 广播或 HTTP 端点自动注册</div>
+    </div>
+
+    <div x-show="!loading && devices.length > 0" class="card overflow-hidden">
+        <table class="table-dark">
+            <thead>
+                <tr>
+                    <th>主机名</th>
+                    <th>MAC 地址</th>
+                    <th>IP 地址</th>
+                    <th>状态</th>
+                    <th>最后心跳</th>
+                    <th style="width:100px;text-align:right">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="d in devices" :key="d.id">
+                    <tr>
+                        <td>
+                            <div style="color:var(--text-primary);font-weight:500" x-text="d.hostname || '-'"></div>
+                            <div class="text-muted" style="font-size:0.6875rem" x-text="d.model || ''"></div>
+                        </td>
+                        <td style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-primary)" x-text="d.mac"></td>
+                        <td style="font-family:var(--font-mono);font-size:0.75rem" x-text="d.lastIp || '-'"></td>
+                        <td>
+                            <span style="display:inline-flex;align-items:center;font-size:0.75rem;font-weight:500"
+                                  :style="d.isOnline ? 'color:var(--green)' : 'color:var(--text-muted)'">
+                                <span class="status-dot" :class="d.isOnline ? 'status-online' : 'status-offline'"></span>
+                                <span x-text="d.isOnline ? 'Online' : 'Offline'"></span>
+                            </span>
+                        </td>
+                        <td style="font-size:0.75rem" x-text="d.lastSeenAt ? new Date(d.lastSeenAt.endsWith('Z')?d.lastSeenAt:d.lastSeenAt+'Z').toLocaleString('zh-CN') : '-'"></td>
+                        <td style="text-align:right">
+                            <a :href="'/device/' + d.id" style="color:var(--accent);font-size:0.75rem;text-decoration:none;font-weight:500;margin-right:0.75rem">详情</a>
+                            <a :href="'/config/' + d.id" class="text-muted" style="font-size:0.75rem;text-decoration:none">配置</a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function devicesApp() {
+    return {
+        devices: [], loading: true,
+        async load() {
+            if (!checkAuth()) return;
+            this.loading = true;
+            try {
+                const r = await apiFetch('/api/devices');
+                if (!r) return;
+                const d = await r.json();
+                if (d.code === 0 && d.data) {
+                    this.devices = d.data.devices || [];
+                }
+            } catch(e) { console.error(e); } finally { this.loading = false; }
+        }
+    };
+}
+</script>
+{% endblock %}

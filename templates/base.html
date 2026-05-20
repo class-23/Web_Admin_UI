@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QuantClaw{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-deep:       #080c12;
+            --bg-card:       #0f1419;
+            --bg-elevated:   #151b23;
+            --bg-input:      #0a0f14;
+            --border:        #1a2332;
+            --border-hover:  #253040;
+            --accent:        #2dd4bf;
+            --accent-glow:   #14b8a6;
+            --accent-dim:    #0d9488;
+            --text-primary:  #e6edf3;
+            --text-secondary:#8b949e;
+            --text-muted:    #484f58;
+            --green:         #3fb950;
+            --green-glow:    #2ea043;
+            --red:           #f85149;
+            --red-glow:      #da3633;
+            --amber:         #d2991d;
+            --font-mono:     'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+            --font-sans:     'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+        }
+
+        nav, main { position: relative; z-index: 1; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .nav-link {
+            color: var(--text-secondary);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: color 0.15s, background-color 0.15s;
+            text-decoration: none;
+        }
+        .nav-link:hover { color: var(--text-primary); background-color: var(--bg-elevated); }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            transition: border-color 0.2s;
+        }
+        .card:hover { border-color: var(--border-hover); }
+
+        .status-dot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .status-online  { background: var(--green); box-shadow: 0 0 6px var(--green-glow); }
+        .status-offline { background: var(--text-muted); }
+        .status-disconnected { background: var(--red); box-shadow: 0 0 6px var(--red-glow); }
+
+        .btn-accent {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--accent-dim), var(--accent-glow));
+            color: #080c12; font-weight: 600; font-size: 0.8125rem;
+            padding: 0.5rem 1.25rem; border-radius: 0.375rem; border: none;
+            transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+            cursor: pointer; text-decoration: none;
+        }
+        .btn-accent:hover { opacity: 0.9; box-shadow: 0 0 16px rgba(45,212,191,0.25); }
+        .btn-accent:active { transform: scale(0.98); }
+        .btn-accent:disabled { opacity: 0.4; pointer-events: none; }
+
+        .btn-ghost {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: transparent; color: var(--text-secondary);
+            font-size: 0.8125rem; font-weight: 500;
+            padding: 0.5rem 1rem; border-radius: 0.375rem;
+            border: 1px solid var(--border);
+            transition: color 0.15s, border-color 0.15s, background 0.15s;
+            cursor: pointer; text-decoration: none;
+        }
+        .btn-ghost:hover { color: var(--text-primary); border-color: var(--border-hover); background: var(--bg-elevated); }
+
+        .btn-danger {
+            background: transparent; color: var(--red); border: 1px solid transparent;
+            font-size: 0.8125rem; padding: 0.375rem 0.75rem; border-radius: 0.375rem;
+            transition: background 0.15s; cursor: pointer;
+        }
+        .btn-danger:hover { background: rgba(248,81,73,0.1); }
+
+        .input-dark {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+        .input-dark::placeholder { color: var(--text-muted); }
+        .input-dark:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(45,212,191,0.1);
+        }
+        select.input-dark { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b949e'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2rem; }
+        textarea.input-dark { resize: vertical; min-height: 80px; }
+
+        .label-dark {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.375rem;
+        }
+
+        .table-dark { width: 100%; border-collapse: collapse; }
+        .table-dark th {
+            text-align: left; padding: 0.625rem 1rem;
+            font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+        }
+        .table-dark td {
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        .table-dark tbody tr { transition: background 0.1s; }
+        .table-dark tbody tr:hover { background: var(--bg-elevated); }
+
+        .alert { padding: 0.75rem 1rem; border-radius: 0.375rem; font-size: 0.8125rem; }
+        .alert-error   { background: rgba(248,81,73,0.08);  border: 1px solid rgba(248,81,73,0.25);  color: var(--red); }
+        .alert-success { background: rgba(63,185,80,0.08);  border: 1px solid rgba(63,185,80,0.25);  color: var(--green); }
+        .alert-warning { background: rgba(210,153,29,0.08); border: 1px solid rgba(210,153,29,0.25); color: var(--amber); }
+
+        .font-mono { font-family: var(--font-mono); }
+        .text-accent { color: var(--accent); }
+        .text-muted { color: var(--text-muted); }
+        .text-secondary { color: var(--text-secondary); }
+
+        .glow-pulse {
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 4px var(--green-glow); }
+            50%      { box-shadow: 0 0 12px var(--green), 0 0 24px var(--green-glow); }
+        }
+
+        .spinner {
+            width: 1.25rem; height: 1.25rem;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .page-title {
+            font-size: 1.375rem; font-weight: 700; color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+        .page-subtitle {
+            font-size: 0.8125rem; color: var(--text-secondary); margin-top: 0.25rem;
+        }
+
+        .stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body>
+    <nav x-data="{ open: false }" style="background:var(--bg-card);border-bottom:1px solid var(--border)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14">
+                <div class="flex items-center space-x-6">
+                    <a href="/" class="flex items-center space-x-2 no-underline" style="color:var(--accent);font-weight:700;font-size:1rem;letter-spacing:-0.01em;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                        QuantClaw
+                    </a>
+                    <template x-if="localStorage.getItem('token')">
+                        <div class="hidden sm:flex space-x-1">
+                            <a href="/dashboard" class="nav-link">控制面板</a>
+                            <a href="/devices" class="nav-link">设备管理</a>
+                        </div>
+                    </template>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <template x-if="localStorage.getItem('token')">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm" style="color:var(--text-muted);font-size:0.75rem" x-text="localStorage.getItem('username') || ''"></span>
+                            <button @click="localStorage.removeItem('token'); localStorage.removeItem('username'); window.location.href='/login'" class="btn-danger" style="font-size:0.75rem">退出</button>
+                        </div>
+                    </template>
+                    <template x-if="!localStorage.getItem('token')">
+                        <div class="space-x-2 flex items-center">
+                            <a href="/login" class="btn-ghost" style="font-size:0.75rem">登录</a>
+                            <a href="/register" class="btn-accent" style="font-size:0.75rem;padding:0.375rem 0.875rem">注册</a>
+                        </div>
+                    </template>
+                    <button @click="open = !open" class="sm:hidden p-1.5" style="color:var(--text-muted);background:none;border:none;cursor:pointer">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div x-show="open" x-cloak class="sm:hidden" style="border-top:1px solid var(--border)">
+            <div class="px-4 py-2 space-y-1">
+                <a href="/dashboard" class="block py-2 nav-link">控制面板</a>
+                <a href="/devices" class="block py-2 nav-link">设备管理</a>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {% block content %}{% endblock %}
+    </main>
+    <script>
+        function authHeaders() {
+            const t = localStorage.getItem('token');
+            return t ? { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+        }
+        function checkAuth() {
+            if (!localStorage.getItem('token')) { window.location.href = '/login'; return false; }
+            return true;
+        }
+        async function apiFetch(url, opts = {}) {
+            opts.headers = { ...authHeaders(), ...(opts.headers || {}) };
+            const r = await fetch(url, opts);
+            if (r.status === 401) { localStorage.removeItem('token'); localStorage.removeItem('username'); window.location.href = '/login'; return null; }
+            return r;
+        }
+        function formatRelativeTime(ts) {
+            if (!ts) return '-';
+            try {
+                const then = new Date(ts.endsWith('Z') ? ts : ts + 'Z');
+                if (isNaN(then.getTime())) return ts;
+                const sec = Math.floor((Date.now() - then.getTime()) / 1000);
+                if (sec < 0) return ts;
+                if (sec < 60) return sec + 's ago';
+                if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+                if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+                return then.toLocaleDateString('zh-CN');
+            } catch { return ts; }
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
