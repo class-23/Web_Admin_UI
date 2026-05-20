@@ -29,6 +29,16 @@
             height: 24px;
             animation: spin 1s linear infinite;
         }
+        .action-card-disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        .action-card-disabled:hover {
+            border-color: rgb(243 244 246);
+        }
+        .toast-enter {
+            animation: fadeIn 0.25s ease-in-out;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -64,58 +74,55 @@
         </div>
 
         <!-- Cards Grid -->
-        <div id="main-content" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 fade-in">
+        <div id="main-content" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 fade-in">
             <!-- Card 1: 控制面板 -->
-            <div onclick="requireLogin('/login')" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow hover:border-blue-200 transition-colors cursor-pointer block">
+            <button id="control-panel-card" onclick="handleControlPanelClick()" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow hover:border-blue-200 transition-colors cursor-pointer text-left block w-full">
                 <div class="flex items-start mb-4">
                     <div class="p-2 bg-blue-50 rounded-lg text-blue-500 mr-4">
                         <i data-lucide="gauge" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-gray-800">控制面板</h2>
+                        <p class="text-xs text-gray-400 mt-1">自动探测 42617 / 6060 可用端口</p>
                     </div>
                 </div>
                 <div class="space-y-1">
-                    <p class="text-gray-500 text-sm flex items-center">
-                        初始密码：<code class="bg-gray-100 px-1.5 py-0.5 rounded text-gray-700 mx-1">openclaw123456</code>
-                    </p>
+                    
                 </div>
-            </div>
+            </button>
 
             <!-- Card 2: 文件管理 -->
-            <div onclick="requireLogin('/file_manager')" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow hover:border-blue-200 transition-colors cursor-pointer block">
+            <button id="file-manager-card" onclick="handleFileManagerClick()" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow hover:border-blue-200 transition-colors cursor-pointer text-left block w-full">
                 <div class="flex items-start">
                     <div class="p-2 bg-blue-50 rounded-lg text-blue-500 mr-4">
                         <i data-lucide="folder" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-gray-800">文件管理</h2>
+                        <p class="text-xs text-gray-400 mt-1">预留设备绑定入口，功能规划中</p>
                     </div>
                 </div>
-            </div>
+            </button>
 
             <!-- Card 3: 终端 -->
-            <div onclick="requireLogin('/login')" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow cursor-pointer">
+            <button id="terminal-card" onclick="handleTerminalClick()" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow cursor-pointer text-left block w-full">
                 <div class="flex items-start mb-4">
                     <div class="p-2 bg-blue-50 rounded-lg text-blue-500 mr-4">
                         <i data-lucide="layout-grid" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-gray-800">终端</h2>
+                        <p class="text-xs text-gray-400 mt-1">固定跳转到设备的 7681 端口</p>
                     </div>
                 </div>
                 <div class="space-y-1">
-                    <p class="text-gray-500 text-sm">
-                        登录盒子的用户名：<code class="bg-gray-100 px-1.5 py-0.5 rounded text-gray-700 mx-1">root</code>
-                    </p>
-                    <p class="text-gray-500 text-sm">
-                        初始密码：<code class="bg-gray-100 px-1.5 py-0.5 rounded text-gray-700 mx-1">openclaw</code>
-                    </p>
+                
+                
                 </div>
-            </div>
+            </button>
 
             <!-- Card 4: 教程 -->
-            <div onclick="requireLogin('/login')" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow cursor-pointer">
+            <button onclick="requireLogin('/login')" class="bg-white rounded-xl p-6 border border-gray-100 card-shadow cursor-pointer text-left block w-full">
                 <div class="flex items-start mb-4">
                     <div class="p-2 bg-blue-50 rounded-lg text-blue-500 mr-4">
                         <i data-lucide="book-open" class="w-6 h-6"></i>
@@ -124,6 +131,36 @@
                         <h2 class="text-lg font-bold text-gray-800">教程</h2>
                     </div>
                 </div>
+            </button>
+        </div>
+
+        <div id="device-selector-panel" class="bg-white rounded-xl border border-gray-100 card-shadow p-6 mb-8 fade-in">
+            <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-800 mb-2">当前操作设备</p>
+                    <label for="device-selector" class="sr-only">选择设备</label>
+                    <select id="device-selector" onchange="handleDeviceSelectionChange(this.value)" class="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                        <option value="">请选择已注册设备</option>
+                    </select>
+                    <p class="mt-2 text-xs text-gray-400">控制面板、终端和后续文件管理都将基于这里选择的设备执行。</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm min-w-0 md:min-w-[360px]">
+                    <div class="rounded-lg bg-gray-50 px-4 py-3 border border-gray-100">
+                        <p class="text-xs text-gray-400 mb-1">设备名称</p>
+                        <p id="selected-device-name" class="font-medium text-gray-700 truncate">未选择设备</p>
+                    </div>
+                    <div class="rounded-lg bg-gray-50 px-4 py-3 border border-gray-100">
+                        <p class="text-xs text-gray-400 mb-1">设备 IP</p>
+                        <p id="selected-device-ip" class="font-medium text-gray-700 truncate">-</p>
+                    </div>
+                    <div class="rounded-lg bg-gray-50 px-4 py-3 border border-gray-100">
+                        <p class="text-xs text-gray-400 mb-1">在线状态</p>
+                        <p id="selected-device-status" class="font-medium text-gray-700">未选择</p>
+                    </div>
+                </div>
+            </div>
+            <div id="device-action-hint" class="mt-4 rounded-lg bg-blue-50 text-blue-700 text-sm px-4 py-3 border border-blue-100">
+                请选择一台已注册设备后，再进入控制面板、终端或文件管理。
             </div>
         </div>
 
@@ -149,11 +186,49 @@
         openclawbox©2026
     </footer>
 
+    <div id="global-toast" class="fixed right-4 top-4 z-50 hidden max-w-sm rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-lg toast-enter"></div>
+
     <script>
         lucide.createIcons();
 
+        let cachedDevices = [];
+        let selectedDeviceMac = '';
+        let probeInProgress = false;
+
+        function getDisplayDeviceName(device, index) {
+            return device.hostname || device.mac || ('设备' + (index + 1));
+        }
+
+        function getSelectedDevice() {
+            if (!selectedDeviceMac) return null;
+            return cachedDevices.find(function(device) {
+                return device.mac === selectedDeviceMac;
+            }) || null;
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById('global-toast');
+            if (!toast) return;
+            const styles = {
+                info: 'border-blue-100 bg-blue-50 text-blue-700',
+                success: 'border-green-100 bg-green-50 text-green-700',
+                warning: 'border-yellow-100 bg-yellow-50 text-yellow-700',
+                error: 'border-red-100 bg-red-50 text-red-700'
+            };
+            toast.textContent = message;
+            toast.className = 'fixed right-4 top-4 z-50 max-w-sm rounded-lg border px-4 py-3 text-sm shadow-lg toast-enter ' + (styles[type] || styles.info);
+            toast.classList.remove('hidden');
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(function() {
+                toast.classList.add('hidden');
+            }, 3200);
+        }
+
         function handleFileManagerClick() {
-            window.location.href = '/file_manager';
+            if (!ensureDeviceSelected(true)) {
+                return;
+            }
+            showToast('文件管理功能规划中，暂未开放。', 'warning');
         }
 
         function getStatusBadge(device) {
@@ -165,11 +240,106 @@
             return '<span class="bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.5 rounded font-bold">未知</span>';
         }
 
+        function getStatusText(device) {
+            if (!device) return '未选择';
+            if (device.isOnline === true) return '在线';
+            if (device.isOnline === false) return '离线';
+            return '未知';
+        }
+
+        function getActionHint(device) {
+            if (!cachedDevices.length) {
+                return '当前还没有已注册设备，请先让设备完成注册上报。';
+            }
+            if (!device) {
+                return '请选择一台已注册设备后，再进入控制面板、终端或文件管理。';
+            }
+            if (!device.lastIp) {
+                return '当前设备尚未上报有效 IP，暂时无法打开控制面板或终端。';
+            }
+            if (device.isOnline === false) {
+                return '当前设备显示离线，仍可尝试访问，但可能会连接失败。';
+            }
+            return '当前设备已就绪，可直接进入控制面板或终端。';
+        }
+
+        function updateActionCards(device) {
+            const controlCard = document.getElementById('control-panel-card');
+            const terminalCard = document.getElementById('terminal-card');
+            const fileCard = document.getElementById('file-manager-card');
+            const hasDevice = !!device;
+            const hasIp = !!(device && device.lastIp);
+            const disableControlAndTerminal = !hasDevice || !hasIp || probeInProgress;
+            const disableFile = !hasDevice;
+
+            [controlCard, terminalCard].forEach(function(card) {
+                if (!card) return;
+                card.disabled = disableControlAndTerminal;
+                card.classList.toggle('action-card-disabled', disableControlAndTerminal);
+            });
+
+            if (fileCard) {
+                fileCard.disabled = disableFile;
+                fileCard.classList.toggle('action-card-disabled', disableFile);
+            }
+        }
+
+        function updateSelectedDeviceSummary(device) {
+            const nameEl = document.getElementById('selected-device-name');
+            const ipEl = document.getElementById('selected-device-ip');
+            const statusEl = document.getElementById('selected-device-status');
+            const hintEl = document.getElementById('device-action-hint');
+
+            if (nameEl) nameEl.textContent = device ? (device.hostname || device.mac || '未命名设备') : '未选择设备';
+            if (ipEl) ipEl.textContent = device && device.lastIp ? device.lastIp : '-';
+            if (statusEl) statusEl.textContent = getStatusText(device);
+            if (hintEl) {
+                hintEl.textContent = getActionHint(device);
+                hintEl.className = 'mt-4 rounded-lg text-sm px-4 py-3 border';
+                if (!device || !device.lastIp) {
+                    hintEl.classList.add('bg-yellow-50', 'text-yellow-700', 'border-yellow-100');
+                } else if (device.isOnline === false) {
+                    hintEl.classList.add('bg-orange-50', 'text-orange-700', 'border-orange-100');
+                } else {
+                    hintEl.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-100');
+                }
+            }
+        }
+
+        function updateDeviceSelector(devices) {
+            const selector = document.getElementById('device-selector');
+            if (!selector) return;
+
+            const previousMac = selectedDeviceMac;
+            let nextSelectedMac = '';
+
+            if (previousMac && devices.some(function(device) { return device.mac === previousMac; })) {
+                nextSelectedMac = previousMac;
+            } else {
+                const onlineDevice = devices.find(function(device) { return device.isOnline === true; });
+                nextSelectedMac = onlineDevice ? onlineDevice.mac : (devices[0] ? devices[0].mac : '');
+            }
+
+            let options = '<option value="">请选择已注册设备</option>';
+            devices.forEach(function(device, index) {
+                const deviceName = getDisplayDeviceName(device, index);
+                const suffix = device.lastIp ? ' · ' + device.lastIp : '';
+                options += '<option value="' + device.mac + '">' + deviceName + suffix + '</option>';
+            });
+            selector.innerHTML = options;
+            selector.value = nextSelectedMac;
+            selector.disabled = devices.length === 0;
+            selectedDeviceMac = nextSelectedMac;
+            updateSelectedDeviceSummary(getSelectedDevice());
+            updateActionCards(getSelectedDevice());
+        }
+
         function renderDevices(devices) {
             const container = document.getElementById('device-info-content');
             if (!container) return;
 
             if (!devices || devices.length === 0) {
+                renderEmptyDeviceState();
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-8 text-gray-400">
                         <i data-lucide="monitor-off" class="w-10 h-10 mb-3 text-gray-300"></i>
@@ -181,7 +351,7 @@
 
             let html = '';
             devices.forEach(function(device, index) {
-                const deviceName = device.hostname || device.mac || ('设备' + (index + 1));
+                const deviceName = getDisplayDeviceName(device, index);
                 const lastIp = device.lastIp || '-';
                 const lastSsid = device.lastSsid || '-';
                 const mac = device.mac || '-';
@@ -228,9 +398,18 @@
             lucide.createIcons();
         }
 
+        function renderEmptyDeviceState() {
+            cachedDevices = [];
+            selectedDeviceMac = '';
+            updateDeviceSelector([]);
+            updateSelectedDeviceSummary(null);
+            updateActionCards(null);
+        }
+
         function renderError(message) {
             const container = document.getElementById('device-info-content');
             if (!container) return;
+            renderEmptyDeviceState();
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-8 text-gray-400">
                     <i data-lucide="alert-circle" class="w-10 h-10 mb-3 text-yellow-400"></i>
@@ -261,7 +440,9 @@
                 }
                 const result = await response.json();
                 if (result.code === 0) {
-                    renderDevices(result.data.devices);
+                    cachedDevices = Array.isArray(result.data && result.data.devices) ? result.data.devices : [];
+                    updateDeviceSelector(cachedDevices);
+                    renderDevices(cachedDevices);
                 } else {
                     renderError('获取设备列表失败：' + (result.message || '未知错误'));
                 }
@@ -269,6 +450,94 @@
                 console.error('获取设备列表失败:', error);
                 renderError('无法连接到服务器，请检查网络连接');
             }
+        }
+
+        function handleDeviceSelectionChange(mac) {
+            selectedDeviceMac = mac;
+            const selectedDevice = getSelectedDevice();
+            updateSelectedDeviceSummary(selectedDevice);
+            updateActionCards(selectedDevice);
+        }
+
+        function ensureDeviceSelected(showTip) {
+            const selectedDevice = getSelectedDevice();
+            if (!selectedDevice) {
+                if (showTip) {
+                    showToast('请先选择一台已注册设备。', 'warning');
+                }
+                return null;
+            }
+            return selectedDevice;
+        }
+
+        async function probeEndpoint(url, timeoutMs) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(function() {
+                controller.abort();
+            }, timeoutMs);
+
+            try {
+                await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                return true;
+            } catch (error) {
+                console.warn('探测失败:', url, error);
+                return false;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        async function handleControlPanelClick() {
+            const device = ensureDeviceSelected(true);
+            if (!device) {
+                return;
+            }
+            if (!device.lastIp) {
+                showToast('当前设备尚未上报有效 IP，无法打开控制面板。', 'warning');
+                return;
+            }
+
+            const baseIp = device.lastIp;
+            const targetUrls = [
+                'http://' + baseIp + ':42617',
+                'http://' + baseIp + ':6060'
+            ];
+
+            probeInProgress = true;
+            updateActionCards(device);
+            showToast('正在检测设备控制面板，请稍候...', 'info');
+
+            try {
+                for (const url of targetUrls) {
+                    const reachable = await probeEndpoint(url, 2500);
+                    if (reachable) {
+                        window.open(url, '_blank', 'noopener');
+                        showToast('已打开设备控制面板。', 'success');
+                        return;
+                    }
+                }
+                showToast('设备连接异常，42617 和 6060 端口都无法访问。', 'error');
+            } finally {
+                probeInProgress = false;
+                updateActionCards(device);
+            }
+        }
+
+        function handleTerminalClick() {
+            const device = ensureDeviceSelected(true);
+            if (!device) {
+                return;
+            }
+            if (!device.lastIp) {
+                showToast('当前设备尚未上报有效 IP，无法打开终端。', 'warning');
+                return;
+            }
+            window.open('http://' + device.lastIp + ':7681', '_blank', 'noopener');
         }
 
         function handleLogout() {
