@@ -262,6 +262,12 @@ async def change_password_page():
         return f.read()
 
 
+@app.get("/setting", response_class=HTMLResponse)
+async def setting():
+    with open("templates/setting.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
 @app.get("/file_manager", response_class=HTMLResponse)
 async def file_manager():
     with open("templates/file_manager.html", "r", encoding="utf-8") as f:
