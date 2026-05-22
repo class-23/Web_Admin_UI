@@ -326,14 +326,6 @@ body {
     </div>
 
     <div class="form-group">
-      <label>输入你配网时的密钥</label>
-      <div class="input-wrapper">
-        <input type="text" id="secretKey" placeholder="请输入你配网时的密钥(仅支持数字与字母)" autocomplete="off">
-      </div>
-      <div id="secretKeyError" class="error-text"></div>
-    </div>
-
-    <div class="form-group">
       <label>密码</label>
       <div class="input-wrapper">
         <input type="password" id="password" placeholder="请输入密码(至少8位，含大小写字母和数字)" autocomplete="new-password">
@@ -370,7 +362,6 @@ document.addEventListener('DOMContentLoaded', function () {
   var phoneInput = document.getElementById('phone');
   var usernameInput = document.getElementById('username');
   var codeInput = document.getElementById('code');
-  var secretKeyInput = document.getElementById('secretKey');
   var passwordInput = document.getElementById('password');
   var confirmPasswordInput = document.getElementById('confirmPassword');
   var btnSendCode = document.getElementById('btnSendCode');
@@ -381,7 +372,6 @@ document.addEventListener('DOMContentLoaded', function () {
   var phoneError = document.getElementById('phoneError');
   var usernameError = document.getElementById('usernameError');
   var codeError = document.getElementById('codeError');
-  var secretKeyError = document.getElementById('secretKeyError');
   var passwordError = document.getElementById('passwordError');
   var confirmPasswordError = document.getElementById('confirmPasswordError');
 
@@ -422,10 +412,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function validateUsername(value) {
     return value.length >= 3 && value.length <= 20;
-  }
-
-  function validateSecretKey(value) {
-    return /^[a-zA-Z0-9]+$/.test(value);
   }
 
   function getUtf8ByteLength(value) {
@@ -563,22 +549,6 @@ document.addEventListener('DOMContentLoaded', function () {
     setError(passwordError, passwordInput, validateRegisterPassword(passwordInput.value));
   });
 
-  secretKeyInput.addEventListener('input', function () {
-    var val = secretKeyInput.value;
-    if (val && !validateSecretKey(val)) {
-      setError(secretKeyError, secretKeyInput, '密钥只能包含数字和字母');
-    } else {
-      setError(secretKeyError, secretKeyInput, '');
-    }
-  });
-
-  secretKeyInput.addEventListener('blur', function () {
-    var val = secretKeyInput.value.trim();
-    if (val && !validateSecretKey(val)) {
-      setError(secretKeyError, secretKeyInput, '密钥只能包含数字和字母');
-    }
-  });
-
   confirmPasswordInput.addEventListener('input', function () {
     var pw = passwordInput.value;
     var cpw = confirmPasswordInput.value;
@@ -642,7 +612,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var phone = phoneInput.value.trim();
     var username = usernameInput.value.trim();
     var code = codeInput.value.trim();
-    var secretKey = secretKeyInput.value.trim();
     var password = passwordInput.value;
     var confirmPassword = confirmPasswordInput.value;
 
@@ -663,16 +632,6 @@ document.addEventListener('DOMContentLoaded', function () {
       valid = false;
     } else {
       setError(codeError, codeInput, '');
-    }
-
-    if (!secretKey) {
-      setError(secretKeyError, secretKeyInput, '请输入注册密钥');
-      valid = false;
-    } else if (!validateSecretKey(secretKey)) {
-      setError(secretKeyError, secretKeyInput, '密钥只能包含数字和字母');
-      valid = false;
-    } else {
-      setError(secretKeyError, secretKeyInput, '');
     }
 
     var passwordValidationMessage = validateRegisterPassword(password);
@@ -703,7 +662,6 @@ document.addEventListener('DOMContentLoaded', function () {
         phone: phone,
         username: username,
         code: code,
-        secret_key: secretKey,
         password: password,
         confirm_password: confirmPassword
       })

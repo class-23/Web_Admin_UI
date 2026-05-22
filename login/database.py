@@ -64,12 +64,23 @@ def init_db():
                 id SERIAL PRIMARY KEY,
                 phone VARCHAR(20) UNIQUE NOT NULL,
                 username VARCHAR(50) UNIQUE NOT NULL,
-                miyao_key VARCHAR(100) NOT NULL DEFAULT '',
                 password VARCHAR(255) NOT NULL,
                 password_changed_at TIMESTAMPTZ DEFAULT NOW(),
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             )
+        """)
+        cur.execute("""
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'users' AND column_name = 'miyao_key'
+                ) THEN
+                    ALTER TABLE users DROP COLUMN miyao_key;
+                END IF;
+            END
+            $$;
         """)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS settings (

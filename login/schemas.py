@@ -18,7 +18,6 @@ class RegisterRequest(BaseModel):
     phone: str
     username: str
     code: str
-    secret_key: str
     password: str
     confirm_password: str
 
@@ -41,13 +40,6 @@ class RegisterRequest(BaseModel):
     def validate_code(cls, v):
         if not re.match(r"^\d{6}$", v):
             raise ValueError("验证码必须是6位数字")
-        return v
-
-    @field_validator("secret_key")
-    @classmethod
-    def validate_secret_key(cls, v):
-        if not re.match(r"^[a-zA-Z0-9]+$", v):
-            raise ValueError("密钥只能包含数字和字母")
         return v
 
     @field_validator("password")
