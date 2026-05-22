@@ -4,7 +4,7 @@ PG_HOST = os.getenv("PG_HOST", "localhost")
 PG_PORT = int(os.getenv("PG_PORT", "5432"))
 PG_USER = os.getenv("PG_USER", "postgres")
 PG_PASSWORD = os.getenv("PG_PASSWORD", "")
-PG_DBNAME = os.getenv("PG_DBNAME", os.getenv("PG_NAME", "quantclaw_db"))
+PG_DBNAME = os.getenv("PG_DBNAME", os.getenv("PG_NAME", "quantclaw"))
 PG_POOL_MIN = int(os.getenv("PG_POOL_MIN", "2"))
 PG_POOL_MAX = int(os.getenv("PG_POOL_MAX", "10"))
 

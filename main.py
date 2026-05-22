@@ -37,7 +37,7 @@ config = QuantClawConfig(
     pg_port=int(os.getenv("PG_PORT", "5432")),
     pg_user=os.getenv("PG_USER", "quant"),
     pg_password=os.getenv("PG_PASSWORD", "open123456"),
-    pg_dbname=os.getenv("PG_DBNAME", os.getenv("PG_NAME", "quantclaw_db")),
+    pg_dbname=os.getenv("PG_DBNAME", os.getenv("PG_NAME", "quantclaw")),
     udp_enabled=os.getenv("UDP_ENABLED", "true").lower() == "true",
     allow_insecure=os.getenv("ALLOW_INSECURE", "true").lower() == "true",
     heartbeat_interval_sec=int(os.getenv("HEARTBEAT_INTERVAL_SEC", "60"))

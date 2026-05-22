@@ -35,8 +35,8 @@ services:
       - PG_PORT=5432
       - PG_USER=${PG_USER:-quantclaw}
       - PG_PASSWORD=${PG_PASSWORD}
-      - PG_NAME=${PG_NAME:-quantclaw_db}
-      - PG_DBNAME=${PG_NAME:-quantclaw_db}
+      - PG_NAME=${PG_NAME:-quantclaw}
+      - PG_DBNAME=${PG_NAME:-quantclaw}
       - APP_PORT=${APP_PORT:-8081}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
