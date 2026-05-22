@@ -36,10 +36,16 @@ services:
       - PG_USER=${PG_USER:-quantclaw}
       - PG_PASSWORD=${PG_PASSWORD}
       - PG_NAME=${PG_NAME:-quantclaw_db}
+      - PG_DBNAME=${PG_NAME:-quantclaw_db}
       - APP_PORT=${APP_PORT:-8081}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
+    volumes:
+      - ./templates:/app/templates
+      - ./static:/app/static
+      - ./main.py:/app/main.py
+      - ./login:/app/login
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/api/auth/me"]
       interval: 30s
