@@ -9,9 +9,9 @@ services:
       POSTGRES_USER: ${PG_USER:-quantclaw}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       POSTGRES_DB: ${PG_NAME:-quantclaw_db}
-      PGPORT: 5432
+      PGPORT: 5433
     ports:
-      - "${PG_PORT:-5432}:5432"
+      - "${PG_PORT:-5433}:5433"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -30,15 +30,15 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "${APP_PORT:-8081}:${APP_PORT:-8081}"
+      - "${APP_PORT:-8082}:${APP_PORT:-8082}"
     environment:
       - PG_HOST=postgres
-      - PG_PORT=5432
+      - PG_PORT=5433
       - PG_USER=${PG_USER:-quantclaw}
       - PG_PASSWORD=${PG_PASSWORD}
       - PG_NAME=${PG_NAME:-quantclaw}
       - PG_DBNAME=${PG_NAME:-quantclaw}
-      - APP_PORT=${APP_PORT:-8081}
+      - APP_PORT=${APP_PORT:-8082}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
@@ -48,7 +48,7 @@ services:
       - ./main.py:/app/main.py
       - ./login:/app/login
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/api/current_user"]
+      test: ["CMD", "curl", "-f", "http://localhost:8082/api/current_user"]
       interval: 30s
       timeout: 10s
       retries: 3

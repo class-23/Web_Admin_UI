@@ -3,15 +3,23 @@ import psycopg2.pool
 from psycopg2 import sql
 from login import config
 
-_pool = psycopg2.pool.ThreadedConnectionPool(
-    minconn=config.PG_POOL_MIN,
-    maxconn=config.PG_POOL_MAX,
-    host=config.PG_HOST,
-    port=config.PG_PORT,
-    user=config.PG_USER,
-    password=config.PG_PASSWORD,
-    dbname=config.PG_DBNAME,
-)
+_pool = None
+
+
+def _get_pool():
+    global _pool
+    if _pool is not None:
+        return _pool
+    _pool = psycopg2.pool.ThreadedConnectionPool(
+        minconn=config.PG_POOL_MIN,
+        maxconn=config.PG_POOL_MAX,
+        host=config.PG_HOST,
+        port=config.PG_PORT,
+        user=config.PG_USER,
+        password=config.PG_PASSWORD,
+        dbname=config.PG_DBNAME,
+    )
+    return _pool
 
 _tables_initialized = False
 TIMESTAMPTZ_COLUMNS = {
@@ -55,7 +63,7 @@ def init_db():
     global _tables_initialized
     if _tables_initialized:
         return
-    conn = _pool.getconn()
+    conn = _get_pool().getconn()
     try:
         cur = conn.cursor()
         cur.execute("SET TIME ZONE 'UTC'")
@@ -106,14 +114,14 @@ def init_db():
         conn.commit()
         cur.close()
     finally:
-        _pool.putconn(conn)
+        _get_pool().putconn(conn)
     _tables_initialized = True
 
 
 def get_db():
     init_db()
-    conn = _pool.getconn()
+    conn = _get_pool().getconn()
     try:
         yield conn
     finally:
-        _pool.putconn(conn)
+        _get_pool().putconn(conn)
