@@ -944,7 +944,7 @@ class SshClientManager:
 
 ssh_manager = SshClientManager()
 
-app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "templates"), html=True), name="static")
+app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "templates"), html=True), name="templates")
 
 if __name__ == "__main__":
     uvicorn.run(

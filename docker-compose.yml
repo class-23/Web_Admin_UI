@@ -9,19 +9,20 @@ services:
       POSTGRES_USER: ${PG_USER:-quantclaw}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       POSTGRES_DB: ${PG_NAME:-quantclaw_db}
+      PGPORT: 5432
     ports:
       - "${PG_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-quantclaw}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-quant} -d ${PG_NAME:-quantclaw}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   app:
     build:
-      context: .
+      context: .        # ✅ 修复这里！
       dockerfile: Dockerfile
     container_name: quantclaw_app
     restart: always
@@ -29,7 +30,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "${HOST_PORT:-3309}:${APP_PORT:-8081}"
+      - "${APP_PORT:-8081}:${APP_PORT:-8081}"
     environment:
       - PG_HOST=postgres
       - PG_PORT=5432
@@ -47,7 +48,7 @@ services:
       - ./main.py:/app/main.py
       - ./login:/app/login
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/api/auth/me"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/current_user"]
       interval: 30s
       timeout: 10s
       retries: 3

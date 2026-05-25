@@ -389,9 +389,10 @@ document.addEventListener('DOMContentLoaded', function () {
     messageBox.textContent = text;
     messageBox.className = 'message-box ' + type + ' show';
     clearTimeout(messageBox._timeout);
+    var duration = type === 'error' ? 15000 : 3000;
     messageBox._timeout = setTimeout(function () {
       messageBox.className = 'message-box';
-    }, 3000);
+    }, duration);
   }
 
   function setError(el, inputEl, msg) {
@@ -616,19 +617,23 @@ document.addEventListener('DOMContentLoaded', function () {
     var confirmPassword = confirmPasswordInput.value;
 
     var valid = true;
+    var firstError = '';
 
     if (!phone || !validatePhone(phone)) {
       setError(phoneError, phoneInput, '请输入正确的手机号');
+      if (!firstError) firstError = '请输入正确的手机号';
       valid = false;
     }
 
     if (!username || !validateUsername(username)) {
       setError(usernameError, usernameInput, '请输入3-20个字符的用户名');
+      if (!firstError) firstError = '请输入3-20个字符的用户名';
       valid = false;
     }
 
     if (!code) {
       setError(codeError, codeInput, '请输入验证码');
+      if (!firstError) firstError = '请输入验证码';
       valid = false;
     } else {
       setError(codeError, codeInput, '');
@@ -637,6 +642,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var passwordValidationMessage = validateRegisterPassword(password);
     if (passwordValidationMessage) {
       setError(passwordError, passwordInput, passwordValidationMessage);
+      if (!firstError) firstError = passwordValidationMessage;
       valid = false;
     } else {
       setError(passwordError, passwordInput, '');
@@ -645,12 +651,16 @@ document.addEventListener('DOMContentLoaded', function () {
     var confirmPasswordValidationMessage = validateConfirmPassword(password, confirmPassword);
     if (confirmPasswordValidationMessage) {
       setError(confirmPasswordError, confirmPasswordInput, confirmPasswordValidationMessage);
+      if (!firstError) firstError = confirmPasswordValidationMessage;
       valid = false;
     } else {
       setError(confirmPasswordError, confirmPasswordInput, '');
     }
 
-    if (!valid) return;
+    if (!valid) {
+      showMessage(firstError, 'error');
+      return;
+    }
 
     btnSubmit.textContent = '注册中...';
     btnSubmit.disabled = true;

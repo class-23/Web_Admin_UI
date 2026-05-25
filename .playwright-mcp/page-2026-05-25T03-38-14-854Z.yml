@@ -1,0 +1,32 @@
+- generic [ref=e2]:
+  - heading "注册" [level=1] [ref=e3]
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 手机号
+      - textbox "请输入手机号" [ref=e8]: "13800138004"
+    - generic [ref=e9]:
+      - generic [ref=e10]: 用户名
+      - textbox "请输入用户名（3-20个字符）" [ref=e12]: finaltest
+    - generic [ref=e13]:
+      - generic [ref=e14]: 验证码
+      - generic [ref=e15]:
+        - textbox "请输入验证码" [ref=e17]
+        - button "发送中..." [disabled] [ref=e42]
+      - generic [ref=e39]: 请输入验证码
+    - generic [ref=e19]:
+      - generic [ref=e20]: 密码
+      - generic [ref=e21]:
+        - textbox "请输入密码(至少8位，含大小写字母和数字)" [ref=e22]
+        - button "🙈" [ref=e23] [cursor=pointer]
+      - generic [ref=e40]: 密码长度至少为8位
+    - generic [ref=e28]:
+      - generic [ref=e29]: 确认密码
+      - generic [ref=e30]:
+        - textbox "请再次输入密码" [ref=e31]
+        - button "🙈" [ref=e32] [cursor=pointer]
+      - generic [ref=e41]: 请再次输入密码
+    - button "注册" [ref=e33] [cursor=pointer]
+  - generic [ref=e34]:
+    - text: 已有账号？
+    - link "立即登录" [ref=e35] [cursor=pointer]:
+      - /url: /login
