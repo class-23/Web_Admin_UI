@@ -15,7 +15,14 @@ from typing import Any, Callable, Optional
 
 from .config import QuantClawConfig
 from .exceptions import DatabaseError
-from .utils import as_bool, as_int, format_server_time, row_to_device, server_time_str
+from .utils import (
+    ONLINE_HEARTBEAT_TIMEOUT_SEC,
+    as_bool,
+    as_int,
+    format_server_time,
+    row_to_device,
+    server_time_str,
+)
 
 
 DEVICE_COLUMNS = {
@@ -511,7 +518,7 @@ class DatabaseManager:
             last_seen = parse_server_time(row["last_seen_at"])
             now = datetime.now(timezone.utc)
             age = int((now - last_seen).total_seconds()) if last_seen is not None else None
-            is_online = row["status"] == "online" or (age is not None and age <= 180)
+            is_online = age is not None and age <= ONLINE_HEARTBEAT_TIMEOUT_SEC
 
             return {
                 "online": is_online,

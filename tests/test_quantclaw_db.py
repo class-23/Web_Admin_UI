@@ -3,7 +3,7 @@ DatabaseManager 集成测试
 验证 SQLAlchemy 版本的 DatabaseManager 操作 Device 模型
 """
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.utils.quantclaw_receiver.config import QuantClawConfig
 from app.utils.quantclaw_receiver.database import DatabaseManager
@@ -146,6 +146,19 @@ class TestGetDevicesList:
         macs = {d["mac"] for d in result["devices"]}
         assert macs == {"aa:bb:cc:dd:ee:ff", "11:22:33:44:55:66"}
 
+    def test_timed_out_device_is_reported_offline_even_if_status_online(self, db_manager, db):
+        db_manager.register_device("aa:bb:cc:dd:ee:ff", {"hostname": "d1", "ip": "10.0.0.1"})
+        device = db.query(Device).filter(Device.mac_address == "aa:bb:cc:dd:ee:ff").first()
+        device.status = "online"
+        device.last_heartbeat_at = datetime.utcnow() - timedelta(seconds=181)
+        db.commit()
+
+        result = db_manager.get_devices_list()
+        listed = next(d for d in result["devices"] if d["mac"] == "aa:bb:cc:dd:ee:ff")
+
+        assert listed["status"] == "online"
+        assert listed["isOnline"] is False
+
 
 class TestRegistrationStatus:
     def test_registered_device(self, db_manager):
@@ -167,6 +180,28 @@ class TestHeartbeatStatus:
         status = db_manager.get_heartbeat_status("aa:bb:cc:dd:ee:ff")
         assert "online" in status
         assert "lastSeenAt" in status
+        assert status["online"] is False
+
+    def test_recent_heartbeat_device_is_online(self, db_manager, db):
+        db_manager.register_device("aa:bb:cc:dd:ee:ff", {"ip": "10.0.0.1"})
+        device = db.query(Device).filter(Device.mac_address == "aa:bb:cc:dd:ee:ff").first()
+        device.status = "offline"
+        device.last_heartbeat_at = datetime.utcnow() - timedelta(seconds=60)
+        db.commit()
+
+        status = db_manager.get_heartbeat_status("aa:bb:cc:dd:ee:ff")
+        assert status["online"] is True
+
+    def test_timed_out_online_status_device_is_offline(self, db_manager, db):
+        db_manager.register_device("aa:bb:cc:dd:ee:ff", {"ip": "10.0.0.1"})
+        device = db.query(Device).filter(Device.mac_address == "aa:bb:cc:dd:ee:ff").first()
+        device.status = "online"
+        device.last_heartbeat_at = datetime.utcnow() - timedelta(seconds=181)
+        db.commit()
+
+        status = db_manager.get_heartbeat_status("aa:bb:cc:dd:ee:ff")
+        assert status["status"] == "online"
+        assert status["online"] is False
 
     def test_unknown_device(self, db_manager):
         status = db_manager.get_heartbeat_status("ff:ff:ff:ff:ff:ff")
