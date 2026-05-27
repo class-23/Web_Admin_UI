@@ -83,7 +83,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-gray-800">控制面板</h2>
-                        <p class="text-xs text-gray-400 mt-1">自动探测 42617 / 6060 可用端口</p>
+                        <p class="text-xs text-gray-400 mt-1">根据设备型号自动选择控制面板端口</p>
                     </div>
                 </div>
                 <div class="space-y-1">
@@ -470,29 +470,24 @@
             return selectedDevice;
         }
 
-        async function probeEndpoint(url, timeoutMs) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(function() {
-                controller.abort();
-            }, timeoutMs);
-
-            try {
-                await fetch(url, {
-                    method: 'GET',
-                    mode: 'no-cors',
-                    cache: 'no-store',
-                    signal: controller.signal
-                });
-                return true;
-            } catch (error) {
-                console.warn('探测失败:', url, error);
-                return false;
-            } finally {
-                clearTimeout(timeoutId);
-            }
+        function normalizeDeviceModel(model) {
+            return String(model || '')
+                .trim()
+                .toLowerCase()
+                .replace(/[_-]+/g, ' ')
+                .replace(/\s+/g, ' ');
         }
 
-        async function handleControlPanelClick() {
+        function isHinlinkHt2Model(model) {
+            const normalized = normalizeDeviceModel(model);
+            return normalized === 'hinlink ht2' || normalized.indexOf('hinlink ht2 ') === 0;
+        }
+
+        function getControlPanelPort(device) {
+            return isHinlinkHt2Model(device && device.model) ? 6060 : 42617;
+        }
+
+        function handleControlPanelClick() {
             const device = ensureDeviceSelected(true);
             if (!device) {
                 return;
@@ -503,25 +498,16 @@
             }
 
             const baseIp = device.lastIp;
-            const targetUrls = [
-                'http://' + baseIp + ':42617',
-                'http://' + baseIp + ':6060'
-            ];
+            const port = getControlPanelPort(device);
+            const targetUrl = 'http://' + baseIp + ':' + port;
 
             probeInProgress = true;
             updateActionCards(device);
-            showToast('正在检测设备控制面板，请稍候...', 'info');
+            showToast('正在打开设备控制面板...', 'info');
 
             try {
-                for (const url of targetUrls) {
-                    const reachable = await probeEndpoint(url, 2500);
-                    if (reachable) {
-                        window.open(url, '_blank', 'noopener');
-                        showToast('已打开设备控制面板。', 'success');
-                        return;
-                    }
-                }
-                showToast('设备连接异常，42617 和 6060 端口都无法访问。', 'error');
+                window.open(targetUrl, '_blank', 'noopener');
+                showToast('已打开设备控制面板。', 'success');
             } finally {
                 probeInProgress = false;
                 updateActionCards(device);

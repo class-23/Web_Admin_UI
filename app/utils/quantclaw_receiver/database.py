@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from .config import QuantClawConfig
 from .exceptions import DatabaseError
-from .utils import as_bool, as_int, server_time_str
+from .utils import ONLINE_HEARTBEAT_TIMEOUT_SEC, as_bool, as_int, server_time_str
 
 from app.models.device import Device
 from app.models.device_config import DeviceConfig
@@ -45,8 +45,8 @@ def _device_to_row(device: Device, now: datetime) -> dict[str, Any]:
             last_hb = last_hb.replace(tzinfo=timezone.utc)
         if now.tzinfo is None:
             now = now.replace(tzinfo=timezone.utc)
-        online_by_time = (now - last_hb).total_seconds() <= 180
-    is_online = (device.status == "online") or online_by_time
+        online_by_time = (now - last_hb).total_seconds() <= ONLINE_HEARTBEAT_TIMEOUT_SEC
+    is_online = online_by_time
     interfaces = None
     if device.interfaces_json:
         try:
@@ -346,7 +346,7 @@ class DatabaseManager:
                 if last_hb.tzinfo is None:
                     last_hb = last_hb.replace(tzinfo=timezone.utc)
                 age = int((now - last_hb).total_seconds())
-            is_online = device.status == "online" or (age is not None and age <= 180)
+            is_online = age is not None and age <= ONLINE_HEARTBEAT_TIMEOUT_SEC
 
             return {
                 "online": is_online,
