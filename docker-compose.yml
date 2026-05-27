@@ -49,6 +49,7 @@ services:
       - ./static:/app/static
       - ./main.py:/app/main.py
       - ./login:/app/login
+      - ./quantclaw_receiver:/app/quantclaw_receiver
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/api/current_user"]
       interval: 30s

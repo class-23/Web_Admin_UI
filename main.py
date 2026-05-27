@@ -790,7 +790,8 @@ async def create_device(request: Request, user = Depends(require_auth), db = Dep
 
 @app.get("/api/devices")
 async def get_devices(user = Depends(require_auth), db = Depends(get_db)):
-    devices = await device_manager.get_devices_list()
+    user_phone = user.get("phone", "") if user else ""
+    devices = await device_manager.get_devices_list(user_phone=user_phone)
     return {"code": 0, "message": "ok", "data": devices}
 
 

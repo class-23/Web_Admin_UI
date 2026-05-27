@@ -338,7 +338,7 @@ async function handleControlPanelClick() {
 
     try {
         for (var i = 0; i < targetUrls.length; i++) {
-            var reachable = await probeEndpoint(targetUrls[i], 2500);
+            var reachable = await probeEndpoint(targetUrls[i], 5000);
             if (reachable) {
                 window.open(targetUrls[i], '_blank', 'noopener');
                 showToast('已打开设备控制面板。', 'success');

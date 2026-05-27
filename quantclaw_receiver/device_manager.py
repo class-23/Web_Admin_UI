@@ -280,14 +280,17 @@ class QuantClawDeviceManager:
         """
         return await self.register_device(request)
     
-    async def get_devices_list(self) -> dict[str, Any]:
+    async def get_devices_list(self, user_phone: str = "") -> dict[str, Any]:
         """
-        获取所有设备列表
-        
+        获取设备列表，按用户手机号过滤
+
+        Args:
+            user_phone: 用户手机号，用于过滤设备
+
         Returns:
             设备列表
         """
-        return self.db_manager.get_devices_list()
+        return self.db_manager.get_devices_list(user_phone=user_phone)
     
     async def health_check(self) -> dict[str, Any]:
         """

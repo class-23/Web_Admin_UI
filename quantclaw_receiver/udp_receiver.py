@@ -118,6 +118,7 @@ class UDPBroadcastReceiver:
         p["mdnsHost"] = str(pick(p, "mdnsHost", "mdns_host", "mdns", default=""))
         p["httpPort"] = as_int(pick(p, "httpPort", "http_port", "port", default=80), 80)
         p["accessScope"] = str(pick(p, "accessScope", "access_scope", default="lan"))
+        p["phone"] = str(pick(p, "phone", "phone_number", "phoneNum", "phone_num", default=""))
         p["internetAvailable"] = parse_bool(pick(p, "internetAvailable", "internet_available", "internet", default=False), False)
         p["status"] = str(pick(p, "status", "state", default=""))
         p["_observedMacs"] = extract_macs(inner)

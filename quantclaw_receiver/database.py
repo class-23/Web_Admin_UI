@@ -20,6 +20,7 @@ from .utils import as_bool, as_int, format_server_time, row_to_device, server_ti
 
 DEVICE_COLUMNS = {
     "user_id": "INTEGER NOT NULL DEFAULT 1",
+    "phone": "VARCHAR(20) NOT NULL DEFAULT ''",
     "device_name": "VARCHAR(100) NOT NULL DEFAULT ''",
     "mac": "VARCHAR(17) NOT NULL",
     "hostname": "VARCHAR(128) NOT NULL DEFAULT ''",
@@ -105,6 +106,7 @@ class DatabaseManager:
             CREATE TABLE IF NOT EXISTS devices (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL DEFAULT 1,
+                phone VARCHAR(20) NOT NULL DEFAULT '',
                 device_name VARCHAR(100) NOT NULL DEFAULT '',
                 mac VARCHAR(17) NOT NULL,
                 hostname VARCHAR(128) NOT NULL DEFAULT '',
@@ -186,6 +188,7 @@ class DatabaseManager:
         )
         cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_user_last_seen ON devices (user_id, last_seen_at DESC)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_status ON devices (status)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_phone ON devices (phone)")
 
     def _prepare_connection(self, conn) -> None:
         cur = conn.cursor()
@@ -222,18 +225,21 @@ class DatabaseManager:
             ttyd_port = as_int(payload.get("ttydPort"), 7681)
             http_port = as_int(payload.get("httpPort"), 80)
 
+            phone = str(payload.get("phone", ""))[:20]
+
             if is_new:
                 cur.execute(
                     """
                     INSERT INTO devices (
-                      mac, hostname, model, firmware_version, ip, ssid,
+                      mac, phone, hostname, model, firmware_version, ip, ssid,
                       internet_available, status, heartbeat_interval_sec,
                       ttyd_enabled, ttyd_port, mdns_host, http_port, access_scope,
                       first_seen_at, last_seen_at, created_at, updated_at, user_id
-                    ) VALUES (%s, %s, %s, %s, %s, %s, FALSE, 'unknown', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, FALSE, 'unknown', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         mac,
+                        phone,
                         str(payload.get("hostname", ""))[:128],
                         str(payload.get("model", ""))[:128],
                         str(payload.get("firmwareVersion", ""))[:64],
@@ -252,6 +258,7 @@ class DatabaseManager:
                 cur.execute(
                     """
                     UPDATE devices SET
+                      phone = CASE WHEN %s = '' THEN phone ELSE %s END,
                       hostname = %s, model = %s, firmware_version = %s, ip = %s,
                       ssid = %s, ttyd_enabled = %s, ttyd_port = %s, mdns_host = %s,
                       http_port = %s, access_scope = %s, heartbeat_interval_sec = %s,
@@ -259,6 +266,7 @@ class DatabaseManager:
                     WHERE mac = %s AND user_id = %s
                     """,
                     (
+                        phone, phone,
                         str(payload.get("hostname", ""))[:128],
                         str(payload.get("model", ""))[:128],
                         str(payload.get("firmwareVersion", ""))[:64],
@@ -300,6 +308,8 @@ class DatabaseManager:
             http_port = as_int(payload.get("httpPort"), 80)
             inet = as_bool(payload.get("internetAvailable"))
 
+            phone = str(payload.get("phone", ""))[:20]
+
             if not exists:
                 if not self.config.heartbeat_allow_implicit:
                     return {"code": 1005, "message": "device not found", "data": None}, None
@@ -307,14 +317,15 @@ class DatabaseManager:
                 cur.execute(
                     """
                     INSERT INTO devices (
-                      mac, hostname, model, firmware_version, ip, ssid,
+                      mac, phone, hostname, model, firmware_version, ip, ssid,
                       internet_available, status, heartbeat_interval_sec,
                       ttyd_enabled, ttyd_port, mdns_host, http_port, access_scope,
                       first_seen_at, last_seen_at, created_at, updated_at, user_id
-                    ) VALUES (%s, '', '', %s, %s, %s, %s, %s, 60, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, '', '', %s, %s, %s, %s, %s, 60, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         mac,
+                        phone,
                         str(payload.get("firmwareVersion", ""))[:64],
                         str(payload.get("ip", ""))[:64],
                         str(payload.get("ssid", ""))[:128],
@@ -332,6 +343,7 @@ class DatabaseManager:
                 cur.execute(
                     """
                     UPDATE devices SET
+                      phone = CASE WHEN %s = '' THEN phone ELSE %s END,
                       last_seen_at = %s, ip = %s, ssid = %s,
                       internet_available = %s, status = %s, firmware_version = %s,
                       ttyd_enabled = %s, ttyd_port = %s, mdns_host = %s, http_port = %s,
@@ -339,6 +351,7 @@ class DatabaseManager:
                     WHERE mac = %s AND user_id = %s
                     """,
                     (
+                        phone, phone,
                         st,
                         str(payload.get("ip", ""))[:64],
                         str(payload.get("ssid", ""))[:128],
@@ -363,21 +376,32 @@ class DatabaseManager:
 
         return self.with_db(_heartbeat)
 
-    def get_devices_list(self) -> dict[str, Any]:
-        """获取所有设备列表"""
+    def get_devices_list(self, user_phone: str = "") -> dict[str, Any]:
+        """获取设备列表，按用户手机号过滤"""
         def _scan(conn) -> dict[str, Any]:
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-            cur.execute(
-                """
-                SELECT mac, hostname, model, firmware_version, ip, ssid,
-                       internet_available, status, ttyd_enabled, ttyd_port, mdns_host,
-                       http_port, access_scope, last_seen_at
-                FROM devices
-                WHERE user_id = %s
-                ORDER BY last_seen_at DESC
-                """,
-                (1,),
-            )
+            if user_phone:
+                cur.execute(
+                    """
+                    SELECT mac, phone, hostname, model, firmware_version, ip, ssid,
+                           internet_available, status, ttyd_enabled, ttyd_port, mdns_host,
+                           http_port, access_scope, last_seen_at
+                    FROM devices
+                    WHERE phone = %s
+                    ORDER BY last_seen_at DESC
+                    """,
+                    (user_phone,),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT mac, phone, hostname, model, firmware_version, ip, ssid,
+                           internet_available, status, ttyd_enabled, ttyd_port, mdns_host,
+                           http_port, access_scope, last_seen_at
+                    FROM devices
+                    ORDER BY last_seen_at DESC
+                    """,
+                )
             rows = cur.fetchall()
 
             now = datetime.now(timezone.utc)
@@ -403,7 +427,7 @@ class DatabaseManager:
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             cur.execute(
                 """
-                SELECT mac, hostname, model, firmware_version, ip, ssid,
+                SELECT mac, phone, hostname, model, firmware_version, ip, ssid,
                        internet_available, status, ttyd_enabled, ttyd_port, mdns_host,
                        http_port, access_scope, last_seen_at
                 FROM devices
@@ -471,7 +495,7 @@ class DatabaseManager:
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             cur.execute(
                 """
-                SELECT mac, hostname, model, firmware_version, ip, ssid,
+                SELECT mac, phone, hostname, model, firmware_version, ip, ssid,
                        internet_available, status, last_seen_at, created_at
                 FROM devices
                 WHERE mac = %s
