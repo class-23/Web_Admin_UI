@@ -57,8 +57,8 @@ def register(request: Request, req: RegisterRequest, db = Depends(get_db)):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     cur.execute(
-        "INSERT INTO users (phone, username, password, miyao_key) VALUES (%s,%s,%s,%s) RETURNING id",
-        (req.phone, req.username, hashed_pw, req.secret_key)
+        "INSERT INTO users (phone, username, password) VALUES (%s,%s,%s) RETURNING id",
+        (req.phone, req.username, hashed_pw)
     )
     db.commit()
     cur.close()
