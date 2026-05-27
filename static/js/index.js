@@ -294,29 +294,24 @@ function ensureDeviceSelected(showTip) {
     return selectedDevice;
 }
 
-async function probeEndpoint(url, timeoutMs) {
-    var controller = new AbortController();
-    var timeoutId = setTimeout(function() {
-        controller.abort();
-    }, timeoutMs);
-
-    try {
-        await fetch(url, {
-            method: 'GET',
-            mode: 'no-cors',
-            cache: 'no-store',
-            signal: controller.signal
-        });
-        return true;
-    } catch (error) {
-        console.warn('探测失败:', url, error);
-        return false;
-    } finally {
-        clearTimeout(timeoutId);
-    }
+function normalizeDeviceModel(model) {
+    return String(model || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[_-]+/g, ' ')
+        .replace(/\s+/g, ' ');
 }
 
-async function handleControlPanelClick() {
+function isHinlinkHt2Model(model) {
+    var normalized = normalizeDeviceModel(model);
+    return normalized === 'hinlink ht2' || normalized.indexOf('hinlink ht2 ') === 0;
+}
+
+function getControlPanelPort(device) {
+    return isHinlinkHt2Model(device && device.model) ? 6060 : 42617;
+}
+
+function handleControlPanelClick() {
     var device = ensureDeviceSelected(true);
     if (!device) {
         return;
@@ -326,26 +321,16 @@ async function handleControlPanelClick() {
         return;
     }
 
-    var baseIp = device.lastIp;
-    var targetUrls = [
-        'http://' + baseIp + ':42617',
-        'http://' + baseIp + ':6060'
-    ];
+    var port = getControlPanelPort(device);
+    var targetUrl = 'http://' + device.lastIp + ':' + port;
 
     probeInProgress = true;
     updateActionCards(device);
-    showToast('正在检测设备控制面板，请稍候...', 'info');
+    showToast('正在打开设备控制面板...', 'info');
 
     try {
-        for (var i = 0; i < targetUrls.length; i++) {
-            var reachable = await probeEndpoint(targetUrls[i], 5000);
-            if (reachable) {
-                window.open(targetUrls[i], '_blank', 'noopener');
-                showToast('已打开设备控制面板。', 'success');
-                return;
-            }
-        }
-        showToast('设备连接异常，42617 和 6060 端口都无法访问。', 'error');
+        window.open(targetUrl, '_blank', 'noopener');
+        showToast('已打开设备控制面板。', 'success');
     } finally {
         probeInProgress = false;
         updateActionCards(device);

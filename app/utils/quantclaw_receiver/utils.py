@@ -33,6 +33,8 @@ HEARTBEAT_FIELDS = (
     "accessScope", "timestamp",
 )
 
+ONLINE_HEARTBEAT_TIMEOUT_SEC = 180
+
 
 def make_sign(method: str, path: str, timestamp: str, body_bytes: bytes, secret: str) -> str:
     """生成HMAC-SHA256签名"""
@@ -252,7 +254,7 @@ def row_to_device(row: dict[str, Any], now: datetime) -> dict[str, Any]:
     """将数据库行转换为设备字典"""
     last_seen = parse_server_time(row["last_seen_at"])
     age = int((now - last_seen).total_seconds()) if last_seen is not None else None
-    is_online = row["status"] == "online" or (age is not None and age <= 180)
+    is_online = age is not None and age <= ONLINE_HEARTBEAT_TIMEOUT_SEC
     
     return {
         "mac": row["mac"],
