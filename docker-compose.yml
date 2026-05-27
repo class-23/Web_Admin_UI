@@ -31,6 +31,8 @@ services:
         condition: service_healthy
     ports:
       - "${APP_PORT:-8082}:${APP_PORT:-8082}"
+      - "12345:12345/udp"
+      - "12346:12346/udp"
     environment:
       - PG_HOST=postgres
       - PG_PORT=5433
