@@ -7,6 +7,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 本地备用资源 -->
+    <script>
+        // Tailwind CSS 备用加载
+        if (typeof tailwind === 'undefined') {
+            document.write('<link rel="stylesheet" href="/static/css/tailwind.min.css">');
+        }
+        // RemixIcon 备用加载
+        var ri = document.createElement('link');
+        ri.rel = 'stylesheet';
+        ri.href = '/static/css/remixicon.css';
+        ri.onerror = function() {
+            console.warn('RemixIcon 加载失败，使用备用方案');
+        };
+        document.head.appendChild(ri);
+    </script>
     <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col relative">
@@ -205,6 +220,7 @@
 
     <div id="global-toast" class="fixed right-4 top-4 z-50 hidden max-w-sm rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-lg toast-enter"></div>
 
+    <script src="/static/js/error-handler.js"></script>
     <script src="/static/js/index.js"></script>
 </body>
 </html>

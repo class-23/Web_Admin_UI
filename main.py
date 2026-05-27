@@ -944,6 +944,9 @@ class SshClientManager:
 
 ssh_manager = SshClientManager()
 
+# 确保静态文件优先服务
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+# 模板文件服务放在最后，避免覆盖静态文件
 app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "templates"), html=True), name="templates")
 
 if __name__ == "__main__":
