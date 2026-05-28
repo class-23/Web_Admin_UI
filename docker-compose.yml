@@ -31,8 +31,6 @@ services:
         condition: service_healthy
     ports:
       - "${APP_PORT:-8082}:${APP_PORT:-8082}"
-      - "12345:12345/udp"
-      - "12346:12346/udp"
     environment:
       - PG_HOST=postgres
       - PG_PORT=5433
@@ -41,6 +39,7 @@ services:
       - PG_NAME=${PG_NAME:-quantclaw}
       - PG_DBNAME=${PG_NAME:-quantclaw}
       - APP_PORT=${APP_PORT:-8082}
+      - UDP_ENABLED=false
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
