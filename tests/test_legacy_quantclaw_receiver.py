@@ -42,7 +42,7 @@ class TestLegacyQuantClawReceiver:
             "mdns_host": "",
             "http_port": 80,
             "access_scope": "lan",
-            "last_seen_at": (now - timedelta(seconds=60)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "last_seen_at": now - timedelta(seconds=60),
         }
 
         device = row_to_device(row, now)
@@ -64,7 +64,7 @@ class TestLegacyQuantClawReceiver:
             "mdns_host": "",
             "http_port": 80,
             "access_scope": "lan",
-            "last_seen_at": (now - timedelta(seconds=181)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "last_seen_at": now - timedelta(seconds=181),
         }
 
         device = row_to_device(row, now)
