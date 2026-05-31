@@ -30,7 +30,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from login.limiter import limiter
 from login.routers.auth_router import router as auth_router
-from login.auth import require_auth, require_auth_or_api_key
+from login.auth import require_auth, require_auth_or_api_key, verify_api_key_and_phone
 from login.database import get_db, init_db as login_init_db
 
 config = QuantClawConfig(
@@ -213,15 +213,10 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 @app.get("/api/settings", tags=["系统管理"], summary="获取用户设置",
-        description="获取当前登录用户的全局配置信息，包括语言、主题、权限等。支持 Cookie 登录或手机号+API Key 认证。",
-        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="获取当前登录用户的全局配置信息，包括语言、主题、权限等。支持 Cookie 登录或手机号+API Key 认证。")
 async def get_settings(
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("SELECT data FROM settings WHERE user_id = %s", (user["id"],))
@@ -233,16 +228,11 @@ async def get_settings(
 
 
 @app.post("/api/settings", tags=["系统管理"], summary="更新用户设置",
-         description="更新当前登录用户的全局配置信息，采用 upsert 模式。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="更新当前登录用户的全局配置信息，采用 upsert 模式。支持 Cookie 登录或手机号+API Key 认证。")
 async def update_settings(
     settings: GlobalSettings,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     cur = db.cursor()
     cur.execute(
@@ -403,16 +393,11 @@ async def get_disk_usage_api():
 
 
 @app.get("/api/files", tags=["文件管理"], summary="列出目录文件",
-        description="列出指定路径下的文件和文件夹，支持本地模式和 SSH 远程模式。返回文件名、类型、大小、修改时间等信息。支持 Cookie 登录或手机号+API Key 认证。",
-        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="列出指定路径下的文件和文件夹，支持本地模式和 SSH 远程模式。返回文件名、类型、大小、修改时间等信息。支持 Cookie 登录或手机号+API Key 认证。")
 async def list_files(
     path: str = None,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -498,8 +483,7 @@ async def list_files(
 
 
 @app.post("/api/files/rename", tags=["文件管理"], summary="重命名文件",
-         description="重命名指定路径的文件或文件夹，返回新路径。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="重命名指定路径的文件或文件夹，返回新路径。支持 Cookie 登录或手机号+API Key 认证。")
 async def rename_file(
     request: FileRenameRequest,
     user = Depends(require_auth_or_api_key),
@@ -538,8 +522,7 @@ async def rename_file(
 
 
 @app.post("/api/files/delete", tags=["文件管理"], summary="删除文件或文件夹",
-         description="删除指定路径的文件或文件夹。文件夹非空时会递归删除。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="删除指定路径的文件或文件夹。文件夹非空时会递归删除。支持 Cookie 登录或手机号+API Key 认证。")
 async def delete_file(
     request: FileDeleteRequest,
     user = Depends(require_auth_or_api_key),
@@ -589,8 +572,7 @@ async def delete_file(
 
 
 @app.post("/api/files/copy", tags=["文件管理"], summary="复制文件",
-         description="复制文件或文件夹到目标路径，文件夹使用递归复制。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="复制文件或文件夹到目标路径，文件夹使用递归复制。支持 Cookie 登录或手机号+API Key 认证。")
 async def copy_file(
     request: FileCopyRequest,
     user = Depends(require_auth_or_api_key),
@@ -631,8 +613,7 @@ async def copy_file(
 
 
 @app.post("/api/files/move", tags=["文件管理"], summary="移动文件",
-         description="移动文件或文件夹到目标路径，等同于重命名+路径变更。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="移动文件或文件夹到目标路径，等同于重命名+路径变更。支持 Cookie 登录或手机号+API Key 认证。")
 async def move_file(
     request: FileMoveRequest,
     user = Depends(require_auth_or_api_key),
@@ -669,8 +650,7 @@ async def move_file(
 
 
 @app.post("/api/files/create-folder", tags=["文件管理"], summary="创建文件夹",
-         description="在指定路径下创建新文件夹，支持 SSH 远程模式。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="在指定路径下创建新文件夹，支持 SSH 远程模式。支持 Cookie 登录或手机号+API Key 认证。")
 async def create_folder(
     request: FileCreateRequest,
     user = Depends(require_auth_or_api_key),
@@ -708,8 +688,7 @@ async def create_folder(
 
 
 @app.post("/api/files/create-file", tags=["文件管理"], summary="创建空文件",
-         description="在指定路径下创建一个新的空文件。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="在指定路径下创建一个新的空文件。支持 Cookie 登录或手机号+API Key 认证。")
 async def create_file(
     request: FileCreateRequest,
     user = Depends(require_auth_or_api_key),
@@ -749,8 +728,7 @@ async def create_file(
 
 
 @app.post("/api/files/save", tags=["文件管理"], summary="保存文件内容",
-         description="将文本内容写入指定文件路径，覆盖原有内容。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="将文本内容写入指定文件路径，覆盖原有内容。支持 Cookie 登录或手机号+API Key 认证。")
 async def save_file(
     request: FileSaveRequest,
     user = Depends(require_auth_or_api_key),
@@ -788,8 +766,7 @@ async def save_file(
 
 
 @app.post("/api/files/read", tags=["文件管理"], summary="读取文件内容",
-         description="读取指定路径的文本文件内容并返回。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="读取指定路径的文本文件内容并返回。支持 Cookie 登录或手机号+API Key 认证。")
 async def read_file(
     request: FileReadRequest,
     user = Depends(require_auth_or_api_key),
@@ -827,8 +804,7 @@ async def read_file(
 
 
 @app.get("/api/ssh/status", tags=["SSH 连接"], summary="查询 SSH 连接状态",
-        description="检查当前用户的 SSH 远程服务器是否已配置，并尝试建立连接验证可用性。支持 Cookie 登录或手机号+API Key 认证。",
-        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+        description="检查当前用户的 SSH 远程服务器是否已配置，并尝试建立连接验证可用性。支持 Cookie 登录或手机号+API Key 认证。")
 async def ssh_connection_status(
     user = Depends(require_auth_or_api_key),
     db = Depends(get_db),
@@ -864,8 +840,7 @@ async def ssh_connection_status(
 
 
 @app.post("/api/ssh/configure", tags=["SSH 连接"], summary="配置 SSH 连接",
-         description="配置 SSH 远程服务器连接参数，会先验证连接是否成功，成功后保存到数据库。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="配置 SSH 远程服务器连接参数，会先验证连接是否成功，成功后保存到数据库。支持 Cookie 登录或手机号+API Key 认证。")
 async def ssh_configure(
     config: SshConfigData,
     user = Depends(require_auth_or_api_key),
@@ -927,8 +902,7 @@ async def send_heartbeat(request: Request):
 
 
 @app.post("/api/devices", tags=["设备管理"], summary="创建设备",
-         description="管理端调用，通过 register 别名创建设备记录。支持 Cookie 登录或手机号+API Key 认证。",
-         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+         description="管理端调用，通过 register 别名创建设备记录。支持 Cookie 登录或手机号+API Key 认证。")
 async def create_device(
     request: Request,
     user = Depends(require_auth_or_api_key),
@@ -943,8 +917,7 @@ async def create_device(
 
 
 @app.get("/api/devices", tags=["设备管理"], summary="获取设备列表",
-        description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。支持 Cookie 登录或手机号+API Key 认证。",
-        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+        description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。支持 Cookie 登录或手机号+API Key 认证。")
 async def get_devices(
     user = Depends(require_auth_or_api_key),
     db = Depends(get_db),

@@ -157,3 +157,30 @@ def require_auth_or_api_key(request: Request, response: Response, db=Depends(get
         raise HTTPException(status_code=404, detail="该手机号未注册")
 
     return user
+
+
+async def verify_api_key_and_phone(
+    request: Request,
+    db=Depends(get_db),
+):
+    """
+    Combined API Key + Phone 认证（用于 Swagger UI 单一认证按钮）
+    """
+    api_key = request.headers.get("X-API-Key") or request.query_params.get("api_key")
+    phone = request.headers.get("X-Phone") or request.query_params.get("phone")
+
+    if not api_key or api_key != settings.QUERY_API_KEY:
+        raise HTTPException(status_code=401, detail="认证失败：无效的 API Key")
+
+    if not phone:
+        raise HTTPException(status_code=400, detail="缺少手机号参数(phone)")
+
+    cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
+    user = cur.fetchone()
+    cur.close()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="该手机号未注册")
+
+    return user
