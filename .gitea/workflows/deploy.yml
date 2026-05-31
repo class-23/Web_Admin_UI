@@ -16,4 +16,9 @@ jobs:
     steps:
       - name: Deploy via SSH
         run: |
-          sshpass -p "123quant-speed" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 "quant@6.6.6.66" "echo '123quant-speed' | sudo -S bash -c 'cd /home/quant/data/dev/Web_Admin_UI && git pull && docker compose up -d && docker logs --tail 30 quantclaw_app || true'"
+          sshpass -p "123quant-speed" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 "quant@6.6.6.66" '
+            cd /home/quant/data/dev/Web_Admin_UI &&
+            git remote set-url origin git@gitea.tangledup-ai.com:quantclaw/Web_Admin_UI.git &&
+            git pull
+            docker compose up -d && docker logs --tail 30 quantclaw_app || true
+          '
