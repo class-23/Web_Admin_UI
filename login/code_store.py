@@ -22,6 +22,11 @@ def get_code(phone: str) -> Optional[str]:
     return code
 
 
+def peek_code(phone: str) -> Optional[str]:
+    """只读取验证码，不消费（不删除）"""
+    return _redis.get(f"sms_code:{phone}")
+
+
 def can_resend(phone: str) -> bool:
     return not _redis.exists(f"sms_cooldown:{phone}")
 

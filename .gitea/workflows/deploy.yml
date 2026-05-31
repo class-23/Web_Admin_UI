@@ -26,13 +26,13 @@ jobs:
             yum install -y openssh-clients sshpass
           fi
 
-          export SSHPASS="${SERVER_PASSWORD}"
+          export SSHPASS="$SERVER_PASSWORD"
           sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SERVER_USER@$SERVER_HOST" << 'ENDSSH'
             set -e
             cd /home/quant/data/dev/Web_Admin_UI
-            docker compose down || true
-            sudo git pull
+            echo $SERVER_PASSWORD | sudo -S docker compose down || true
+            echo $SERVER_PASSWORD | sudo -S git pull
             sudo chown -R quant:quant /home/quant/data/dev/Web_Admin_UI
-            docker compose up -d
-            docker logs --tail 30 quantclaw_app || true
+            echo $SERVER_PASSWORD | sudo -S docker compose up -d
+            sudo docker logs --tail 30 quantclaw_app || true
           ENDSSH

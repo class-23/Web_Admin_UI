@@ -8,7 +8,7 @@ from login.schemas import ForgotPasswordSendCodeRequest, ForgotPasswordVerifyReq
 from login.schemas import ChangePasswordRequest
 from login.auth import verify_password, get_password_hash, create_access_token
 from login.auth import set_auth_cookie, clear_auth_cookie, get_current_user_from_cookie, require_auth
-from login.code_store import store_code, get_code, can_resend, clear_code
+from login.code_store import store_code, get_code, peek_code, can_resend, clear_code
 from login.limiter import limiter
 from login.sms_utils import send_sms
 from jose import jwt, JWTError
@@ -90,9 +90,9 @@ def login(request: Request, response: Response, req: LoginRequest, db = Depends(
 @router.post("/login-by-sms", response_model=ApiResponse, summary="短信验证码登录", description="通过手机号+短信验证码登录，无需密码。开发环境验证码 888888 可直接登录。")
 @limiter.limit("5/minute")
 def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, db = Depends(get_db)):
-    # 校验验证码（开发验证码 888888 跳过 Redis）
+    # 先用 peek 验证验证码（不消费）
     if req.code != "888888":
-        stored_code = get_code(req.phone)
+        stored_code = peek_code(req.phone)
         if stored_code is None or stored_code != req.code:
             return ApiResponse(code=400, message="验证码无效或已过期")
 
@@ -103,7 +103,12 @@ def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, d
     cur.close()
 
     if user is None:
+        # 用户不存在，不消费验证码，前端会跳转注册页复用
         return ApiResponse(code=404, message="该手机号未注册，请先注册")
+
+    # 用户存在，才消费验证码
+    if req.code != "888888":
+        get_code(req.phone)
 
     set_auth_cookie(response, {"sub": str(user["id"]), "username": user["username"]})
     return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})

@@ -497,8 +497,8 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem('username', data.data.username || phone);
         window.location.href = '/';
       } else if (data.code === 404) {
-        // 手机号未注册，跳转注册页并带上手机号
-        window.location.href = '/register?phone=' + encodeURIComponent(phone);
+        // 手机号未注册，跳转注册页并带上手机号和已验证的验证码
+        window.location.href = '/register?phone=' + encodeURIComponent(phone) + '&code=' + encodeURIComponent(code);
       } else {
         showMessage(data.message || '登录失败', 'error');
         btnSmsLogin.textContent = '登录';
