@@ -8,7 +8,7 @@ services:
     ports:
       - "${HOST_PORT:-8082}:${APP_PORT:-8081}"
     environment:
-      - PG_HOST=6.6.6.66
+      - PG_HOST=localhost
       - PG_PORT=5432
       - PG_USER=quantclaw
       - PG_PASSWORD=quantclaw
@@ -19,6 +19,6 @@ services:
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-here-change-in-production}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
-      - REDIS_HOST=6.6.6.66
+      - REDIS_HOST=localhost
       - REDIS_PORT=6379
       - REDIS_DB=0
