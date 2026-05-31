@@ -9,8 +9,6 @@ on:
 env:
   SERVER_HOST: 6.6.6.66
   SERVER_USER: quant
-  SERVER_PASSWORD: 123quant-speed
-  WORK_DIR: /home/quant/data/dev/Web_Admin_UI
 
 jobs:
   deploy:
@@ -26,13 +24,4 @@ jobs:
             yum install -y openssh-clients sshpass
           fi
 
-          export SSHPASS="$SERVER_PASSWORD"
-          sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SERVER_USER@$SERVER_HOST" << 'ENDSSH'
-            set -e
-            cd /home/quant/data/dev/Web_Admin_UI
-            echo $SERVER_PASSWORD | sudo -S docker compose down || true
-            echo $SERVER_PASSWORD | sudo -S git pull
-            sudo chown -R quant:quant /home/quant/data/dev/Web_Admin_UI
-            echo $SERVER_PASSWORD | sudo -S docker compose up -d
-            sudo docker logs --tail 30 quantclaw_app || true
-          ENDSSH
+          sshpass -p "123quant-speed" ssh -o StrictHostKeyChecking=no "quant@6.6.66" "echo '123quant-speed' | sudo -S bash -c 'cd /home/quant/data/dev/Web_Admin_UI && git pull && docker compose up -d && docker logs --tail 30 quantclaw_app || true'"
