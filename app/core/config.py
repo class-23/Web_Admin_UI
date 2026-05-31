@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440
 
+    # 查询 API Key（手机号+API Key 免登录查询）
+    QUERY_API_KEY: str = "123quant-speed"
+
     # 设备密钥
     DEVICE_SECRET: str = "quant123456"
 

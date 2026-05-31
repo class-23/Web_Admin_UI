@@ -4,8 +4,9 @@ QuantClaw 设备管理后台
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException, Request, Response, Depends
+from fastapi import FastAPI, HTTPException, Request, Response, Depends, Security
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import APIKeyHeader, APIKeyQuery
 from quantclaw_receiver import QuantClawDeviceManager, QuantClawConfig
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,7 +30,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from login.limiter import limiter
 from login.routers.auth_router import router as auth_router
-from login.auth import require_auth
+from login.auth import require_auth, require_auth_or_api_key
 from login.database import get_db, init_db as login_init_db
 
 config = QuantClawConfig(
@@ -56,7 +57,10 @@ app = FastAPI(
     title="QuantClaw 设备管理后台",
     description=(
         "QuantClaw IoT 设备管理平台 API。\n\n"
-        "提供设备注册与心跳监控、远程文件管理、SSH 连接配置、用户认证与权限管理等功能。"
+        "提供设备注册与心跳监控、远程文件管理、SSH 连接配置、用户认证与权限管理等功能。\n\n"
+        "**认证方式：**\n"
+        "- Cookie 登录（通过 `/api/login` 获取）\n"
+        "- API Key + 手机号（Header: `X-API-Key` + `X-Phone` 或 Query: `api_key` + `phone`）"
     ),
     version="1.0.0",
     lifespan=lifespan,
@@ -68,6 +72,12 @@ app = FastAPI(
         {"name": "系统管理", "description": "用户设置、磁盘用量监控、健康检查"},
     ],
 )
+
+# Swagger UI 安全方案定义
+api_key_header = APIKeyHeader(name="X-API-Key", description="API Key（默认: 123quant-speed）", auto_error=False)
+api_key_query = APIKeyQuery(name="api_key", description="API Key（默认: 123quant-speed）", auto_error=False)
+phone_header = APIKeyHeader(name="X-Phone", description="用户手机号", auto_error=False)
+phone_query = APIKeyQuery(name="phone", description="用户手机号", auto_error=False)
 
 
 class UserDefaultSettings(BaseModel):
@@ -202,8 +212,17 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-@app.get("/api/settings", tags=["系统管理"], summary="获取用户设置", description="获取当前登录用户的全局配置信息，包括语言、主题、权限等。")
-async def get_settings(user = Depends(require_auth), db = Depends(get_db)):
+@app.get("/api/settings", tags=["系统管理"], summary="获取用户设置",
+        description="获取当前登录用户的全局配置信息，包括语言、主题、权限等。支持 Cookie 登录或手机号+API Key 认证。",
+        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def get_settings(
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("SELECT data FROM settings WHERE user_id = %s", (user["id"],))
     row = cur.fetchone()
@@ -213,8 +232,18 @@ async def get_settings(user = Depends(require_auth), db = Depends(get_db)):
     return GlobalSettings()
 
 
-@app.post("/api/settings", tags=["系统管理"], summary="更新用户设置", description="更新当前登录用户的全局配置信息，采用 upsert 模式。")
-async def update_settings(settings: GlobalSettings, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/settings", tags=["系统管理"], summary="更新用户设置",
+         description="更新当前登录用户的全局配置信息，采用 upsert 模式。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def update_settings(
+    settings: GlobalSettings,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     cur = db.cursor()
     cur.execute(
         "INSERT INTO settings (user_id, data) VALUES (%s, %s) ON CONFLICT (user_id) DO UPDATE SET data = %s, updated_at = NOW()",
@@ -373,8 +402,18 @@ async def get_disk_usage_api():
     )
 
 
-@app.get("/api/files", tags=["文件管理"], summary="列出目录文件", description="列出指定路径下的文件和文件夹，支持本地模式和 SSH 远程模式。返回文件名、类型、大小、修改时间等信息。")
-async def list_files(path: str = None, user = Depends(require_auth), db = Depends(get_db)):
+@app.get("/api/files", tags=["文件管理"], summary="列出目录文件",
+        description="列出指定路径下的文件和文件夹，支持本地模式和 SSH 远程模式。返回文件名、类型、大小、修改时间等信息。支持 Cookie 登录或手机号+API Key 认证。",
+        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def list_files(
+    path: str = None,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -458,8 +497,18 @@ async def list_files(path: str = None, user = Depends(require_auth), db = Depend
         )
 
 
-@app.post("/api/files/rename", tags=["文件管理"], summary="重命名文件", description="重命名指定路径的文件或文件夹，返回新路径。")
-async def rename_file(request: FileRenameRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/rename", tags=["文件管理"], summary="重命名文件",
+         description="重命名指定路径的文件或文件夹，返回新路径。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def rename_file(
+    request: FileRenameRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -488,8 +537,18 @@ async def rename_file(request: FileRenameRequest, user = Depends(require_auth), 
         )
 
 
-@app.post("/api/files/delete", tags=["文件管理"], summary="删除文件或文件夹", description="删除指定路径的文件或文件夹。文件夹非空时会递归删除。")
-async def delete_file(request: FileDeleteRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/delete", tags=["文件管理"], summary="删除文件或文件夹",
+         description="删除指定路径的文件或文件夹。文件夹非空时会递归删除。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def delete_file(
+    request: FileDeleteRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -788,14 +847,33 @@ async def send_heartbeat(request: Request):
     return {"code": 0, "message": "ok", "data": result}
 
 
-@app.post("/api/devices", tags=["设备管理"], summary="创建设备", description="管理端调用，通过 register 别名创建设备记录。需要用户认证。")
-async def create_device(request: Request, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/devices", tags=["设备管理"], summary="创建设备",
+         description="管理端调用，通过 register 别名创建设备记录。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def create_device(
+    request: Request,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     result = await device_manager.create_device(request)
     return {"code": 0, "message": "ok", "data": result}
 
 
-@app.get("/api/devices", tags=["设备管理"], summary="获取设备列表", description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。")
-async def get_devices(user = Depends(require_auth), db = Depends(get_db)):
+@app.get("/api/devices", tags=["设备管理"], summary="获取设备列表",
+        description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。支持 Cookie 登录或手机号+API Key 认证。",
+        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def get_devices(
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     devices = await device_manager.get_devices_list()
     return {"code": 0, "message": "ok", "data": devices}
 
