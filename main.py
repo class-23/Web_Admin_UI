@@ -588,8 +588,18 @@ async def delete_file(
         )
 
 
-@app.post("/api/files/copy", tags=["文件管理"], summary="复制文件", description="复制文件或文件夹到目标路径，文件夹使用递归复制。")
-async def copy_file(request: FileCopyRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/copy", tags=["文件管理"], summary="复制文件",
+         description="复制文件或文件夹到目标路径，文件夹使用递归复制。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def copy_file(
+    request: FileCopyRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -620,8 +630,18 @@ async def copy_file(request: FileCopyRequest, user = Depends(require_auth), db =
         )
 
 
-@app.post("/api/files/move", tags=["文件管理"], summary="移动文件", description="移动文件或文件夹到目标路径，等同于重命名+路径变更。")
-async def move_file(request: FileMoveRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/move", tags=["文件管理"], summary="移动文件",
+         description="移动文件或文件夹到目标路径，等同于重命名+路径变更。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def move_file(
+    request: FileMoveRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -648,8 +668,18 @@ async def move_file(request: FileMoveRequest, user = Depends(require_auth), db =
         )
 
 
-@app.post("/api/files/create-folder", tags=["文件管理"], summary="创建文件夹", description="在指定路径下创建新文件夹，支持 SSH 远程模式。")
-async def create_folder(request: FileCreateRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/create-folder", tags=["文件管理"], summary="创建文件夹",
+         description="在指定路径下创建新文件夹，支持 SSH 远程模式。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def create_folder(
+    request: FileCreateRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -677,8 +707,18 @@ async def create_folder(request: FileCreateRequest, user = Depends(require_auth)
         )
 
 
-@app.post("/api/files/create-file", tags=["文件管理"], summary="创建空文件", description="在指定路径下创建一个新的空文件。")
-async def create_file(request: FileCreateRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/create-file", tags=["文件管理"], summary="创建空文件",
+         description="在指定路径下创建一个新的空文件。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def create_file(
+    request: FileCreateRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -708,8 +748,18 @@ async def create_file(request: FileCreateRequest, user = Depends(require_auth), 
         )
 
 
-@app.post("/api/files/save", tags=["文件管理"], summary="保存文件内容", description="将文本内容写入指定文件路径，覆盖原有内容。")
-async def save_file(request: FileSaveRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/save", tags=["文件管理"], summary="保存文件内容",
+         description="将文本内容写入指定文件路径，覆盖原有内容。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def save_file(
+    request: FileSaveRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -737,8 +787,18 @@ async def save_file(request: FileSaveRequest, user = Depends(require_auth), db =
         )
 
 
-@app.post("/api/files/read", tags=["文件管理"], summary="读取文件内容", description="读取指定路径的文本文件内容并返回。")
-async def read_file(request: FileReadRequest, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/files/read", tags=["文件管理"], summary="读取文件内容",
+         description="读取指定路径的文本文件内容并返回。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def read_file(
+    request: FileReadRequest,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
         try:
@@ -766,8 +826,17 @@ async def read_file(request: FileReadRequest, user = Depends(require_auth), db =
         )
 
 
-@app.get("/api/ssh/status", tags=["SSH 连接"], summary="查询 SSH 连接状态", description="检查当前用户的 SSH 远程服务器是否已配置，并尝试建立连接验证可用性。")
-async def ssh_connection_status(user = Depends(require_auth), db = Depends(get_db)):
+@app.get("/api/ssh/status", tags=["SSH 连接"], summary="查询 SSH 连接状态",
+        description="检查当前用户的 SSH 远程服务器是否已配置，并尝试建立连接验证可用性。支持 Cookie 登录或手机号+API Key 认证。",
+        security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def ssh_connection_status(
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     cfg = get_user_ssh_config(db, user["id"])
     if not cfg or not cfg["host"] or not cfg["username"]:
         return {"configured": False, "connected": False, "message": "未配置 SSH 连接"}
@@ -794,8 +863,18 @@ async def ssh_connection_status(user = Depends(require_auth), db = Depends(get_d
         }
 
 
-@app.post("/api/ssh/configure", tags=["SSH 连接"], summary="配置 SSH 连接", description="配置 SSH 远程服务器连接参数，会先验证连接是否成功，成功后保存到数据库。")
-async def ssh_configure(config: SshConfigData, user = Depends(require_auth), db = Depends(get_db)):
+@app.post("/api/ssh/configure", tags=["SSH 连接"], summary="配置 SSH 连接",
+         description="配置 SSH 远程服务器连接参数，会先验证连接是否成功，成功后保存到数据库。支持 Cookie 登录或手机号+API Key 认证。",
+         security=[{"ApiKeyHeader": [], "PhoneHeader": []}, {"ApiKeyQuery": [], "PhoneQuery": []}])
+async def ssh_configure(
+    config: SshConfigData,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+    _api_key: str = Security(api_key_header, use_cache=False),
+    _api_key_q: str = Security(api_key_query, use_cache=False),
+    _phone: str = Security(phone_header, use_cache=False),
+    _phone_q: str = Security(phone_query, use_cache=False),
+):
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
