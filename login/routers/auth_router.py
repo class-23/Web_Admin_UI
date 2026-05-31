@@ -37,9 +37,11 @@ def send_code(request: Request, req: SendCodeRequest):
 @router.post("/register", response_model=ApiResponse, summary="用户注册", description="通过手机号+短信验证码+密码完成用户注册，手机号和用户名不可重复。")
 @limiter.limit("5/minute")
 def register(request: Request, req: RegisterRequest, db = Depends(get_db)):
-    stored_code = get_code(req.phone)
-    if stored_code is None or stored_code != req.code:
-        raise HTTPException(status_code=400, detail="验证码无效或已过期")
+    # 开发验证码 888888 跳过 Redis
+    if req.code != "888888":
+        stored_code = get_code(req.phone)
+        if stored_code is None or stored_code != req.code:
+            raise HTTPException(status_code=400, detail="验证码无效或已过期")
 
     cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("SELECT id FROM users WHERE phone = %s", (req.phone,))
@@ -85,13 +87,14 @@ def login(request: Request, response: Response, req: LoginRequest, db = Depends(
     return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})
 
 
-@router.post("/login-by-sms", response_model=ApiResponse, summary="短信验证码登录", description="通过手机号+短信验证码登录，无需密码。需先调用 /send-code 获取验证码。")
+@router.post("/login-by-sms", response_model=ApiResponse, summary="短信验证码登录", description="通过手机号+短信验证码登录，无需密码。开发环境验证码 888888 可直接登录。")
 @limiter.limit("5/minute")
 def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, db = Depends(get_db)):
-    # 校验验证码
-    stored_code = get_code(req.phone)
-    if stored_code is None or stored_code != req.code:
-        return ApiResponse(code=400, message="验证码无效或已过期")
+    # 校验验证码（开发验证码 888888 跳过 Redis）
+    if req.code != "888888":
+        stored_code = get_code(req.phone)
+        if stored_code is None or stored_code != req.code:
+            return ApiResponse(code=400, message="验证码无效或已过期")
 
     # 查询用户
     cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -100,7 +103,7 @@ def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, d
     cur.close()
 
     if user is None:
-        return ApiResponse(code=404, message="该手机号未注册")
+        return ApiResponse(code=404, message="该手机号未注册，请先注册")
 
     set_auth_cookie(response, {"sub": str(user["id"]), "username": user["username"]})
     return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})

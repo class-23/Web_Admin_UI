@@ -31,7 +31,8 @@ jobs:
             set -e
             cd /home/quant/data/dev/Web_Admin_UI
             docker compose down || true
-            git pull
+            sudo git pull
+            sudo chown -R quant:quant /home/quant/data/dev/Web_Admin_UI
             docker compose up -d
             docker logs --tail 30 quantclaw_app || true
           ENDSSH
