@@ -4,7 +4,7 @@ QuantClaw 设备管理后台
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException, Request, Response, Depends, Security
+from fastapi import FastAPI, HTTPException, Request, Response, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import APIKeyHeader, APIKeyQuery
 from quantclaw_receiver import QuantClawDeviceManager, QuantClawConfig
@@ -72,12 +72,6 @@ app = FastAPI(
         {"name": "系统管理", "description": "用户设置、磁盘用量监控、健康检查"},
     ],
 )
-
-# Swagger UI 安全方案定义
-api_key_header = APIKeyHeader(name="X-API-Key", description="API Key（默认: 123quant-speed）", auto_error=False)
-api_key_query = APIKeyQuery(name="api_key", description="API Key（默认: 123quant-speed）", auto_error=False)
-phone_header = APIKeyHeader(name="X-Phone", description="用户手机号", auto_error=False)
-phone_query = APIKeyQuery(name="phone", description="用户手机号", auto_error=False)
 
 
 class UserDefaultSettings(BaseModel):
@@ -486,12 +480,8 @@ async def list_files(
          description="重命名指定路径的文件或文件夹，返回新路径。支持 Cookie 登录或手机号+API Key 认证。")
 async def rename_file(
     request: FileRenameRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -525,12 +515,8 @@ async def rename_file(
          description="删除指定路径的文件或文件夹。文件夹非空时会递归删除。支持 Cookie 登录或手机号+API Key 认证。")
 async def delete_file(
     request: FileDeleteRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -575,12 +561,8 @@ async def delete_file(
          description="复制文件或文件夹到目标路径，文件夹使用递归复制。支持 Cookie 登录或手机号+API Key 认证。")
 async def copy_file(
     request: FileCopyRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -616,12 +598,8 @@ async def copy_file(
          description="移动文件或文件夹到目标路径，等同于重命名+路径变更。支持 Cookie 登录或手机号+API Key 认证。")
 async def move_file(
     request: FileMoveRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -653,12 +631,8 @@ async def move_file(
          description="在指定路径下创建新文件夹，支持 SSH 远程模式。支持 Cookie 登录或手机号+API Key 认证。")
 async def create_folder(
     request: FileCreateRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -691,12 +665,8 @@ async def create_folder(
          description="在指定路径下创建一个新的空文件。支持 Cookie 登录或手机号+API Key 认证。")
 async def create_file(
     request: FileCreateRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -731,12 +701,8 @@ async def create_file(
          description="将文本内容写入指定文件路径，覆盖原有内容。支持 Cookie 登录或手机号+API Key 认证。")
 async def save_file(
     request: FileSaveRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -769,12 +735,8 @@ async def save_file(
          description="读取指定路径的文本文件内容并返回。支持 Cookie 登录或手机号+API Key 认证。")
 async def read_file(
     request: FileReadRequest,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     ssh_cfg = get_user_ssh_config(db, user["id"])
     if ssh_cfg and ssh_cfg["host"] and ssh_cfg["username"]:
@@ -804,14 +766,10 @@ async def read_file(
 
 
 @app.get("/api/ssh/status", tags=["SSH 连接"], summary="查询 SSH 连接状态",
-        description="检查当前用户的 SSH 远程服务器是否已配置，并尝试建立连接验证可用性。支持 Cookie 登录或手机号+API Key 认证。")
+         description="检查当前用户的 SSH 远程服务器是否已配置，并尝试建立连接验证可用性。支持 Cookie 登录或手机号+API Key 认证。")
 async def ssh_connection_status(
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     cfg = get_user_ssh_config(db, user["id"])
     if not cfg or not cfg["host"] or not cfg["username"]:
@@ -843,12 +801,8 @@ async def ssh_connection_status(
          description="配置 SSH 远程服务器连接参数，会先验证连接是否成功，成功后保存到数据库。支持 Cookie 登录或手机号+API Key 认证。")
 async def ssh_configure(
     config: SshConfigData,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     try:
         ssh = paramiko.SSHClient()
@@ -905,26 +859,18 @@ async def send_heartbeat(request: Request):
          description="管理端调用，通过 register 别名创建设备记录。支持 Cookie 登录或手机号+API Key 认证。")
 async def create_device(
     request: Request,
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     result = await device_manager.create_device(request)
     return {"code": 0, "message": "ok", "data": result}
 
 
 @app.get("/api/devices", tags=["设备管理"], summary="获取设备列表",
-        description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。支持 Cookie 登录或手机号+API Key 认证。")
+         description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。支持 Cookie 登录或手机号+API Key 认证。")
 async def get_devices(
-    user = Depends(require_auth_or_api_key),
+    user = Depends(verify_api_key_and_phone),
     db = Depends(get_db),
-    _api_key: str = Security(api_key_header, use_cache=False),
-    _api_key_q: str = Security(api_key_query, use_cache=False),
-    _phone: str = Security(phone_header, use_cache=False),
-    _phone_q: str = Security(phone_query, use_cache=False),
 ):
     devices = await device_manager.get_devices_list()
     return {"code": 0, "message": "ok", "data": devices}
