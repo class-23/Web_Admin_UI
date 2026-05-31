@@ -61,6 +61,25 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class LoginBySmsRequest(BaseModel):
+    phone: str
+    code: str
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v):
+        if not re.match(r"^1[3-9]\d{9}$", v):
+            raise ValueError("手机号格式不正确，请输入中国大陆11位手机号")
+        return v
+
+    @field_validator("code")
+    @classmethod
+    def validate_code(cls, v):
+        if not re.match(r"^\d{6}$", v):
+            raise ValueError("验证码必须是6位数字")
+        return v
+
+
 class SendCodeRequest(BaseModel):
     phone: str
 

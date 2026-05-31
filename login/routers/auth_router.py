@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 import string
 from login import config
 from login.database import get_db
-from login.schemas import RegisterRequest, LoginRequest, SendCodeRequest, ApiResponse
+from login.schemas import RegisterRequest, LoginRequest, LoginBySmsRequest, SendCodeRequest, ApiResponse
 from login.schemas import ForgotPasswordSendCodeRequest, ForgotPasswordVerifyRequest, ResetPasswordRequest, TokenVerifyRequest
 from login.schemas import ChangePasswordRequest
 from login.auth import verify_password, get_password_hash, create_access_token
@@ -80,6 +80,27 @@ def login(request: Request, response: Response, req: LoginRequest, db = Depends(
 
     if user is None or not verify_password(req.password, user["password"]):
         return ApiResponse(code=401, message="手机号/用户名或密码错误")
+
+    set_auth_cookie(response, {"sub": str(user["id"]), "username": user["username"]})
+    return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})
+
+
+@router.post("/login-by-sms", response_model=ApiResponse, summary="短信验证码登录", description="通过手机号+短信验证码登录，无需密码。需先调用 /send-code 获取验证码。")
+@limiter.limit("5/minute")
+def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, db = Depends(get_db)):
+    # 校验验证码
+    stored_code = get_code(req.phone)
+    if stored_code is None or stored_code != req.code:
+        return ApiResponse(code=400, message="验证码无效或已过期")
+
+    # 查询用户
+    cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM users WHERE phone = %s", (req.phone,))
+    user = cur.fetchone()
+    cur.close()
+
+    if user is None:
+        return ApiResponse(code=404, message="该手机号未注册")
 
     set_auth_cookie(response, {"sub": str(user["id"]), "username": user["username"]})
     return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})
