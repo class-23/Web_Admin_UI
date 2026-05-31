@@ -1,25 +1,10 @@
 services:
-  redis:
-    image: redis:7-alpine
-    container_name: quantclaw_redis
-    restart: always
-    ports:
-      - "6380:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: quantclaw_app
     restart: always
-    depends_on:
-      redis:
-        condition: service_healthy
     ports:
       - "${HOST_PORT:-8082}:${APP_PORT:-8081}"
     environment:
@@ -34,6 +19,6 @@ services:
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-here-change-in-production}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
-      - REDIS_HOST=redis
+      - REDIS_HOST=6.6.6.66
       - REDIS_PORT=6379
       - REDIS_DB=0
