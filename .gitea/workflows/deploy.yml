@@ -19,5 +19,5 @@ jobs:
           sshpass -p "123quant-speed" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 "quant@6.6.6.66" '
             cd /home/quant/data/dev/Web_Admin_UI &&
             git pull https://jeremygan2021:Ganqweasdzxc1%21@gitea.tangledup-ai.com/quantclaw/Web_Admin_UI.git main &&
-            docker compose up -d && docker logs --tail 30 quantclaw_app || true
+            docker compose build --no-cache app && docker compose up -d && docker logs --tail 30 quantclaw_app || true
           '
