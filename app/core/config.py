@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     def SETTINGS_DB_URL(self) -> str:
         return f"sqlite:///{self.SETTINGS_DB_PATH}"
 
-    HOST_PORT: int = 3309
+    HOST_PORT: int = 8082
 
     class Config:
         env_file = ".env"
