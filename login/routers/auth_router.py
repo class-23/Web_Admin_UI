@@ -18,7 +18,7 @@ import psycopg2.extras
 router = APIRouter()
 
 
-@router.post("/send-code", response_model=ApiResponse)
+@router.post("/send-code", response_model=ApiResponse, summary="发送短信验证码", description="向指定手机号发送6位数字验证码，60秒内不可重复发送。")
 @limiter.limit("5/minute")
 def send_code(request: Request, req: SendCodeRequest):
     phone = req.phone
@@ -34,7 +34,7 @@ def send_code(request: Request, req: SendCodeRequest):
     return ApiResponse(code=0, message=msg)
 
 
-@router.post("/register", response_model=ApiResponse)
+@router.post("/register", response_model=ApiResponse, summary="用户注册", description="通过手机号+短信验证码+密码完成用户注册，手机号和用户名不可重复。")
 @limiter.limit("5/minute")
 def register(request: Request, req: RegisterRequest, db = Depends(get_db)):
     stored_code = get_code(req.phone)
@@ -65,7 +65,7 @@ def register(request: Request, req: RegisterRequest, db = Depends(get_db)):
     return ApiResponse(code=0, message="注册成功")
 
 
-@router.post("/login", response_model=ApiResponse)
+@router.post("/login", response_model=ApiResponse, summary="用户登录", description="支持手机号或用户名登录，成功后设置 JWT Cookie。")
 @limiter.limit("5/minute")
 def login(request: Request, response: Response, req: LoginRequest, db = Depends(get_db)):
     account = req.account
@@ -85,7 +85,7 @@ def login(request: Request, response: Response, req: LoginRequest, db = Depends(
     return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})
 
 
-@router.post("/forgot-password/send-code", response_model=ApiResponse)
+@router.post("/forgot-password/send-code", response_model=ApiResponse, summary="发送找回密码验证码", description="向已注册的手机号发送找回密码的短信验证码。")
 @limiter.limit("5/minute")
 def forgot_password_send_code(request: Request, req: ForgotPasswordSendCodeRequest, db = Depends(get_db)):
     phone = req.phone
@@ -106,7 +106,7 @@ def forgot_password_send_code(request: Request, req: ForgotPasswordSendCodeReque
     return ApiResponse(code=0, message=msg)
 
 
-@router.post("/forgot-password/verify", response_model=ApiResponse)
+@router.post("/forgot-password/verify", response_model=ApiResponse, summary="验证找回密码验证码", description="验证短信验证码，通过后返回有效期10分钟的重置令牌。")
 @limiter.limit("5/minute")
 def forgot_password_verify(request: Request, req: ForgotPasswordVerifyRequest, db = Depends(get_db)):
     cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -125,7 +125,7 @@ def forgot_password_verify(request: Request, req: ForgotPasswordVerifyRequest, d
     return ApiResponse(code=0, message="验证通过", data={"reset_token": reset_token})
 
 
-@router.post("/forgot-password/reset", response_model=ApiResponse)
+@router.post("/forgot-password/reset", response_model=ApiResponse, summary="重置密码", description="使用重置令牌设置新密码，令牌有效期10分钟。")
 @limiter.limit("5/minute")
 def forgot_password_reset(request: Request, req: ResetPasswordRequest, db = Depends(get_db)):
     try:
@@ -156,7 +156,7 @@ def forgot_password_reset(request: Request, req: ResetPasswordRequest, db = Depe
     return ApiResponse(code=0, message="密码重置成功")
 
 
-@router.post("/verify_token", response_model=ApiResponse)
+@router.post("/verify_token", response_model=ApiResponse, summary="验证 JWT Token", description="验证 JWT Token 是否有效，返回令牌状态、用户名和过期时间。")
 @limiter.limit("30/minute")
 def verify_token(request: Request, req: TokenVerifyRequest):
     try:
@@ -170,13 +170,13 @@ def verify_token(request: Request, req: TokenVerifyRequest):
         return ApiResponse(code=0, message="令牌有效", data={"valid": False})
 
 
-@router.post("/logout", response_model=ApiResponse)
+@router.post("/logout", response_model=ApiResponse, summary="退出登录", description="清除认证 Cookie，退出当前登录状态。")
 def logout(response: Response):
     clear_auth_cookie(response)
     return ApiResponse(code=0, message="已退出登录")
 
 
-@router.get("/current_user", response_model=ApiResponse)
+@router.get("/current_user", response_model=ApiResponse, summary="获取当前用户信息", description="从 Cookie 中获取当前登录用户的信息，未登录返回 null。")
 @limiter.limit("30/minute")
 def current_user(request: Request, db = Depends(get_db)):
     user = get_current_user_from_cookie(request, db)
@@ -185,7 +185,7 @@ def current_user(request: Request, db = Depends(get_db)):
     return ApiResponse(code=0, message="成功", data={"username": user["username"], "is_admin": False})
 
 
-@router.post("/change_password", response_model=ApiResponse)
+@router.post("/change_password", response_model=ApiResponse, summary="修改密码", description="验证旧密码后设置新密码，修改成功后需重新登录。")
 @limiter.limit("5/minute")
 def change_password(request: Request, response: Response, req: ChangePasswordRequest, user = Depends(require_auth), db = Depends(get_db)):
     if not verify_password(req.old_password, user["password"]):

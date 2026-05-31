@@ -1,51 +1,24 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: quantclaw_pg
-    restart: always
-    environment:
-      POSTGRES_USER: ${PG_USER:-quantclaw}
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
-      POSTGRES_DB: ${PG_NAME:-quantclaw_db}
-    ports:
-      - "${PG_PORT:-5432}:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-quantclaw}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: quantclaw_app
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     ports:
-      - "${HOST_PORT:-3309}:${APP_PORT:-8081}"
+      - "${HOST_PORT:-8082}:${APP_PORT:-8081}"
     environment:
-      - PG_HOST=postgres
+      - PG_HOST=6.6.6.66
       - PG_PORT=5432
-      - PG_USER=${PG_USER:-quantclaw}
-      - PG_PASSWORD=${PG_PASSWORD}
-      - PG_NAME=${PG_NAME:-quantclaw_db}
+      - PG_USER=quantclaw
+      - PG_PASSWORD=123quantclaw
+      - PG_DBNAME=web_admin
+      - PG_POOL_MIN=2
+      - PG_POOL_MAX=10
       - APP_PORT=${APP_PORT:-8081}
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-here-change-in-production}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/api/auth/me"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-
-volumes:
-  pgdata:
+      - REDIS_HOST=localhost
+      - REDIS_PORT=6379
+      - REDIS_DB=0
