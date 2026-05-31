@@ -9,8 +9,7 @@ on:
 env:
   SERVER_HOST: 6.6.6.66
   SERVER_USER: quant
-  SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-  GITEA_REPO: https://gitea.tangledup-ai.com/quantclaw/Web_Admin_UI.git
+  SERVER_PASSWORD: 123quant-speed
   WORK_DIR: /home/quant/data/dev/Web_Admin_UI
 
 jobs:
@@ -19,29 +18,20 @@ jobs:
     steps:
       - name: Deploy via SSH
         run: |
-          if command -v apk &> /dev/null; then
+          if command -v apt-get &> /dev/null; then
+            apt-get update && apt-get install -y openssh-client sshpass
+          elif command -v apk &> /dev/null; then
             apk add --no-cache openssh-client sshpass
           elif command -v yum &> /dev/null; then
             yum install -y openssh-clients sshpass
-          elif command -v apt-get &> /dev/null; then
-            apt-get update && apt-get install -y openssh-client sshpass
           fi
 
-          export SSHPASS="${SERVER_PASSWORD:-123quant-speed}"
+          export SSHPASS="${SERVER_PASSWORD}"
           sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SERVER_USER@$SERVER_HOST" << 'ENDSSH'
             set -e
-            mkdir -p /home/quant/data/dev
-            cd /home/quant/data/dev
-
-            if [ -d Web_Admin_UI ]; then
-              cd Web_Admin_UI && git pull
-            else
-              sudo git clone "$GITEA_REPO" Web_Admin_UI
-              sudo chown -R quant:quant Web_Admin_UI
-              cd Web_Admin_UI
-            fi
-
-            docker compose down 2>/dev/null || true
-            docker compose up -d --build
-            docker logs --tail 30 quantclaw_app 2>/dev/null || echo "Container may not be running"
+            cd /home/quant/data/dev/Web_Admin_UI
+            docker compose down || true
+            git pull
+            docker compose up -d
+            docker logs --tail 30 quantclaw_app || true
           ENDSSH
