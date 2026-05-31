@@ -1,22 +1,4 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: quantclaw_pg
-    restart: always
-    environment:
-      POSTGRES_USER: quantclaw
-      POSTGRES_PASSWORD: 123quantclaw
-      POSTGRES_DB: web_admin
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U quantclaw"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   redis:
     image: redis:7-alpine
     container_name: quantclaw_redis
@@ -36,14 +18,12 @@ services:
     container_name: quantclaw_app
     restart: always
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     ports:
       - "${HOST_PORT:-8082}:${APP_PORT:-8081}"
     environment:
-      - PG_HOST=postgres
+      - PG_HOST=6.6.6.66
       - PG_PORT=5432
       - PG_USER=quantclaw
       - PG_PASSWORD=123quantclaw
@@ -59,4 +39,3 @@ services:
       - REDIS_DB=0
 
 volumes:
-  pgdata:

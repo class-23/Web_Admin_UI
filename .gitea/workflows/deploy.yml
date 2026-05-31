@@ -18,6 +18,6 @@ jobs:
         run: |
           sshpass -p "123quant-speed" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 "quant@6.6.6.66" '
             cd /home/quant/data/dev/Web_Admin_UI &&
-            git pull git@github.com:quantclaw/Web_Admin_UI.git main &&
+            echo "123quant-speed" | sudo -S git pull git@github.com:quantclaw/Web_Admin_UI.git main &&
             docker compose up -d && docker logs --tail 30 quantclaw_app || true
           '
