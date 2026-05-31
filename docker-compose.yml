@@ -11,7 +11,7 @@ services:
       - PG_HOST=6.6.6.66
       - PG_PORT=5432
       - PG_USER=quantclaw
-      - PG_PASSWORD=123quantclaw
+      - PG_PASSWORD=quantclaw
       - PG_DBNAME=web_admin
       - PG_POOL_MIN=2
       - PG_POOL_MAX=10
