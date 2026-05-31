@@ -7,10 +7,9 @@ on:
     branches: [main, master]
 
 env:
-  IMAGE_NAME: quantclaw_app
   SERVER_HOST: 6.6.6.66
   SERVER_USER: quant
-  SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+  SERVER_PASSWORD: 123quant-speed
 
 jobs:
   deploy:
@@ -18,17 +17,34 @@ jobs:
     steps:
       - name: Deploy via SSH
         run: |
-          apt-get update && apt-get install -y openssh-client sshpass
+          PACKAGE_MANAGER=""
+          if command -v apk &> /dev/null; then
+            PACKAGE_MANAGER="apk"
+          elif command -v yum &> /dev/null; then
+            PACKAGE_MANAGER="yum"
+          elif command -v apt-get &> /dev/null; then
+            PACKAGE_MANAGER="apt-get"
+          fi
 
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no "$SERVER_USER@$SERVER_HOST" << 'ENDSSH'
+          if [ -n "$PACKAGE_MANAGER" ]; then
+            case $PACKAGE_MANAGER in
+              apk) apk add --no-cache openssh-client sshpass ;;
+              yum) yum install -y openssh-clients sshpass ;;
+              apt-get) apt-get update && apt-get install -y openssh-client sshpass ;;
+            esac
+          fi
+
+          export SSHPASS="${SERVER_PASSWORD:-123quant-speed}"
+          sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SERVER_USER@$SERVER_HOST" << 'ENDSSH'
             set -e
-            cd /home/quant/Web_Admin_UI || mkdir -p /home/quant/Web_Admin_UI
-            if [ -d .git ]; then
-              git pull
+            cd /home/quant
+            if [ -d Web_Admin_UI ]; then
+              cd Web_Admin_UI && git pull
             else
-              git clone https://gitea.com/quantclaw/Web_Admin_UI.git .
+              git clone https://gitea.com/quantclaw/Web_Admin_UI.git
+              cd Web_Admin_UI
             fi
-            docker compose down || true
+            docker compose down 2>/dev/null || true
             docker compose up -d --build
-            docker logs --tail 20 quantclaw_app || true
+            docker logs --tail 30 quantclaw_app 2>/dev/null || echo "Container may not be running"
           ENDSSH
