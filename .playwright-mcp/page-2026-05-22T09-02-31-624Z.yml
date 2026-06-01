@@ -1,0 +1,88 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: 🦞
+        - generic [ref=e8]: 龙虾盒子管理后台
+      - generic [ref=e9]:
+        - button "登录" [ref=e10] [cursor=pointer]
+        - button "注册" [ref=e11] [cursor=pointer]
+      - text:  
+  - main [ref=e12]:
+    - generic [ref=e16]:
+      - generic: 
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: 控制台核心
+            - heading "当前操作设备" [level=2] [ref=e24]
+            - paragraph [ref=e25]:
+              - generic [ref=e26]: 
+              - text: 下方的控制面板、终端等功能将基于此设备执行
+          - generic [ref=e27]:
+            - generic:
+              - generic: 
+            - combobox [disabled] [ref=e28] [cursor=pointer]:
+              - option "请选择已注册设备" [selected]
+            - generic:
+              - generic: 
+        - generic [ref=e29]:
+          - generic [ref=e31]:
+            - generic [ref=e33]: 
+            - generic [ref=e34]:
+              - generic [ref=e35]:
+                - generic [ref=e36]: 未选择设备
+                - generic [ref=e37]: 未选择
+              - generic [ref=e39]:
+                - generic [ref=e40]: 
+                - text: IP地址：
+                - generic [ref=e41]: "-"
+          - generic [ref=e42]:
+            - generic [ref=e44]: 
+            - paragraph [ref=e45]: 当前还没有已注册设备，请先让设备完成注册上报。
+    - generic [ref=e46]:
+      - heading "快捷功能入口" [level=2] [ref=e47]: 快捷功能入口
+      - generic [ref=e49]:
+        - button " 控制面板 智能分析环境，自动探测 42617 / 6060 可用端口" [disabled] [ref=e50] [cursor=pointer]:
+          - generic [ref=e52]: 
+          - heading "控制面板" [level=3] [ref=e53]
+          - paragraph [ref=e54]:
+            - text: 智能分析环境，自动探测
+            - generic [ref=e55]: "42617"
+            - text: /
+            - generic [ref=e56]: "6060"
+            - text: 可用端口
+        - button " 终端访问 一键直达设备后台 固定跳转至设备的 7681 端口" [disabled] [ref=e57] [cursor=pointer]:
+          - generic [ref=e59]: 
+          - heading "终端访问" [level=3] [ref=e60]
+          - paragraph [ref=e61]:
+            - text: 一键直达设备后台
+            - text: 固定跳转至设备的
+            - generic [ref=e62]: "7681"
+            - text: 端口
+        - button "规划中  文件管理 预留设备绑定入口 后续支持远程文件传输与管理" [disabled] [ref=e63] [cursor=pointer]:
+          - generic [ref=e64]: 规划中
+          - generic [ref=e66]: 
+          - heading "文件管理" [level=3] [ref=e67]
+          - paragraph [ref=e68]:
+            - text: 预留设备绑定入口
+            - text: 后续支持远程文件传输与管理
+        - button "预留功能  使用教程 新手使用指南、常见问题解答 及设备高级玩法探秘" [ref=e69] [cursor=pointer]:
+          - generic [ref=e70]: 预留功能
+          - generic [ref=e72]: 
+          - heading "使用教程" [level=3] [ref=e73]
+          - paragraph [ref=e74]:
+            - text: 新手使用指南、常见问题解答
+            - text: 及设备高级玩法探秘
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - heading "我的设备信息" [level=2] [ref=e77]: 我的设备信息
+        - button " 更新全部状态" [ref=e79] [cursor=pointer]:
+          - generic [ref=e80]: 
+          - generic [ref=e81]: 更新全部状态
+      - generic [ref=e83]:
+        - generic [ref=e84]: 
+        - paragraph [ref=e85]: 登录后可查看设备信息
+        - button "重新加载" [ref=e86] [cursor=pointer]
+  - contentinfo [ref=e87]:
+    - paragraph [ref=e88]: openclawbox © 2026

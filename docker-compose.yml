@@ -1,13 +1,15 @@
 services:
+
   app:
     build:
-      context: .
+      context: .        # ✅ 修复这里！
       dockerfile: Dockerfile
     container_name: quantclaw_app
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
+
       - "${HOST_PORT:-8082}:${APP_PORT:-8081}"
     environment:
       - PG_HOST=host.docker.internal
@@ -24,3 +26,4 @@ services:
       - REDIS_HOST=host.docker.internal
       - REDIS_PORT=6379
       - REDIS_DB=0
+

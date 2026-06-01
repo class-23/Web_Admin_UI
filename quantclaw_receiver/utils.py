@@ -270,6 +270,7 @@ def row_to_device(row: dict[str, Any], now: datetime) -> dict[str, Any]:
     
     return {
         "mac": row["mac"],
+        "phone": row.get("phone", ""),
         "hostname": row["hostname"],
         "model": row["model"],
         "firmwareVersion": row["firmware_version"],

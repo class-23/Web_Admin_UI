@@ -1,0 +1,234 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e8]: 
+        - generic [ref=e10]:
+          - generic [ref=e11]: 🦞
+          - generic [ref=e12]: 系统设置
+      - generic [ref=e14]:
+        - img [ref=e15]
+        - generic [ref=e16]: xiaoma
+  - main [ref=e17]:
+    - complementary [ref=e18]:
+      - generic [ref=e19]:
+        - link " 个人与偏好设置" [ref=e20] [cursor=pointer]:
+          - /url: "#personal"
+          - generic [ref=e21]: 
+          - text: 个人与偏好设置
+        - link " 用户默认模板" [ref=e22] [cursor=pointer]:
+          - /url: "#user-default"
+          - generic [ref=e23]: 
+          - text: 用户默认模板
+        - link " 全局系统配置" [ref=e24] [cursor=pointer]:
+          - /url: "#global"
+          - generic [ref=e25]: 
+          - text: 全局系统配置
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]: 
+          - text: 规则与优先级
+        - generic [ref=e29]:
+          - paragraph [ref=e30]: 全局设置：整个系统的基础规则，对所有人强制生效，优先级最低。
+          - paragraph [ref=e31]: 默认模板：仅对新注册账号生效的基础初始权限配置。
+          - paragraph [ref=e32]: 个别特殊：如果在"用户管理"中给单人开了特权，该特权将无视并覆盖全局设置。
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic: 
+        - heading "个人与偏好设置" [level=2] [ref=e35]: 个人与偏好设置
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - generic [ref=e40]: 系统显示语言
+              - generic [ref=e41]:
+                - generic [ref=e42]: 
+                - combobox [ref=e43] [cursor=pointer]:
+                  - option "中文 (简体)" [selected]
+                  - option "English"
+                - generic: 
+            - generic [ref=e44]:
+              - generic [ref=e45]: 界面主题
+              - generic [ref=e46]:
+                - generic [ref=e47] [cursor=pointer]:
+                  - generic [ref=e48]: 
+                  - generic [ref=e49]: 浅色
+                - generic [ref=e50] [cursor=pointer]:
+                  - generic [ref=e51]: 
+                  - generic [ref=e52]: 深色
+          - generic [ref=e53]:
+            - generic [ref=e54] [cursor=pointer]:
+              - generic [ref=e55]: 不显示隐藏文件
+              - checkbox "不显示隐藏文件" [ref=e56]
+            - generic [ref=e58] [cursor=pointer]:
+              - generic [ref=e59]: 复制/移动后转到目标位置
+              - checkbox "复制/移动后转到目标位置" [checked] [ref=e60]
+            - button "应用" [ref=e63] [cursor=pointer]
+          - generic [ref=e64]:
+            - heading " 更改登录密码" [level=3] [ref=e65]:
+              - generic [ref=e66]: 
+              - text: 更改登录密码
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - generic [ref=e69]: 当前密码
+                - generic [ref=e70]:
+                  - textbox "请输入当前正在使用的密码" [ref=e71]
+                  - generic [ref=e72] [cursor=pointer]: 🙈
+              - generic [ref=e73]:
+                - generic [ref=e74]: 新密码
+                - generic [ref=e75]:
+                  - textbox "设置新的安全密码" [ref=e76]
+                  - generic [ref=e77] [cursor=pointer]: 🙈
+              - generic [ref=e78]:
+                - generic [ref=e79]: 确认新密码
+                - generic [ref=e80]:
+                  - textbox "再次输入新密码" [ref=e81]
+                  - generic [ref=e82] [cursor=pointer]: 🙈
+            - button " 更新密码" [ref=e84] [cursor=pointer]:
+              - generic [ref=e85]: 
+              - text: 更新密码
+      - generic [ref=e86]:
+        - heading "新用户默认模板" [level=2] [ref=e88]: 新用户默认模板
+        - paragraph [ref=e90]:
+          - generic [ref=e91]: 
+          - text: 此处配置决定了未来新注册账号的基础权限和行为。
+        - heading "基础配置" [level=3] [ref=e92]
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - generic [ref=e95]: 目录范围
+            - textbox [ref=e96]: .
+            - paragraph [ref=e97]: 新用户默认能访问的根目录，"." 代表当前目录。
+          - generic [ref=e98]:
+            - generic [ref=e99]: 默认语言
+            - combobox [ref=e100]:
+              - option "中文 (简体)" [selected]
+              - option "English"
+        - heading "权限授予" [level=3] [ref=e101]
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - generic [ref=e106]: 
+                - text: 管理员
+              - generic [ref=e107]: 开启后将自动赋予该用户所有权限，并允许其管理其他用户。
+            - checkbox [ref=e109]
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - generic [ref=e113]: 创建文件和文件夹
+              - checkbox [checked] [ref=e115]
+            - generic [ref=e117]:
+              - generic [ref=e118]: 删除文件和文件夹
+              - checkbox [checked] [ref=e120]
+            - generic [ref=e122]:
+              - generic [ref=e123]: 编辑
+              - checkbox [checked] [ref=e125]
+            - generic [ref=e127]:
+              - generic [ref=e128]: 重命名 / 移动
+              - checkbox [checked] [ref=e130]
+            - generic [ref=e132]:
+              - generic [ref=e133]: 分享文件
+              - checkbox [checked] [ref=e135]
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - text: 下载
+                - generic [ref=e139]: 
+              - checkbox [checked] [disabled] [ref=e141]
+        - button "更新" [ref=e144] [cursor=pointer]
+      - generic [ref=e145]:
+        - heading "全局系统配置" [level=2] [ref=e146]: 全局系统配置
+        - paragraph [ref=e148]:
+          - generic [ref=e149]: 
+          - text: 此处的设置对整个系统和所有用户强制生效（除非为单个用户单独设置覆盖）。
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - heading " 用户与注册" [level=3] [ref=e152]:
+              - generic [ref=e153]: 
+              - text: 用户与注册
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e156]: 允许新用户注册
+                - checkbox [checked] [ref=e158]
+              - generic [ref=e160]:
+                - generic [ref=e161]: 自动创建用户主目录
+                - checkbox [checked] [ref=e163]
+              - generic [ref=e165]:
+                - generic [ref=e166]: 登录按钮隐藏 (公开页)
+                - checkbox [ref=e168]
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - generic [ref=e172]: 用户主目录路径
+                - textbox [ref=e173]: /users
+              - generic [ref=e174]:
+                - generic [ref=e175]: 最小密码长度
+                - spinbutton [ref=e176]: "12"
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - heading " 全局规则设置" [level=3] [ref=e179]:
+                - generic [ref=e180]: 
+                - text: 全局规则设置
+              - button " 新建规则" [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: 
+                - text: 新建规则
+            - paragraph [ref=e184]: 暂无规则
+          - generic [ref=e185]:
+            - heading " 品牌与外观定制" [level=3] [ref=e186]:
+              - generic [ref=e187]: 
+              - text: 品牌与外观定制
+            - generic [ref=e188]:
+              - generic [ref=e189]:
+                - generic [ref=e190]: 实例名称 (系统标题)
+                - textbox [ref=e191]: 龙虾盒子
+              - generic [ref=e192]:
+                - generic [ref=e193]: 自定义 Logo (URL或路径)
+                - textbox "/assets/logo.png" [ref=e194]
+              - generic [ref=e195]:
+                - generic [ref=e196]: 全局主题风格
+                - combobox [ref=e197] [cursor=pointer]:
+                  - option "系统默认 (跟随设备)" [selected]
+                  - option "强制浅色"
+                  - option "强制深色"
+              - generic [ref=e198]:
+                - generic [ref=e199]: 自定义 CSS 样式
+                - textbox /* 在此输入全局生效的 CSS 代码 */ [ref=e200]
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - generic [ref=e203]: 禁用 GitHub 外部链接
+                - checkbox [checked] [ref=e205]
+              - generic [ref=e207]:
+                - generic [ref=e208]: 禁用磁盘已用空间展示
+                - checkbox [ref=e210]
+          - generic [ref=e212]:
+            - heading " 分块上传设置 (弱网优化)" [level=3] [ref=e213]:
+              - generic [ref=e214]: 
+              - text: 分块上传设置 (弱网优化)
+            - generic [ref=e215]:
+              - generic [ref=e216]:
+                - generic [ref=e217]: 分块上传大小
+                - textbox [ref=e219]: 10MB
+              - generic [ref=e220]:
+                - generic [ref=e221]: 失败重试次数
+                - generic [ref=e222]:
+                  - spinbutton [ref=e223]: "5"
+                  - generic [ref=e224]: 次
+          - generic [ref=e225]:
+            - heading " 用户管理" [level=3] [ref=e226]:
+              - generic [ref=e227]: 
+              - text: 用户管理
+            - generic [ref=e228]:
+              - generic [ref=e229]:
+                - heading "用户" [level=4] [ref=e230]
+                - button "新建" [ref=e231] [cursor=pointer]
+              - table [ref=e233]:
+                - rowgroup [ref=e234]:
+                  - row "用户名 管理员 目录范围" [ref=e235]:
+                    - columnheader "用户名" [ref=e236]
+                    - columnheader "管理员" [ref=e237]
+                    - columnheader "目录范围" [ref=e238]
+                    - columnheader [ref=e239]
+                - rowgroup
+          - button " 保存全局配置" [ref=e241] [cursor=pointer]:
+            - generic [ref=e242]: 
+            - text: 保存全局配置
+  - contentinfo [ref=e243]:
+    - paragraph [ref=e244]: openclawbox © 2026

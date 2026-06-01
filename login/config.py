@@ -4,7 +4,7 @@ PG_HOST = os.getenv("PG_HOST", "localhost")
 PG_PORT = int(os.getenv("PG_PORT", "5432"))
 PG_USER = os.getenv("PG_USER", "postgres")
 PG_PASSWORD = os.getenv("PG_PASSWORD", "")
-PG_DBNAME = os.getenv("PG_DBNAME", "web_admin")
+PG_DBNAME = os.getenv("PG_DBNAME", os.getenv("PG_NAME", "quantclaw"))
 PG_POOL_MIN = int(os.getenv("PG_POOL_MIN", "2"))
 PG_POOL_MAX = int(os.getenv("PG_POOL_MAX", "10"))
 
@@ -15,7 +15,7 @@ REDIS_DB = int(os.getenv("REDIS_DB", "0"))
 SECRET_KEY = "your-secret-key-for-jwt"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
-REGISTER_SECRET_KEY = "trae2026"
+
 VERIFICATION_CODE_EXPIRE_SECONDS = 300
 VERIFICATION_CODE_RESEND_SECONDS = 60
 

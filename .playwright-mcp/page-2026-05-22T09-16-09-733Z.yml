@@ -1,0 +1,17 @@
+- generic [ref=e2]:
+  - heading "用户登录" [level=1] [ref=e3]
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 账号
+      - textbox "请输入手机号或用户名" [ref=e8]
+    - generic [ref=e9]:
+      - generic [ref=e10]: 密码
+      - generic [ref=e11]:
+        - textbox "请输入密码" [ref=e12]
+        - button "🙈" [ref=e13] [cursor=pointer]
+    - button "登录" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - link "忘记密码？" [ref=e16] [cursor=pointer]:
+      - /url: /forgot-password
+    - link "注册账号" [ref=e17] [cursor=pointer]:
+      - /url: /register

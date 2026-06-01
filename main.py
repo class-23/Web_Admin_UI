@@ -38,7 +38,7 @@ config = QuantClawConfig(
     pg_port=int(os.getenv("PG_PORT", "5432")),
     pg_user=os.getenv("PG_USER", "quant"),
     pg_password=os.getenv("PG_PASSWORD", "open123456"),
-    pg_dbname=os.getenv("PG_DBNAME", "quantclaw"),
+    pg_dbname=os.getenv("PG_DBNAME", os.getenv("PG_NAME", "quantclaw")),
     udp_enabled=os.getenv("UDP_ENABLED", "true").lower() == "true",
     allow_insecure=os.getenv("ALLOW_INSECURE", "true").lower() == "true",
     heartbeat_interval_sec=int(os.getenv("HEARTBEAT_INTERVAL_SEC", "60"))
@@ -285,6 +285,7 @@ async def reset_password():
 async def change_password_page():
     with open("templates/change-password.html", "r", encoding="utf-8") as f:
         return f.read()
+
 
 
 @app.get("/file_manager", response_class=HTMLResponse, include_in_schema=False)
@@ -866,6 +867,7 @@ async def create_device(
     return {"code": 0, "message": "ok", "data": result}
 
 
+
 @app.get("/api/devices", tags=["设备管理"], summary="获取设备列表",
          description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。支持 Cookie 登录或手机号+API Key 认证。")
 async def get_devices(
@@ -873,6 +875,7 @@ async def get_devices(
     db = Depends(get_db),
 ):
     devices = await device_manager.get_devices_list()
+
     return {"code": 0, "message": "ok", "data": devices}
 
 
@@ -1026,7 +1029,7 @@ class SshClientManager:
 
 ssh_manager = SshClientManager()
 
-app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "templates"), html=True), name="static")
+app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "templates"), html=True), name="templates")
 
 if __name__ == "__main__":
     uvicorn.run(
