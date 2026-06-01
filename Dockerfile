@@ -21,6 +21,6 @@ COPY . .
 # 创建 runtime 目录（SQLite 配置库）
 RUN mkdir -p runtime
 
-EXPOSE 8081
+EXPOSE 8082
 
 CMD ["python", "main.py"]

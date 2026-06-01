@@ -1,24 +1,4 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: quantclaw_pg
-    restart: always
-    environment:
-      POSTGRES_USER: ${PG_USER:-quantclaw}
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
-      POSTGRES_DB: ${PG_NAME:-quantclaw_db}
-      PGPORT: 5433
-    ports:
-      - "${PG_PORT:-5433}:5433"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-quant} -d ${PG_NAME:-quantclaw}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   app:
     build:
@@ -26,35 +6,24 @@ services:
       dockerfile: Dockerfile
     container_name: quantclaw_app
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
-      - "${APP_PORT:-8082}:${APP_PORT:-8082}"
+
+      - "${HOST_PORT:-8082}:${APP_PORT:-8081}"
     environment:
-      - PG_HOST=postgres
-      - PG_PORT=5433
-      - PG_USER=${PG_USER:-quantclaw}
-      - PG_PASSWORD=${PG_PASSWORD}
-      - PG_NAME=${PG_NAME:-quantclaw}
-      - PG_DBNAME=${PG_NAME:-quantclaw}
-      - APP_PORT=${APP_PORT:-8082}
-      - UDP_ENABLED=false
-      - JWT_SECRET=${JWT_SECRET}
+      - PG_HOST=host.docker.internal
+      - PG_PORT=5432
+      - PG_USER=quantclaw
+      - PG_PASSWORD=quantclaw
+      - PG_DBNAME=quantclaw
+      - PG_POOL_MIN=2
+      - PG_POOL_MAX=10
+      - APP_PORT=${APP_PORT:-8081}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-here-change-in-production}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
-    volumes:
-      - ./templates:/app/templates
-      - ./static:/app/static
-      - ./main.py:/app/main.py
-      - ./login:/app/login
-      - ./quantclaw_receiver:/app/quantclaw_receiver
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/api/current_user"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+      - REDIS_HOST=host.docker.internal
+      - REDIS_PORT=6379
+      - REDIS_DB=0
 
-volumes:
-  pgdata:

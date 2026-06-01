@@ -385,6 +385,17 @@ document.addEventListener('DOMContentLoaded', function () {
   var PASSWORD_MAX_BYTES = 72;
   var PASSWORD_MAX_BYTES_MESSAGE = '密码最多支持72字节（约72个英文字符，包含中文或其他特殊字符时上限更低）';
 
+  // 从 URL 参数自动填充手机号和验证码
+  var urlParams = new URLSearchParams(window.location.search);
+  var phoneFromUrl = urlParams.get('phone');
+  var codeFromUrl = urlParams.get('code');
+  if (phoneFromUrl && /^1[3-9]\d{9}$/.test(phoneFromUrl)) {
+    phoneInput.value = phoneFromUrl;
+  }
+  if (codeFromUrl && /^\d{6}$/.test(codeFromUrl)) {
+    codeInput.value = codeFromUrl;
+  }
+
   function showMessage(text, type) {
     messageBox.textContent = text;
     messageBox.className = 'message-box ' + type + ' show';

@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440
 
+    # 查询 API Key（手机号+API Key 免登录查询）
+    QUERY_API_KEY: str = "123quant-speed"
+
     # 设备密钥
     DEVICE_SECRET: str = "quant123456"
 
@@ -66,7 +69,7 @@ class Settings(BaseSettings):
     def SETTINGS_DB_URL(self) -> str:
         return f"sqlite:///{self.SETTINGS_DB_PATH}"
 
-    HOST_PORT: int = 3308
+    HOST_PORT: int = 8082
 
     class Config:
         env_file = ".env"

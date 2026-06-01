@@ -7,6 +7,7 @@ from login import config
 from login.database import get_db
 from login.password_policy import PASSWORD_MAX_BYTES_MESSAGE, validate_password_max_bytes
 from login.time_utils import is_newer_than_issued_at
+from app.core.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -112,5 +113,74 @@ def require_auth(request: Request, response: Response, db = Depends(get_db)):
     if is_newer_than_issued_at(user["password_changed_at"], iat):
         clear_auth_cookie(response)
         raise HTTPException(status_code=401, detail="密码已变更，请重新登录")
+
+    return user
+
+
+def require_auth_or_api_key(request: Request, response: Response, db=Depends(get_db)):
+    """
+    双重认证：优先 Cookie 登录，失败后尝试手机号 + API Key。
+    支持 Header（X-API-Key / X-Phone）和 Query 参数（api_key / phone）两种方式。
+    """
+    # 1. 尝试 Cookie 认证
+    token = request.cookies.get(config.AUTH_COOKIE_NAME)
+    if token:
+        try:
+            payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+            user_id = payload.get("sub")
+            if user_id:
+                cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                cur.execute("SELECT * FROM users WHERE id = %s", (int(user_id),))
+                user = cur.fetchone()
+                cur.close()
+                if user and not is_newer_than_issued_at(user["password_changed_at"], payload.get("iat")):
+                    return user
+        except JWTError:
+            pass
+
+    # 2. 尝试 API Key + 手机号
+    api_key = request.headers.get("X-API-Key") or request.query_params.get("api_key")
+    phone = request.headers.get("X-Phone") or request.query_params.get("phone")
+
+    if not api_key or api_key != settings.QUERY_API_KEY:
+        raise HTTPException(status_code=401, detail="认证失败：无效的 API Key")
+
+    if not phone:
+        raise HTTPException(status_code=400, detail="缺少手机号参数(phone)")
+
+    cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
+    user = cur.fetchone()
+    cur.close()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="该手机号未注册")
+
+    return user
+
+
+async def verify_api_key_and_phone(
+    request: Request,
+    db=Depends(get_db),
+):
+    """
+    Combined API Key + Phone 认证（用于 Swagger UI 单一认证按钮）
+    """
+    api_key = request.headers.get("X-API-Key") or request.query_params.get("api_key")
+    phone = request.headers.get("X-Phone") or request.query_params.get("phone")
+
+    if not api_key or api_key != settings.QUERY_API_KEY:
+        raise HTTPException(status_code=401, detail="认证失败：无效的 API Key")
+
+    if not phone:
+        raise HTTPException(status_code=400, detail="缺少手机号参数(phone)")
+
+    cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
+    user = cur.fetchone()
+    cur.close()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="该手机号未注册")
 
     return user
