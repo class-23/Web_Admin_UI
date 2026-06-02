@@ -53,6 +53,9 @@ def normalize_signature(sig: str) -> str:
 
 def parse_utc_timestamp(s: str) -> Optional[datetime]:
     """解析UTC时间戳字符串"""
+    if not isinstance(s, str) or not s.strip():
+        return None
+
     try:
         if s.endswith("Z"):
             s = s[:-1] + "+00:00"
@@ -60,7 +63,7 @@ def parse_utc_timestamp(s: str) -> Optional[datetime]:
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.astimezone(timezone.utc)
-    except (ValueError, TypeError, OSError):
+    except (ValueError, TypeError, OSError, AttributeError):
         return None
 
 
@@ -186,9 +189,14 @@ def parse_text_body(body_bytes: bytes) -> dict[str, Any]:
         return {"payload": obj}
     except json.JSONDecodeError:
         pass
-    parsed = parse_qs(text, keep_blank_values=True)
-    if parsed:
-        return {k: first_value(v) for k, v in parsed.items()}
+
+    # 只有像 a=1&b=2 这种明确包含 "=" 的内容才按表单解析；
+    # 普通文本不能误解析成 {"plain text": ""}。
+    if "=" in text:
+        parsed = parse_qs(text, keep_blank_values=True)
+        if parsed:
+            return {k: first_value(v) for k, v in parsed.items()}
+
     return {"payload": text}
 
 
@@ -218,22 +226,31 @@ LOCAL_IPV4_ADDRS = local_ipv4_addrs()
 def normalize_payload_defaults(path: str, payload: dict[str, Any], client_ip: str) -> tuple[str, dict[str, Any]]:
     """标准化请求载荷并设置默认值"""
     observed_macs = extract_macs(payload)
-    p = {str(k): first_value(v) for k, v in payload.items()}
-    
+
+    # 大部分字段如果来自 query/form 可能是 list，需要取第一个值。
+    # 但 interfaces 本身就是列表结构，不能被 first_value 打散，否则会丢失网卡信息。
+    p: dict[str, Any] = {}
+    for k, v in payload.items():
+        key = str(k)
+        if key == "interfaces":
+            p[key] = v
+        else:
+            p[key] = first_value(v)
+
     ip = str(
         pick(p, "ip", "lastIp", "last_ip", "deviceIp", "device_ip", "clientIp")
         or client_ip
         or ""
     )
-    
+
     if ip in LOCAL_IPV4_ADDRS and client_ip not in LOCAL_IPV4_ADDRS:
         ip = client_ip
-    
+
     raw_mac = pick(p, "mac", "MAC", "deviceMac", "device_mac", "macAddress", "mac_address", "wlanMac", "ethMac", "id", default="")
     mac = normalize_mac(raw_mac)
     if mac is None:
         mac = mac_from_ip(ip or client_ip)
-    
+
     if mac not in observed_macs:
         observed_macs.insert(0, mac)
 
@@ -267,7 +284,7 @@ def row_to_device(row: dict[str, Any], now: datetime) -> dict[str, Any]:
     last_seen = parse_server_time(row["last_seen_at"])
     age = int((now - last_seen).total_seconds()) if last_seen is not None else None
     is_online = age is not None and age <= ONLINE_HEARTBEAT_TIMEOUT_SEC
-    
+
     return {
         "mac": row["mac"],
         "phone": row.get("phone", ""),
