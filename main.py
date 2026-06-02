@@ -871,7 +871,7 @@ async def create_device(
 @app.get("/api/devices", tags=["设备管理"], summary="获取设备列表",
          description="获取所有已注册设备的列表信息，包括设备名称、MAC 地址、在线状态等。支持 Cookie 登录或手机号+API Key 认证。")
 async def get_devices(
-    user = Depends(verify_api_key_and_phone),
+    user = Depends(require_auth_or_api_key),
     db = Depends(get_db),
 ):
     devices = await device_manager.get_devices_list()
