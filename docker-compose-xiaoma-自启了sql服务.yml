@@ -1,4 +1,18 @@
 services:
+
+  postgres:
+    image: postgres:16
+    container_name: quantclaw_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=quantclaw
+      - POSTGRES_PASSWORD=quantclaw
+      - POSTGRES_DB=quantclaw
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   app:
     build:
       context: .
@@ -10,7 +24,7 @@ services:
     ports:
       - "${HOST_PORT:-8082}:${APP_PORT:-8081}"
     environment:
-      - PG_HOST=host.docker.internal
+      - PG_HOST=postgres
       - PG_PORT=5432
       - PG_USER=quantclaw
       - PG_PASSWORD=quantclaw
@@ -24,4 +38,8 @@ services:
       - REDIS_HOST=host.docker.internal
       - REDIS_PORT=6379
       - REDIS_DB=0
+    depends_on:
+      - postgres
 
+volumes:
+  pgdata:
