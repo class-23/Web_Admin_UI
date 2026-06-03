@@ -287,10 +287,13 @@ class DatabaseManager:
     # ------------------------------------------------------------------
     # 设备列表
     # ------------------------------------------------------------------
-    def get_devices_list(self) -> dict[str, Any]:
+    def get_devices_list(self, user_id: int | None = None) -> dict[str, Any]:
         db = self._session_factory()
         try:
-            rows = db.query(Device).order_by(Device.last_heartbeat_at.desc()).all()
+            query = db.query(Device)
+            if user_id is not None:
+                query = query.filter(Device.user_id == user_id)
+            rows = query.order_by(Device.last_heartbeat_at.desc()).all()
             now = datetime.now(timezone.utc)
             device_list = [_device_to_row(d, now) for d in rows]
             online = [d for d in device_list if d["isOnline"]]
