@@ -874,7 +874,7 @@ async def get_devices(
     user = Depends(require_auth_or_api_key),
     db = Depends(get_db),
 ):
-    devices = await device_manager.get_devices_list(user_id=user["id"])
+    devices = await device_manager.get_devices_list(user_phone=user["phone"])
 
     return {"code": 0, "message": "ok", "data": devices}
 

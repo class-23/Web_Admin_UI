@@ -188,8 +188,8 @@ class QuantClawDeviceManager:
     async def create_device(self, request: Request) -> dict[str, Any]:
         return await self.register_device(request)
 
-    async def get_devices_list(self, user_id: int | None = None) -> dict[str, Any]:
-        return self.db_manager.get_devices_list(user_id=user_id)
+    async def get_devices_list(self) -> dict[str, Any]:
+        return self.db_manager.get_devices_list()
 
     async def health_check(self) -> dict[str, Any]:
         db_status = self.db_manager.health_check()
