@@ -308,7 +308,7 @@ function isHinlinkHt2Model(model) {
 }
 
 function getControlPanelPort(device) {
-    return isHinlinkHt2Model(device && device.model) ? 6060 : 42617;
+    return isHinlinkHt2Model(device && device.model) ? 42617 : 6060;
 }
 
 function handleControlPanelClick() {
