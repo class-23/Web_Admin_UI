@@ -74,6 +74,7 @@ def init_db():
                 username VARCHAR(50) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 password_changed_at TIMESTAMPTZ DEFAULT NOW(),
+                role VARCHAR(32) NOT NULL DEFAULT 'role_usr_8f7d',
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             )
@@ -86,6 +87,19 @@ def init_db():
                     WHERE table_name = 'users' AND column_name = 'miyao_key'
                 ) THEN
                     ALTER TABLE users DROP COLUMN miyao_key;
+                END IF;
+            END
+            $$;
+        """)
+        # 迁移：为 users 表添加 role 字段（如果不存在）
+        cur.execute("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'users' AND column_name = 'role'
+                ) THEN
+                    ALTER TABLE users ADD COLUMN role VARCHAR(32) NOT NULL DEFAULT 'role_usr_8f7d';
                 END IF;
             END
             $$;
