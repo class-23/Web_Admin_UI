@@ -32,16 +32,38 @@
 |------|------|
 | 用户 ↔ 设备 | **一对多**（一个用户拥有多台设备，设备归属唯一用户） |
 | 扩展预留 | 未来可能需要升级为多对多，`devices.mac` 不设 UNIQUE 约束 |
-| `miyao_key` | **用户级**（每个用户自定义一个密钥，设备注册时校验） |
+| `phone` | **用户级**（手机号作为用户标识，设备注册时校验） |
 | 主设备 | 用户可手动指定某台设备为主设备（`devices.is_primary`） |
 
 ### 2.2 角色权限
 
 | 项目 | 决策 |
 |------|------|
-| 角色系统 | **不实现**（个人版本，注册后直接使用全部功能） |
+| 角色系统 | **实现三级权限体系**（通过 users.role 字段控制） |
 | 软删除 | **不实现**（直接物理删除） |
 | `USERS` 内存字典 | **完全删除**（所有用户通过注册登录写入数据库） |
+
+#### 权限等级定义
+
+| 权限值 | 角色名称 | 登录权限 | 说明 |
+|--------|----------|----------|------|
+| `role_usr_8f7d` | 普通用户 | ✅ 本网站可登录 | 正常注册用户，可使用本网站全部功能 |
+| `role_adm_3k9p` | 管理员用户 | ❌ 本网站不可登录 | 仅可通过管理员网站登录，本网站拒绝登录 |
+| `role_spv_7m2x` | 特殊权限用户 | ✅ 本网站可登录 | 同时具备管理员和普通用户身份，双端均可登录 |
+
+#### 权限值设计说明
+
+采用"前缀_角色标识_随机后缀"的结构：
+- **前缀**：固定为 `role_`，便于识别
+- **角色标识**：`usr`=普通用户，`adm`=管理员，`spv`=特殊用户
+- **随机后缀**：4位字母数字组合，增强不可预测性
+
+#### 权限验证规则
+
+- **注册默认值**：新注册用户 `role` 字段默认为 `role_usr_8f7d`（普通用户）
+- **本网站登录**：仅允许 `role=role_usr_8f7d` 或 `role=role_spv_7m2x` 的用户登录，`role=role_adm_3k9p` 用户返回权限不足提示
+- **向后兼容**：现有用户 `role` 字段默认设为 `role_usr_8f7d`，不影响正常使用
+- **预留接口**：为后续管理员网站提供用户权限 CRUD 操作接口
 
 ---
 
@@ -55,56 +77,65 @@
 | `phone` | VARCHAR(20) | UNIQUE, NOT NULL | 手机号 |
 | `username` | VARCHAR(50) | UNIQUE, NOT NULL | 用户名 |
 | `password` | VARCHAR(255) | NOT NULL | bcrypt 加密密码 |
-| `miyao_key` | VARCHAR(100) | NOT NULL, DEFAULT '' | 设备连接密钥（用户自定义，设备注册时校验） |
 | `password_changed_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 密码最后修改时间（用于 JWT 失效判定） |
+| `role` | VARCHAR(32) | NOT NULL, DEFAULT 'role_usr_8f7d' | 用户权限等级（字母数字组合，增强安全性） |
 | `created_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 创建时间 |
 | `updated_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 更新时间 |
+
+#### 权限字段说明
+
+- `role` 字段使用 VARCHAR(32) 类型，默认值为 `'role_usr_8f7d'`
+- 权限值采用"前缀_角色标识_随机后缀"结构，增强安全性和不可预测性
+- 权限值定义：`role_usr_8f7d`=普通用户，`role_adm_3k9p`=管理员用户，`role_spv_7m2x`=特殊权限用户
+- 现有用户数据迁移时，`role` 字段默认设为 `'role_usr_8f7d'`
+- 预留管理接口：后续可通过管理员网站更新用户 `role` 字段
 
 ### 3.2 设备表 `devices`
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
 | `id` | SERIAL | PK | 主键 |
-| `user_id` | INTEGER | FK → users.id, NOT NULL | 所属用户 |
+| `user_id` | INTEGER | FK → users.id, NOT NULL, DEFAULT 1 | 所属用户 |
+| `device_name` | VARCHAR(100) | NOT NULL, DEFAULT '' | 设备别名 |
 | `mac` | VARCHAR(17) | NOT NULL | 设备 MAC 地址（不设 UNIQUE，预留多对多） |
 | `hostname` | VARCHAR(128) | NOT NULL, DEFAULT '' | 设备主机名 |
 | `model` | VARCHAR(128) | NOT NULL, DEFAULT '' | 设备型号 |
 | `firmware_version` | VARCHAR(64) | NOT NULL, DEFAULT '' | 固件版本 |
-| `ssid` | VARCHAR(128) | NOT NULL, DEFAULT '' | 连接 WiFi 名称 |
 | `ip` | VARCHAR(64) | NOT NULL, DEFAULT '' | 设备主 IP（SSH 连接用） |
-| `interfaces` | JSONB | NOT NULL, DEFAULT '[]' | 网络接口数组 `[{"name":"eth0","ip":"192.168.1.1","type":"ethernet"}]` |
+| `ssid` | VARCHAR(128) | NOT NULL, DEFAULT '' | 连接 WiFi 名称 |
+| `internet_available` | BOOLEAN | NOT NULL, DEFAULT FALSE | 互联网连通状态 |
+| `status` | `device_status`（自定义枚举） | NOT NULL, DEFAULT 'registered' | 设备状态（registered/online/offline/unknown） |
+| `heartbeat_interval_sec` | INTEGER | NOT NULL, DEFAULT 60 | 心跳间隔（设备可独立配置） |
 | `ttyd_enabled` | BOOLEAN | NOT NULL, DEFAULT FALSE | 终端服务开关 |
 | `ttyd_port` | INTEGER | NOT NULL, DEFAULT 7681 | 终端服务端口 |
 | `mdns_host` | VARCHAR(128) | NOT NULL, DEFAULT '' | 局域网本地域名 |
 | `http_port` | INTEGER | NOT NULL, DEFAULT 80 | HTTP 服务端口 |
 | `access_scope` | VARCHAR(32) | NOT NULL, DEFAULT 'lan' | 访问权限范围（lan / wan） |
-| `status` | VARCHAR(32) | NOT NULL, DEFAULT 'unknown' | 在线状态（online / offline / unknown） |
-| `internet_available` | BOOLEAN | NOT NULL, DEFAULT FALSE | 互联网连通状态 |
-| `heartbeat_interval_sec` | INTEGER | NOT NULL, DEFAULT 60 | 心跳间隔（设备可独立配置） |
-| `is_primary` | BOOLEAN | NOT NULL, DEFAULT FALSE | 是否主设备（用户手动指定，用于 SSH 连接） |
-| `first_seen_at` | TIMESTAMPTZ | NOT NULL | 首次发现时间 |
-| `last_seen_at` | TIMESTAMPTZ | NOT NULL | 最后心跳时间 |
+| `interfaces_json` | TEXT | YES | 网络接口 JSON 字符串 `[{"name":"eth0","ip":"192.168.1.1","type":"ethernet"}]` |
+| `device_secret` | VARCHAR(100) | NOT NULL, DEFAULT '' | 设备连接密钥，注册/心跳时 HMAC 校验 |
+| `is_quant` | BOOLEAN | NOT NULL, DEFAULT FALSE | 是否 QuantClaw 设备 |
+| `paired_at` | TIMESTAMPTZ | YES | 配对绑定时间 |
+| `first_seen_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 首次发现时间 |
+| `last_seen_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 最后心跳时间 |
 | `created_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 创建时间 |
 | `updated_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 更新时间 |
 
-> ⚠️ `interfaces` 使用 JSONB 存储
-> ⚠️ 设备注册时必须携带与用户 `miyao_key` 匹配的密钥，否则拒绝注册
-> ⚠️ `is_primary`：同一用户下只能有一台设备为主设备，切换时应用层保证互斥
-> ⚠️ `quantclaw_receiver/config.py` 中的 `device_secret`（原硬编码 `"quant123456"`）改为从 `users.miyao_key` 动态读取，设备端 HMAC 签名密钥由用户自定义
+> ⚠️ `interfaces_json` 使用 TEXT 存储 JSON 字符串
+> ⚠️ `status` 使用 PostgreSQL 自定义枚举类型 `device_status`，值为 `registered` / `online` / `offline` / `unknown`
+> ⚠️ 设备注册和心跳时通过 `device_secret` 进行 HMAC 签名校验
 
 ### 3.3 SSH 配置表 `ssh_configs`（每个用户一条记录）
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
-| `id` | SERIAL | PK | 主键 |
-| `user_id` | INTEGER | FK → users.id, UNIQUE, NOT NULL | 所属用户 |
-| `host` | VARCHAR(64) | NOT NULL, DEFAULT '' | SSH 主机地址（动态跟随主设备 IP） |
-| `port` | INTEGER | NOT NULL, DEFAULT 22 | SSH 端口 |
-| `username` | VARCHAR(50) | NOT NULL, DEFAULT 'quant' | SSH 用户名 |
-| `password` | VARCHAR(255) | NOT NULL, DEFAULT '' | SSH 密码 |
-| `remote_path` | VARCHAR(255) | NOT NULL, DEFAULT '/home/quant' | 默认远程路径 |
-| `created_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 创建时间 |
-| `updated_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 更新时间 |
+| `user_id` | INTEGER | PK, FK → users.id | 所属用户（主键） |
+| `host` | VARCHAR(255) | YES, DEFAULT '' | SSH 主机地址（动态跟随主设备 IP） |
+| `port` | INTEGER | YES, DEFAULT 22 | SSH 端口 |
+| `username` | VARCHAR(100) | YES, DEFAULT '' | SSH 用户名 |
+| `password` | VARCHAR(255) | YES, DEFAULT '' | SSH 密码 |
+| `remote_path` | VARCHAR(500) | YES, DEFAULT '/home/quant' | 默认远程路径 |
+| `created_at` | TIMESTAMPTZ | YES, DEFAULT NOW() | 创建时间 |
+| `updated_at` | TIMESTAMPTZ | YES, DEFAULT NOW() | 更新时间 |
 
 > `host` 更新逻辑：当用户指定的主设备（`is_primary=true`）上报心跳时，自动更新 `ssh_configs.host` 为该设备的最新 IP。
 
@@ -112,11 +143,10 @@
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
-| `id` | SERIAL | PK | 主键 |
-| `user_id` | INTEGER | FK → users.id, UNIQUE, NOT NULL | 所属用户 |
+| `user_id` | INTEGER | PK, FK → users.id | 所属用户（主键） |
 | `data` | JSONB | NOT NULL, DEFAULT '{}' | 设置数据（JSONB 存储全部用户偏好配置） |
-| `created_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 创建时间 |
-| `updated_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 更新时间 |
+| `created_at` | TIMESTAMPTZ | YES, DEFAULT NOW() | 创建时间 |
+| `updated_at` | TIMESTAMPTZ | YES, DEFAULT NOW() | 更新时间 |
 
 > `data` JSONB 字段包含原 `settings.json` 的全部内容（主题 `theme`、语言 `language`、文件管理规则 `rules`、用户默认设置 `user_defaults`、分块大小 `chunk_size` 等），保持灵活可扩展。
 
@@ -235,53 +265,47 @@ CREATE TABLE user_devices (
 | `idx_devices_user_id` | devices | user_id | 按用户查设备列表 |
 | `idx_devices_mac` | devices | mac | 按 MAC 查设备 |
 | `idx_devices_last_seen_at` | devices | last_seen_at | 心跳排序 / 在线判定 |
-| `idx_devices_status` | devices | status | 按在线状态过滤 |
-| `idx_devices_is_primary` | devices | user_id, is_primary | 查用户主设备 |
-| `idx_ssh_configs_user_id` | ssh_configs | user_id | 按用户查 SSH 配置 |
-| `idx_settings_user_id` | settings | user_id | 按用户查设置 |
+| `idx_devices_status` | devices | status | 按设备状态过滤 |
 
 ---
 
 ## 八、ER 关系图
 
 ```
-┌──────────────────┐        ┌──────────────────┐
-│      users       │ 1──N   │     devices      │
-│                  │        │                  │
-│ id (PK)          │        │ id (PK)          │
-│ phone (U)        │        │ user_id (FK)     │
-│ username (U)     │        │ mac              │
-│ password         │        │ hostname         │
-│ miyao_key        │        │ model            │
-│ password_changed │        │ firmware_version │
-│ created_at       │        │ ssid             │
-│ updated_at       │        │ ip               │
-└──────────────────┘        │ interfaces (JSONB)│
-        │                   │ ttyd_enabled     │
-        │ 1──1              │ ttyd_port        │
-        │                   │ mdns_host        │
-        │ 1──1              │ http_port        │
-        │                   │ access_scope     │
-┌───────┴──────────┐        │ status           │
-│   ssh_configs    │        │ internet_avail   │
-│                  │        │ heartbeat_interval│
-│ id (PK)          │        │ is_primary       │
-│ user_id (FK, U)  │        │ first_seen_at    │
-│ host             │        │ last_seen_at     │
-│ port             │        │ created_at       │
-│ username         │        │ updated_at       │
-│ password         │        └──────────────────┘
-│ remote_path      │
-│ created_at       │
-│ updated_at       │
-└──────────────────┘
-        │
+┌──────────────────┐        ┌───────────────────────┐
+│      users       │ 1──N   │       devices         │
+│                  │        │                       │
+│ id (PK)          │        │ id (PK)               │
+│ phone (U)        │        │ user_id (FK)          │
+│ username (U)     │        │ device_name           │
+│ password         │        │ mac                   │
+│ password_changed │        │ hostname              │
+│ created_at       │        │ model                 │
+│ updated_at       │        │ firmware_version      │
+└──────────────────┘        │ ip                    │
+        │                   │ ssid                  │
+        │ 1──1              │ internet_available    │
+        │                   │ status (device_status)│
+        │ 1──1              │ heartbeat_interval    │
+        │                   │ ttyd_enabled          │
+┌───────┴──────────┐        │ ttyd_port             │
+│   ssh_configs    │        │ mdns_host             │
+│                  │        │ http_port             │
+│ user_id (PK, FK) │        │ access_scope          │
+│ host             │        │ interfaces_json (TEXT)│
+│ port             │        │ device_secret         │
+│ username         │        │ is_quant              │
+│ password         │        │ paired_at             │
+│ remote_path      │        │ first_seen_at         │
+│ created_at       │        │ last_seen_at          │
+│ updated_at       │        │ created_at            │
+└──────────────────┘        │ updated_at            │
+        │                   └───────────────────────┘
         │ 1──1
 ┌───────┴──────────┐
 │    settings      │
 │                  │
-│ id (PK)          │
-│ user_id (FK, U)  │
+│ user_id (PK, FK) │
 │ data (JSONB)     │
 │ created_at       │
 │ updated_at       │
@@ -298,14 +322,21 @@ CREATE TABLE user_devices (
 -- 目标: PostgreSQL (localhost:5432/quantclaw)
 -- ============================================
 
+-- 设备状态枚举类型
+DO $$ BEGIN
+    CREATE TYPE device_status AS ENUM ('registered', 'online', 'offline', 'unknown');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
 -- 用户表
 CREATE TABLE users (
     id              SERIAL PRIMARY KEY,
     phone           VARCHAR(20) NOT NULL,
     username        VARCHAR(50) NOT NULL,
     password        VARCHAR(255) NOT NULL,
-    miyao_key       VARCHAR(100) NOT NULL DEFAULT '',
     password_changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    role            VARCHAR(32) NOT NULL DEFAULT 'role_usr_8f7d',
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -316,25 +347,28 @@ CREATE UNIQUE INDEX idx_users_username ON users(username);
 -- 设备表
 CREATE TABLE devices (
     id              SERIAL PRIMARY KEY,
-    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id         INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
+    device_name     VARCHAR(100) NOT NULL DEFAULT '',
     mac             VARCHAR(17) NOT NULL,
     hostname        VARCHAR(128) NOT NULL DEFAULT '',
     model           VARCHAR(128) NOT NULL DEFAULT '',
     firmware_version VARCHAR(64) NOT NULL DEFAULT '',
-    ssid            VARCHAR(128) NOT NULL DEFAULT '',
     ip              VARCHAR(64) NOT NULL DEFAULT '',
-    interfaces      JSONB NOT NULL DEFAULT '[]',
+    ssid            VARCHAR(128) NOT NULL DEFAULT '',
+    internet_available BOOLEAN NOT NULL DEFAULT FALSE,
+    status          device_status NOT NULL DEFAULT 'registered',
+    heartbeat_interval_sec INTEGER NOT NULL DEFAULT 60,
     ttyd_enabled    BOOLEAN NOT NULL DEFAULT FALSE,
     ttyd_port       INTEGER NOT NULL DEFAULT 7681,
     mdns_host       VARCHAR(128) NOT NULL DEFAULT '',
     http_port       INTEGER NOT NULL DEFAULT 80,
     access_scope    VARCHAR(32) NOT NULL DEFAULT 'lan',
-    status          VARCHAR(32) NOT NULL DEFAULT 'unknown',
-    internet_available BOOLEAN NOT NULL DEFAULT FALSE,
-    heartbeat_interval_sec INTEGER NOT NULL DEFAULT 60,
-    is_primary      BOOLEAN NOT NULL DEFAULT FALSE,
-    first_seen_at   TIMESTAMPTZ NOT NULL,
-    last_seen_at    TIMESTAMPTZ NOT NULL,
+    interfaces_json TEXT,
+    device_secret   VARCHAR(100) NOT NULL DEFAULT '',
+    is_quant        BOOLEAN NOT NULL DEFAULT FALSE,
+    paired_at       TIMESTAMPTZ,
+    first_seen_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_seen_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -343,33 +377,26 @@ CREATE INDEX idx_devices_user_id ON devices(user_id);
 CREATE INDEX idx_devices_mac ON devices(mac);
 CREATE INDEX idx_devices_last_seen_at ON devices(last_seen_at);
 CREATE INDEX idx_devices_status ON devices(status);
-CREATE INDEX idx_devices_is_primary ON devices(user_id, is_primary);
 
 -- SSH 配置表
 CREATE TABLE ssh_configs (
-    id              SERIAL PRIMARY KEY,
-    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    host            VARCHAR(64) NOT NULL DEFAULT '',
-    port            INTEGER NOT NULL DEFAULT 22,
-    username        VARCHAR(50) NOT NULL DEFAULT 'quant',
-    password        VARCHAR(255) NOT NULL DEFAULT '',
-    remote_path     VARCHAR(255) NOT NULL DEFAULT '/home/quant',
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    user_id         INTEGER NOT NULL PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    host            VARCHAR(255) DEFAULT '',
+    port            INTEGER DEFAULT 22,
+    username        VARCHAR(100) DEFAULT '',
+    password        VARCHAR(255) DEFAULT '',
+    remote_path     VARCHAR(500) DEFAULT '/home/quant',
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
-
-CREATE UNIQUE INDEX idx_ssh_configs_user_id ON ssh_configs(user_id);
 
 -- 系统设置表
 CREATE TABLE settings (
-    id              SERIAL PRIMARY KEY,
-    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id         INTEGER NOT NULL PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     data            JSONB NOT NULL DEFAULT '{}',
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
-
-CREATE UNIQUE INDEX idx_settings_user_id ON settings(user_id);
 ```
 
 ---
@@ -385,17 +412,17 @@ CREATE UNIQUE INDEX idx_settings_user_id ON settings(user_id);
 | 错误策略 | 数据库不可用 → 系统拒绝启动 |
 | 迁移工具 | 暂不做 |
 | 缓存 | Redis（短信验证码，5 分钟 TTL） |
-| 角色权限 | 不实现（个人版） |
+| 角色权限 | 实现三级权限体系（role字段：role_usr_8f7d-普通用户，role_adm_3k9p-管理员，role_spv_7m2x-特殊用户） |
 | 软删除 | 不实现 |
 | `USERS` 字典 | 完全删除 |
 | UDP 广播 | **保留**，`quantclaw_receiver/` 模块适配 PostgreSQL |
 | 认证方式 | JWT + HttpOnly Cookie（不变） |
 | 在线判定 | `status` 字段 + 心跳间隔（180 秒阈值） |
-| 设备注册 | 必须携带匹配的 `miyao_key` |
+| 设备注册 | 必须携带匹配的 `device_secret` |
 | 主设备 | 用户手动标记 `is_primary`，SSH host 跟随主设备 IP |
 | 心跳间隔 | 设备表独立存储，每台设备可不同 |
 | 旧数据 | 全部废弃，全新开始 |
-| `device_secret` | 不再硬编码 `"quant123456"`，改为从 `users.miyao_key` 动态读取 |
+| `device_secret` | 不再硬编码 `"quant123456"`，改为每个设备独立配置 |
 | `.env` / `.env.example` | 删除 SQLite + JSON 文件配置，新增 PostgreSQL + Redis 配置 |
 
 ---
@@ -417,7 +444,7 @@ CREATE UNIQUE INDEX idx_settings_user_id ON settings(user_id);
 | `login/schemas.py` | **适配** | 请求模型按需调整 |
 | `quantclaw_receiver/database.py` | **重写** | 替换 sqlite3 为 psycopg2 |
 | `quantclaw_receiver/device_manager.py` | **适配** | 适配新的设备注册/心跳/列表逻辑 |
-| `quantclaw_receiver/config.py` | **适配** | 去掉 SQLite 路径和 `device_secret` 硬编码，新增 PostgreSQL 配置，`device_secret` 改为从 `users.miyao_key` 动态读取 |
+| `quantclaw_receiver/config.py` | **适配** | 去掉 SQLite 路径和 `device_secret` 硬编码，新增 PostgreSQL 配置，`device_secret` 改为每个设备独立配置 |
 | `quantclaw_receiver/udp_receiver.py` | **适配** | UDP 处理改为调用新的数据库方法 |
 | `.env.example` | **重写** | 删除 SQLite + JSON 文件配置，新增 PostgreSQL + Redis 配置 |
 | `.env` | **重写** | 同上，与 `.env.example` 保持一致结构 |
@@ -489,8 +516,8 @@ CREATE UNIQUE INDEX idx_settings_user_id ON settings(user_id);
 
 **验证规则**：
 1. 请求体为空且 `allow_insecure=true` → 直接返回设备列表（兼容旧行为）
-2. 从请求中提取 `miyao_key` 字段 → 查询 `users` 表校验
-3. 签名验证逻辑（HMAC-SHA256）**完全不变**，只是签名用的 secret 从硬编码 `"quant123456"` 改为从 `users.miyao_key` 动态获取
+2. 从请求中提取 `device_secret` 字段 → 查询 `devices` 表校验
+3. 签名验证逻辑（HMAC-SHA256）**完全不变**，只是签名用的 secret 从硬编码 `"quant123456"` 改为从 `devices.device_secret` 动态获取
 4. 字段校验（MAC、timestamp 等）**完全不变**
 
 **存储规则**（`quantclaw_receiver/database.py` 的 `register_device()` 方法内部）：
@@ -501,14 +528,16 @@ CREATE UNIQUE INDEX idx_settings_user_id ON settings(user_id);
 新 psycopg2 SQL（字段对应 devices 表）:
   INSERT INTO devices (
     user_id, mac, hostname, model, firmware_version, ip, ssid,
-    interfaces, ttyd_enabled, ttyd_port, mdns_host, http_port,
-    access_scope, status, internet_available, heartbeat_interval_sec,
-    is_primary, first_seen_at, last_seen_at, created_at, updated_at
+    internet_available, status, heartbeat_interval_sec,
+    ttyd_enabled, ttyd_port, mdns_host, http_port,
+    access_scope, device_secret, is_quant,
+    first_seen_at, last_seen_at, created_at, updated_at
   ) VALUES (
     %s, %s, %s, %s, %s, %s, %s,
-    %s, %s, %s, %s, %s,
-    %s, 'unknown', FALSE, %s,
-    FALSE, %s, %s, %s, %s
+    FALSE, 'registered', %s,
+    %s, %s, %s, %s,
+    %s, %s, FALSE,
+    %s, %s, %s, %s
   )
 ```
 
@@ -522,7 +551,7 @@ CREATE UNIQUE INDEX idx_settings_user_id ON settings(user_id);
 | `firmwareVersion` | `firmware_version` | VARCHAR(64) | `''` |
 | `ip` | `ip` | VARCHAR(64) | `''` |
 | `ssid` | `ssid` | VARCHAR(128) | `''` |
-| `interfaces` | `interfaces` | JSONB | `'[]'` |
+| `interfaces` | `interfaces_json` | TEXT | `'[]'` |
 | `ttydEnabled` | `ttyd_enabled` | BOOLEAN | `FALSE` |
 | `ttydPort` | `ttyd_port` | INTEGER | `7681` |
 | `mdnsHost` | `mdns_host` | VARCHAR(128) | `''` |
@@ -530,15 +559,18 @@ CREATE UNIQUE INDEX idx_settings_user_id ON settings(user_id);
 | `accessScope` | `access_scope` | VARCHAR(32) | `'lan'` |
 | `heartbeatIntervalSec` | `heartbeat_interval_sec` | INTEGER | `60` |
 | `user_id` | `user_id` | INTEGER FK | 从认证上下文中获取 |
-| — | `status` | VARCHAR(32) | `'unknown'` |
+| — | `device_name` | VARCHAR(100) | `''` |
+| — | `status` | `device_status` | `'registered'` |
 | — | `internet_available` | BOOLEAN | `FALSE` |
-| — | `is_primary` | BOOLEAN | `FALSE` |
+| — | `is_quant` | BOOLEAN | `FALSE` |
+| — | `device_secret` | VARCHAR(100) | `''` |
+| — | `paired_at` | TIMESTAMPTZ | `NULL` |
 | — | `first_seen_at` | TIMESTAMPTZ | `NOW()` |
 | — | `last_seen_at` | TIMESTAMPTZ | `NOW()` |
 | — | `created_at` | TIMESTAMPTZ | `NOW()` |
 | — | `updated_at` | TIMESTAMPTZ | `NOW()` |
 
-> ⚠️ 原 sqlite 的 `devices` 表用 `last_ip`、`last_ssid` 等列名，新 PostgreSQL 表用 `ip`、`ssid`。**但是函数返回给调用方的 dict key 必须与原来完全一致**（如 `lastIp`、`lastSsid`），这个映射在 `utils.py` 的 `row_to_device()` 中做，**该函数签名和返回结构不变，只把访问 `row["last_ip"]` 改为 `row["ip"]`**。
+> ⚠️ 原 sqlite 的 `devices` 表用 `last_ip` 等列名，新 PostgreSQL 表用 `ip`、`ssid`。**但是函数返回给调用方的 dict key 必须与原来完全一致**（如 `lastIp`、`lastSsid`），这个映射在 `utils.py` 的 `row_to_device()` 中做，**该函数签名和返回结构不变，只把访问 `row["last_ip"]` 改为 `row["ip"]`**。
 
 #### 12.3.2 心跳数据存储规则
 
@@ -775,8 +807,8 @@ def get_db():
 │  设备注册流程 (POST /api/device/register)                    │
 │                                                              │
 │  1. main.py 路由接收请求 → device_manager.register_device()  │
-│  2. 提取 miyao_key → 查 users 表校验（参数名不变）            │
-│  3. HMAC 签名验证（secret 改为从 users.miyao_key 读）        │
+│  2. 提取 device_secret → 查 devices 表校验                     │
+│  3. HMAC 签名验证（secret 改为从 devices.device_secret 读）   │
 │  4. db_manager.register_device(mac, payload)                  │
 │     └─ INSERT INTO devices (...)  ──── 写入 PostgreSQL       │
 │  5. db_manager.get_pairing_snapshot(mac, observed)            │
@@ -825,3 +857,121 @@ def get_db():
 | `login/schemas.py` | Pydantic 验证器全部逻辑 | 无（可能需要新增字段，但原有字段不变） |
 | `templates/` 全部 | 全部 HTML/CSS/JS | 无 |
 | `static/` 全部 | 全部 CSS/JS | 无 |
+
+---
+
+## 十三、权限系统实施细则
+
+### 13.1 权限字段定义
+
+| 字段名 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| `role` | VARCHAR(32) | 'role_usr_8f7d' | 用户权限等级（字母数字组合） |
+
+### 13.2 权限等级规范
+
+| role 值 | 角色 | 登录权限 | 用途 |
+|---------|------|----------|------|
+| `role_usr_8f7d` | 普通用户 | ✅ 本网站可登录 | 正常注册用户 |
+| `role_adm_3k9p` | 管理员用户 | ❌ 本网站不可登录 | 仅管理员网站使用 |
+| `role_spv_7m2x` | 特殊权限用户 | ✅ 本网站可登录 | 双端均可登录 |
+
+### 13.3 权限值设计安全说明
+
+采用"前缀_角色标识_随机后缀"的三层结构设计：
+
+```
+role_usr_8f7d
+│    │   │
+│    │   └─ 4位随机字符（字母+数字），增强不可预测性
+│    └─ 角色标识（usr=用户，adm=管理员，spv=特殊）
+└─ 固定前缀，便于识别
+```
+
+**安全优势**：
+- 避免纯数字的简单枚举攻击
+- 随机后缀使权限值难以猜测
+- 结构清晰便于维护和扩展
+
+### 13.4 注册流程变更
+
+**变更内容**：新用户注册时，`role` 字段自动设置为 `'role_usr_8f7d'`
+
+**SQL 示例**：
+```sql
+INSERT INTO users (phone, username, password, role, ...) 
+VALUES (%s, %s, %s, 'role_usr_8f7d', ...)
+```
+
+### 13.5 登录权限验证逻辑
+
+**验证流程**：
+1. 用户输入手机号/用户名 + 密码
+2. 查询数据库验证密码
+3. **新增步骤**：检查 `users.role` 字段
+4. 若 `role='role_adm_3k9p'` → 返回权限不足错误
+5. 若 `role='role_usr_8f7d'` 或 `role='role_spv_7m2x'` → 正常登录并颁发 JWT
+
+**伪代码示例**：
+```python
+# login/auth.py 或 login/routers/auth_router.py
+user = get_user_by_phone_or_username(identifier)
+if not user:
+    return 401
+if not verify_password(password, user.password):
+    return 401
+# 新增权限验证
+if user.role == 'role_adm_3k9p':
+    return HTTPException(
+        status_code=403,
+        detail="权限不足：管理员账户请通过管理员网站登录"
+    )
+# 正常登录流程
+token = create_access_token(user.id)
+return {"access_token": token, ...}
+```
+
+### 13.6 向后兼容性保证
+
+- **现有用户**：ALTER TABLE 添加 `role` 字段时，默认值设为 `'role_usr_8f7d'`，不影响现有用户登录
+- **数据迁移**：无需额外数据迁移，所有用户自动获得普通用户权限
+- **API 响应**：JWT 颁发和 Cookie 设置逻辑保持不变
+
+### 13.7 权限常量定义（推荐）
+
+建议在代码中定义权限常量，避免硬编码字符串：
+
+```python
+# login/constants.py
+class UserRoles:
+    REGULAR = "role_usr_8f7d"
+    ADMIN = "role_adm_3k9p"
+    SPECIAL = "role_spv_7m2x"
+    
+    @classmethod
+    def can_login_here(cls, role: str) -> bool:
+        """判断是否允许在本网站登录"""
+        return role in (cls.REGULAR, cls.SPECIAL)
+```
+
+### 13.8 预留管理员接口（暂不实现）
+
+为后续管理员网站预留以下接口能力：
+
+| 接口 | 功能 | 说明 |
+|------|------|------|
+| GET /admin/users | 查询用户列表 | 包含 role 字段 |
+| PUT /admin/users/{id}/role | 更新用户权限 | 修改 role 字段值 |
+| POST /admin/users | 创建管理员账户 | 可指定 role='role_adm_3k9p' |
+
+> ⚠️ 以上接口在本项目中暂不实现，仅为架构预留。
+
+### 13.9 涉及修改的代码文件
+
+| 文件 | 修改内容 |
+|------|----------|
+| `login/database.py` | 用户查询 SQL 包含 role 字段 |
+| `login/auth.py` | 登录时增加 role 验证 |
+| `login/routers/auth_router.py` | 注册时设置 role='role_usr_8f7d'，登录时验证 role |
+| `login/schemas.py` | 用户响应模型新增 role 字段（可选） |
+| `login/constants.py`（新增） | 定义权限常量 |

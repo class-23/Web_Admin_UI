@@ -178,21 +178,7 @@ class DatabaseManager:
         cur.execute("ALTER TABLE devices ALTER COLUMN user_id SET DEFAULT 1")
 
     def _ensure_devices_indexes(self, cur) -> None:
-        cur.execute(
-            """
-            DO $$
-            BEGIN
-                IF NOT EXISTS (
-                    SELECT 1
-                    FROM pg_constraint
-                    WHERE conname = 'devices_mac_unique'
-                ) THEN
-                    ALTER TABLE devices ADD CONSTRAINT devices_mac_unique UNIQUE (mac);
-                END IF;
-            END
-            $$;
-            """
-        )
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS devices_mac_unique ON devices (mac)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_user_last_seen ON devices (user_id, last_seen_at DESC)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_status ON devices (status)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_devices_phone ON devices (phone)")

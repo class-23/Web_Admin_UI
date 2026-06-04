@@ -40,7 +40,15 @@ def get_code(phone: str) -> Optional[str]:
 
 def peek_code(phone: str) -> Optional[str]:
     """只读取验证码，不消费（不删除）"""
-    return _redis.get(f"sms_code:{phone}")
+    _clean_expired()
+    entry = _codes.get(phone)
+    if entry is None:
+        return None
+    code, expire_at = entry
+    if expire_at <= time.time():
+        del _codes[phone]
+        return None
+    return code
 
 
 def can_resend(phone: str) -> bool:
