@@ -315,6 +315,12 @@ async def setting_page():
 </html>"""
 
 
+@app.get("/tutorial", response_class=HTMLResponse, include_in_schema=False)
+async def tutorial_page():
+    with open("templates/tutorial.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
 @app.get("/file_manager", response_class=HTMLResponse, include_in_schema=False)
 async def file_manager():
     with open("templates/file_manager.html", "r", encoding="utf-8") as f:
