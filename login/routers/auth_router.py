@@ -9,6 +9,7 @@ from login.schemas import ChangePasswordRequest
 from login.auth import verify_password, get_password_hash, create_access_token
 from login.auth import set_auth_cookie, clear_auth_cookie, get_current_user_from_cookie, require_auth
 from login.code_store import store_code, get_code, peek_code, can_resend, clear_code
+from login.constants import UserRoles
 from login.limiter import limiter
 from login.sms_utils import send_sms
 from jose import jwt, JWTError
@@ -59,8 +60,8 @@ def register(request: Request, req: RegisterRequest, db = Depends(get_db)):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     cur.execute(
-        "INSERT INTO users (phone, username, password) VALUES (%s,%s,%s) RETURNING id",
-        (req.phone, req.username, hashed_pw)
+        "INSERT INTO users (phone, username, password, role) VALUES (%s,%s,%s,%s) RETURNING id",
+        (req.phone, req.username, hashed_pw, UserRoles.REGULAR)
     )
     db.commit()
     cur.close()
@@ -82,6 +83,10 @@ def login(request: Request, response: Response, req: LoginRequest, db = Depends(
 
     if user is None or not verify_password(req.password, user["password"]):
         return ApiResponse(code=401, message="手机号/用户名或密码错误")
+
+    # 权限校验：管理员账户不允许在本网站登录
+    if not UserRoles.can_login_here(user["role"]):
+        return ApiResponse(code=403, message="权限不足：管理员账户请通过管理员网站登录")
 
     set_auth_cookie(response, {"sub": str(user["id"]), "username": user["username"]})
     return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})
@@ -105,6 +110,10 @@ def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, d
     if user is None:
         # 用户不存在，不消费验证码，前端会跳转注册页复用
         return ApiResponse(code=404, message="该手机号未注册，请先注册")
+
+    # 权限校验：管理员账户不允许在本网站登录
+    if not UserRoles.can_login_here(user["role"]):
+        return ApiResponse(code=403, message="权限不足：管理员账户请通过管理员网站登录")
 
     # 用户存在，才消费验证码
     if req.code != "888888":
@@ -211,7 +220,11 @@ def current_user(request: Request, db = Depends(get_db)):
     user = get_current_user_from_cookie(request, db)
     if user is None:
         return ApiResponse(code=0, message="未登录", data=None)
-    return ApiResponse(code=0, message="成功", data={"username": user["username"], "is_admin": False})
+    return ApiResponse(code=0, message="成功", data={
+        "username": user["username"],
+        "role": user["role"],
+        "is_admin": user["role"] == UserRoles.ADMIN
+    })
 
 
 @router.post("/change_password", response_model=ApiResponse, summary="修改密码", description="验证旧密码后设置新密码，修改成功后需重新登录。")

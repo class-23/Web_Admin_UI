@@ -288,6 +288,33 @@ async def change_password_page():
 
 
 
+@app.get("/setting", response_class=HTMLResponse, include_in_schema=False)
+async def setting_page():
+    return """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 龙虾盒子</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-white to-slate-50 min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="max-w-md w-full text-center">
+        <div class="w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-200/30 border border-amber-200/50">
+            <i class="ri-tools-line text-4xl text-amber-500"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-800 mb-3">功能开发中</h1>
+        <p class="text-slate-500 mb-8 leading-relaxed">系统设置页面正在紧锣密鼓地开发中，<br>敬请期待后续版本更新。</p>
+        <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors font-medium shadow-lg shadow-rose-200/30">
+            <i class="ri-arrow-left-s-line text-lg"></i>
+            返回首页
+        </a>
+    </div>
+</body>
+</html>"""
+
+
 @app.get("/file_manager", response_class=HTMLResponse, include_in_schema=False)
 async def file_manager():
     with open("templates/file_manager.html", "r", encoding="utf-8") as f:
