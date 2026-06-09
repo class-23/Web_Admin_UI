@@ -1,0 +1,212 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e5]:
+      - link "🦞 龙虾盒子管理后台" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: 🦞
+        - generic [ref=e9]: 龙虾盒子管理后台
+      - link " 返回首页" [ref=e11] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e12]: 
+        - text: 返回首页
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]: 
+          - text: 使用教程
+        - heading "快速配网指南" [level=1] [ref=e18]
+        - paragraph [ref=e19]: 跟随以下步骤，几分钟即可完成设备配网，开始使用龙虾盒子
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e24]: 
+          - generic [ref=e25]:
+            - heading "视频教程" [level=2] [ref=e26]
+            - paragraph [ref=e27]: 观看配网操作演示
+        - iframe [ref=e29]:
+          - generic "哔哩哔哩播放器" [ref=f1e5]:
+            - generic [ref=f1e6] [cursor=pointer]:
+              - generic:
+                - generic:
+                  - generic [ref=f1e11]:
+                    - generic [ref=f1e12]:
+                      - img
+                    - generic [ref=f1e14]: 量迹龙虾座舱配网教学
+                  - generic [ref=f1e15]:
+                    - img [ref=f1e16]
+                    - generic [ref=f1e17]: 拉里路路
+                    - generic [ref=f1e18]:
+                      - img
+                      - generic [ref=f1e19]: 关注
+                - generic [ref=f1e20]:
+                  - generic [ref=f1e21]:
+                    - generic [ref=f1e22]:
+                      - img
+                    - generic [ref=f1e23]: "7"
+                  - generic [ref=f1e24]:
+                    - generic [ref=f1e25]:
+                      - img
+                    - generic [ref=f1e26]: "0"
+                  - generic [ref=f1e27]:
+                    - generic [ref=f1e28]:
+                      - img
+                    - generic [ref=f1e29]: 分享
+                  - generic [ref=f1e30]:
+                    - generic [ref=f1e31]:
+                      - img
+                    - generic [ref=f1e32]: 更多
+              - generic [ref=f1e34]:
+                - generic [ref=f1e38]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                - generic [ref=f1e44]:
+                  - generic [ref=f1e45]:
+                    - button "播放/暂停" [ref=f1e46]:
+                      - img [ref=f1e49]
+                    - generic [ref=f1e64]: 00:14 / 10:19
+                  - generic [ref=f1e67]:
+                    - generic "弹幕显示隐藏" [ref=f1e68]:
+                      - generic [ref=f1e69]:
+                        - checkbox [checked] [ref=f1e70]
+                        - generic [ref=f1e72]:
+                          - img
+                    - generic [ref=f1e74]: 一起去哔哩哔哩发送弹幕吧！
+                  - generic [ref=f1e75]:
+                    - button "清晰度" [ref=f1e76]:
+                      - generic [ref=f1e77]: 自动
+                    - button "倍速" [ref=f1e78]:
+                      - generic [ref=f1e79]: 倍速
+                    - button "音量" [ref=f1e80]:
+                      - generic [ref=f1e82]:
+                        - img
+                    - button "全屏" [ref=f1e83]:
+                      - generic [ref=f1e85]:
+                        - img
+              - generic [ref=f1e86]:
+                - text: 进入哔哩哔哩，观看更高清
+                - img
+      - generic [ref=e30]:
+        - heading "配网步骤" [level=2] [ref=e31]: 配网步骤
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: "1"
+            - generic [ref=e36]:
+              - heading "连接设备热点" [level=3] [ref=e37]
+              - paragraph [ref=e38]: 手机或电脑连接 Quanthermes Setup
+              - img "连接WiFi热点" [ref=e121]
+              - generic [ref=e40]:
+                - paragraph [ref=e41]:
+                  - text: 设备接通电源后自动进入
+                  - strong [ref=e42]: AP 模式
+                  - text: ，请按以下步骤操作：
+                - list [ref=e43]:
+                  - listitem [ref=e44]: 打开手机或电脑的 WiFi 设置，搜索可用网络。
+                  - listitem [ref=e45]:
+                    - text: 找到名为
+                    - strong [ref=e46]: "\"Quanthermes Setup\""
+                    - text: 的 WiFi 热点，点击连接。
+                  - listitem [ref=e47]:
+                    - text: 连接成功后，打开浏览器，在地址栏输入
+                    - strong [ref=e48]: 192.168.4.1
+                    - text: 进入配网页面。
+                - generic [ref=e49]:
+                  - generic [ref=e50]: 
+                  - text: 如果搜不到热点，请确认设备已接通电源。热点在设备开机后约 30 秒内出现。
+          - generic [ref=e51]:
+            - generic [ref=e52]: "2"
+            - generic [ref=e53]:
+              - heading "填写配网信息" [level=3] [ref=e54]
+              - paragraph [ref=e55]: 输入 Wi-Fi 名称、密码及手机号
+              - img "初次配网" [ref=e122]
+              - generic [ref=e57]:
+                - paragraph [ref=e58]: 进入配网界面后，请按照图中标注填写：
+                - list [ref=e59]:
+                  - listitem [ref=e60]:
+                    - text: 在
+                    - strong [ref=e61]: Wi-Fi 名称
+                    - text: 栏中选择或输入您家中/公司的无线网络名称。
+                  - listitem [ref=e62]:
+                    - text: 在
+                    - strong [ref=e63]: 密码
+                    - text: 栏中输入对应的 Wi-Fi 密码。
+                  - listitem [ref=e64]:
+                    - text: 在
+                    - strong [ref=e65]: 电话号码
+                    - text: 栏中输入您的手机号（用于设备绑定）。
+                  - listitem [ref=e66]:
+                    - text: 确认信息无误后，点击
+                    - strong [ref=e67]: "\"保存并连接\""
+                    - text: 按钮。
+                - generic [ref=e68]:
+                  - generic [ref=e69]: 
+                  - text: 请确保 Wi-Fi 密码输入正确，否则设备将无法连接网络。等待 5 至 10 秒即可完成。
+          - generic [ref=e70]:
+            - generic [ref=e71]: "3"
+            - generic [ref=e72]:
+              - heading "配网成功" [level=3] [ref=e73]
+              - paragraph [ref=e74]: 设备网络切换提醒
+              - img "配网成功" [ref=e123]
+              - generic [ref=e76]:
+                - paragraph [ref=e77]: 点击"保存并连接"后等待 5 至 10 秒，会出现以下变化：
+                - list [ref=e78]:
+                  - listitem [ref=e79]:
+                    - text: 页面显示
+                    - strong [ref=e80]: 设备网络切换提醒
+                    - text: ，表示设备正在切换到您配置的网络。
+                  - listitem [ref=e81]:
+                    - text: 您的手机或电脑的 WiFi 会自动
+                    - strong [ref=e82]: 切回到家中/公司的网络
+                    - text: 。
+                  - listitem [ref=e83]:
+                    - text: 以上现象即代表
+                    - strong [ref=e84]: 配网成功
+                    - text: 。
+                - generic [ref=e85]:
+                  - generic [ref=e86]: 
+                  - text: 配网成功后，设备会自动与您的账户绑定。后续所有管理操作均通过云端后台完成，无需重复配网。
+          - generic [ref=e87]:
+            - generic [ref=e88]: "4"
+            - generic [ref=e89]:
+              - heading "进入管理平台" [level=3] [ref=e90]
+              - paragraph [ref=e91]: 访问 keli.quantclaw.vip
+              - img "管理平台" [ref=e124]
+              - generic [ref=e93]:
+                - paragraph [ref=e94]: 配网成功后，在电脑或手机浏览器中进行以下操作：
+                - list [ref=e95]:
+                  - listitem [ref=e96]:
+                    - text: 在浏览器地址栏输入
+                    - strong [ref=e97]: https://keli.quantclaw.vip
+                    - text: 进入设备管理平台。
+                  - listitem [ref=e98]:
+                    - text: 在管理平台右上角选择
+                    - strong [ref=e99]: 要使用的设备
+                    - text: 。
+                  - listitem [ref=e100]:
+                    - text: 选择好设备后，点击右下角的
+                    - strong [ref=e101]: "\"控制面板\""
+                    - text: 按钮。
+                - generic [ref=e102]:
+                  - generic [ref=e103]: 
+                  - text: 请确保电脑/手机与设备处于同一网络环境下，否则无法正常访问管理平台。
+          - generic [ref=e104]:
+            - generic [ref=e105]: "5"
+            - generic [ref=e106]:
+              - heading "Hermes 使用界面" [level=3] [ref=e107]
+              - paragraph [ref=e108]: 进入智能管理界面
+              - img "Hermes使用界面" [ref=e125]
+              - generic [ref=e110]:
+                - paragraph [ref=e111]:
+                  - text: 点击"控制面板"后，即可进入
+                  - strong [ref=e112]: Hermes
+                  - text: 使用界面：
+                - list [ref=e113]:
+                  - listitem [ref=e114]: 界面展示了设备的管理与对话功能区。
+                  - listitem [ref=e115]: 在此可以管理设备模型、查看对话记录等。
+                  - listitem [ref=e116]: 如需为设备配置 AI 模型，请参考后续拓展教程。
+                - generic [ref=e117]:
+                  - generic [ref=e118]: 
+                  - text: Hermes 是量迹座舱的核心管理界面，后续所有模型配置与对话均在此完成。
+  - contentinfo [ref=e119]:
+    - paragraph [ref=e120]: openclawbox © 2026

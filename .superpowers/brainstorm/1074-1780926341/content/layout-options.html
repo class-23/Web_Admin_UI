@@ -1,0 +1,104 @@
+<h2>教程页布局方案</h2>
+<p class="subtitle">5步配网流程（含顶部B站视频），选择你喜欢的布局方式</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 A：单页纵向滚动</div>
+        <div class="mockup-body">
+          <div style="text-align:center;padding:8px;margin-bottom:8px;background:linear-gradient(135deg,#ffe4e6,#fce7f3);border-radius:8px;font-size:11px;color:#e11d48;">🎬 B站视频</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;border-left:3px solid #e11d48;">
+              <span style="font-weight:700;font-size:12px;color:#e11d48;">Step 1</span>
+              <span style="font-size:11px;color:#64748b;margin-left:6px;">连接设备热点</span>
+            </div>
+            <div style="padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;border-left:3px solid #f97316;">
+              <span style="font-weight:700;font-size:12px;color:#f97316;">Step 2</span>
+              <span style="font-size:11px;color:#64748b;margin-left:6px;">填写配网信息</span>
+            </div>
+            <div style="padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;border-left:3px solid #22c55e;">
+              <span style="font-weight:700;font-size:12px;color:#22c55e;">Step 3</span>
+              <span style="font-size:11px;color:#64748b;margin-left:6px;">配网成功</span>
+            </div>
+            <div style="padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;border-left:3px solid #3b82f6;">
+              <span style="font-weight:700;font-size:12px;color:#3b82f6;">Step 4</span>
+              <span style="font-size:11px;color:#64748b;margin-left:6px;">进入管理平台</span>
+            </div>
+            <div style="padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;border-left:3px solid #8b5cf6;">
+              <span style="font-weight:700;font-size:12px;color:#8b5cf6;">Step 5</span>
+              <span style="font-size:11px;color:#64748b;margin-left:6px;">Hermes 使用界面</span>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:10px;color:#94a3b8;margin-top:8px;">⬇ 继续滚动</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>方案 A：单页纵向滚动</h3>
+      <p>视频置顶，5个步骤依次排列，用户自然向下浏览。简单线性叙事，移动端友好。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 B：步骤标签页切换</div>
+        <div class="mockup-body">
+          <div style="text-align:center;padding:8px;margin-bottom:8px;background:linear-gradient(135deg,#ffe4e6,#fce7f3);border-radius:8px;font-size:11px;color:#e11d48;">🎬 B站视频</div>
+          <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="padding:4px 8px;background:#e11d48;color:#fff;border-radius:20px;font-size:10px;font-weight:600;">1</span>
+            <span style="padding:4px 8px;background:#f1f5f9;color:#94a3b8;border-radius:20px;font-size:10px;">2</span>
+            <span style="padding:4px 8px;background:#f1f5f9;color:#94a3b8;border-radius:20px;font-size:10px;">3</span>
+            <span style="padding:4px 8px;background:#f1f5f9;color:#94a3b8;border-radius:20px;font-size:10px;">4</span>
+            <span style="padding:4px 8px;background:#f1f5f9;color:#94a3b8;border-radius:20px;font-size:10px;">5</span>
+          </div>
+          <div style="padding:12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">
+            <div class="placeholder" style="height:100px;">当前步骤内容区</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>方案 B：步骤标签页切换</h3>
+      <p>顶部进度指示器，每次只展示一个步骤。内容紧凑，用户可以自主控制节奏。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 C：折叠面板式</div>
+        <div class="mockup-body">
+          <div style="text-align:center;padding:8px;margin-bottom:8px;background:linear-gradient(135deg,#ffe4e6,#fce7f3);border-radius:8px;font-size:11px;color:#e11d48;">🎬 B站视频</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="padding:8px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11px;font-weight:600;">Step 1 · 连接设备热点</span>
+              <span style="color:#e11d48;">▼</span>
+            </div>
+            <div style="padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11px;color:#64748b;">Step 2 · 填写配网信息</span>
+              <span style="color:#94a3b8;">▶</span>
+            </div>
+            <div style="padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11px;color:#64748b;">Step 3 · 配网成功</span>
+              <span style="color:#94a3b8;">▶</span>
+            </div>
+            <div style="padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11px;color:#64748b;">Step 4 · 进入管理平台</span>
+              <span style="color:#94a3b8;">▶</span>
+            </div>
+            <div style="padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11px;color:#64748b;">Step 5 · Hermes 使用界面</span>
+              <span style="color:#94a3b8;">▶</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>方案 C：折叠面板式</h3>
+      <p>所有步骤标题一览无余，点击展开查看详情。概览清晰，但引导感较弱。</p>
+    </div>
+  </div>
+</div>

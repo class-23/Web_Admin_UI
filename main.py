@@ -315,6 +315,12 @@ async def setting_page():
 </html>"""
 
 
+@app.get("/tutorial", response_class=HTMLResponse, include_in_schema=False)
+async def tutorial_page():
+    with open("templates/tutorial.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
 @app.get("/file_manager", response_class=HTMLResponse, include_in_schema=False)
 async def file_manager():
     with open("templates/file_manager.html", "r", encoding="utf-8") as f:
@@ -901,7 +907,7 @@ async def get_devices(
     user = Depends(require_auth_or_api_key),
     db = Depends(get_db),
 ):
-    devices = await device_manager.get_devices_list()
+    devices = await device_manager.get_devices_list(user_phone=user["phone"])
 
     return {"code": 0, "message": "ok", "data": devices}
 
