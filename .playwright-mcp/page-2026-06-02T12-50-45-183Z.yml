@@ -1,0 +1,668 @@
+- generic [ref=e3]:
+  - generic:
+    - img
+  - generic [ref=e4]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - heading "QuantClaw 设备管理后台 1.0.0 OAS 3.1" [level=1] [ref=e9]:
+          - text: QuantClaw 设备管理后台
+          - generic [ref=e10]:
+            - generic [ref=e12]: 1.0.0
+            - generic [ref=e14]: OAS 3.1
+        - link "/openapi.json" [ref=e15] [cursor=pointer]:
+          - /url: /openapi.json
+          - generic [ref=e16]: /openapi.json
+      - generic [ref=e18]:
+        - paragraph [ref=e19]: QuantClaw IoT 设备管理平台 API。
+        - paragraph [ref=e20]: 提供设备注册与心跳监控、远程文件管理、SSH 连接配置、用户认证与权限管理等功能。
+        - paragraph [ref=e21]:
+          - strong [ref=e22]: 认证方式：
+        - list [ref=e23]:
+          - listitem [ref=e24]:
+            - text: Cookie 登录（通过
+            - code [ref=e25]: /api/login
+            - text: 获取）
+          - listitem [ref=e26]:
+            - text: "API Key + 手机号（Header:"
+            - code [ref=e27]: X-API-Key
+            - text: +
+            - code [ref=e28]: X-Phone
+            - text: "或 Query:"
+            - code [ref=e29]: api_key
+            - text: +
+            - code [ref=e30]: phone
+            - text: ）
+    - generic [ref=e33]:
+      - generic [ref=e35]:
+        - heading "认证 用户注册、登录、密码管理与 Token 验证 Collapse operation" [level=3] [ref=e36] [cursor=pointer]:
+          - link "认证" [ref=e37]:
+            - /url: "#/认证"
+          - paragraph [ref=e40]: 用户注册、登录、密码管理与 Token 验证
+          - button "Collapse operation" [expanded] [ref=e41]:
+            - img [ref=e42]
+        - generic [ref=e45]:
+          - generic [ref=e48] [cursor=pointer]:
+            - button "POST /api/send-code 发送短信验证码" [ref=e49]:
+              - generic [ref=e50]: POST
+              - generic [ref=e51]:
+                - link "/api/send-code" [ref=e53]:
+                  - /url: "#/认证/send_code_api_send_code_post"
+                  - generic [ref=e54]:
+                    - text: /api
+                    - text: /send-code
+                - generic [ref=e55]: 发送短信验证码
+            - generic "Copy to clipboard"
+            - button "post /api/send-code" [ref=e58]:
+              - img [ref=e59]
+          - generic [ref=e63] [cursor=pointer]:
+            - button "POST /api/register 用户注册" [ref=e64]:
+              - generic [ref=e65]: POST
+              - generic [ref=e66]:
+                - link "/api/register" [ref=e68]:
+                  - /url: "#/认证/register_api_register_post"
+                  - generic [ref=e69]:
+                    - text: /api
+                    - text: /register
+                - generic [ref=e70]: 用户注册
+            - generic "Copy to clipboard"
+            - button "post /api/register" [ref=e73]:
+              - img [ref=e74]
+          - generic [ref=e78] [cursor=pointer]:
+            - button "POST /api/login 用户登录" [ref=e79]:
+              - generic [ref=e80]: POST
+              - generic [ref=e81]:
+                - link "/api/login" [ref=e83]:
+                  - /url: "#/认证/login_api_login_post"
+                  - generic [ref=e84]:
+                    - text: /api
+                    - text: /login
+                - generic [ref=e85]: 用户登录
+            - generic "Copy to clipboard"
+            - button "post /api/login" [ref=e88]:
+              - img [ref=e89]
+          - generic [ref=e93] [cursor=pointer]:
+            - button "POST /api/login-by-sms 短信验证码登录" [ref=e94]:
+              - generic [ref=e95]: POST
+              - generic [ref=e96]:
+                - link "/api/login-by-sms" [ref=e98]:
+                  - /url: "#/认证/login_by_sms_api_login_by_sms_post"
+                  - generic [ref=e99]:
+                    - text: /api
+                    - text: /login-by-sms
+                - generic [ref=e100]: 短信验证码登录
+            - generic "Copy to clipboard"
+            - button "post /api/login-by-sms" [ref=e103]:
+              - img [ref=e104]
+          - generic [ref=e108] [cursor=pointer]:
+            - button "POST /api/forgot-password/send-code 发送找回密码验证码" [ref=e109]:
+              - generic [ref=e110]: POST
+              - generic [ref=e111]:
+                - link "/api/forgot-password/send-code" [ref=e113]:
+                  - /url: "#/认证/forgot_password_send_code_api_forgot_password_send_code_post"
+                  - generic [ref=e114]:
+                    - text: /api
+                    - text: /forgot-password
+                    - text: /send-code
+                - generic [ref=e115]: 发送找回密码验证码
+            - generic "Copy to clipboard"
+            - button "post /api/forgot-password/send-code" [ref=e118]:
+              - img [ref=e119]
+          - generic [ref=e123] [cursor=pointer]:
+            - button "POST /api/forgot-password/verify 验证找回密码验证码" [ref=e124]:
+              - generic [ref=e125]: POST
+              - generic [ref=e126]:
+                - link "/api/forgot-password/verify" [ref=e128]:
+                  - /url: "#/认证/forgot_password_verify_api_forgot_password_verify_post"
+                  - generic [ref=e129]:
+                    - text: /api
+                    - text: /forgot-password
+                    - text: /verify
+                - generic [ref=e130]: 验证找回密码验证码
+            - generic "Copy to clipboard"
+            - button "post /api/forgot-password/verify" [ref=e133]:
+              - img [ref=e134]
+          - generic [ref=e138] [cursor=pointer]:
+            - button "POST /api/forgot-password/reset 重置密码" [ref=e139]:
+              - generic [ref=e140]: POST
+              - generic [ref=e141]:
+                - link "/api/forgot-password/reset" [ref=e143]:
+                  - /url: "#/认证/forgot_password_reset_api_forgot_password_reset_post"
+                  - generic [ref=e144]:
+                    - text: /api
+                    - text: /forgot-password
+                    - text: /reset
+                - generic [ref=e145]: 重置密码
+            - generic "Copy to clipboard"
+            - button "post /api/forgot-password/reset" [ref=e148]:
+              - img [ref=e149]
+          - generic [ref=e153] [cursor=pointer]:
+            - button "POST /api/verify_token 验证 JWT Token" [ref=e154]:
+              - generic [ref=e155]: POST
+              - generic [ref=e156]:
+                - link "/api/verify_token" [ref=e158]:
+                  - /url: "#/认证/verify_token_api_verify_token_post"
+                  - generic [ref=e159]:
+                    - text: /api
+                    - text: /verify_token
+                - generic [ref=e160]: 验证 JWT Token
+            - generic "Copy to clipboard"
+            - button "post /api/verify_token" [ref=e163]:
+              - img [ref=e164]
+          - generic [ref=e168] [cursor=pointer]:
+            - button "POST /api/logout 退出登录" [ref=e169]:
+              - generic [ref=e170]: POST
+              - generic [ref=e171]:
+                - link "/api/logout" [ref=e173]:
+                  - /url: "#/认证/logout_api_logout_post"
+                  - generic [ref=e174]:
+                    - text: /api
+                    - text: /logout
+                - generic [ref=e175]: 退出登录
+            - generic "Copy to clipboard"
+            - button "post /api/logout" [ref=e178]:
+              - img [ref=e179]
+          - generic [ref=e183] [cursor=pointer]:
+            - button "GET /api/current_user 获取当前用户信息" [ref=e184]:
+              - generic [ref=e185]: GET
+              - generic [ref=e186]:
+                - link "/api/current_user" [ref=e188]:
+                  - /url: "#/认证/current_user_api_current_user_get"
+                  - generic [ref=e189]:
+                    - text: /api
+                    - text: /current_user
+                - generic [ref=e190]: 获取当前用户信息
+            - generic "Copy to clipboard"
+            - button "get /api/current_user" [ref=e193]:
+              - img [ref=e194]
+          - generic [ref=e198] [cursor=pointer]:
+            - button "POST /api/change_password 修改密码" [ref=e199]:
+              - generic [ref=e200]: POST
+              - generic [ref=e201]:
+                - link "/api/change_password" [ref=e203]:
+                  - /url: "#/认证/change_password_api_change_password_post"
+                  - generic [ref=e204]:
+                    - text: /api
+                    - text: /change_password
+                - generic [ref=e205]: 修改密码
+            - generic "Copy to clipboard"
+            - button "post /api/change_password" [ref=e208]:
+              - img [ref=e209]
+      - generic [ref=e212]:
+        - heading "设备管理 设备注册、心跳上报、设备列表与 CRUD 操作 Collapse operation" [level=3] [ref=e213] [cursor=pointer]:
+          - link "设备管理" [ref=e214]:
+            - /url: "#/设备管理"
+          - paragraph [ref=e217]: 设备注册、心跳上报、设备列表与 CRUD 操作
+          - button "Collapse operation" [expanded] [ref=e218]:
+            - img [ref=e219]
+        - generic [ref=e222]:
+          - generic [ref=e225] [cursor=pointer]:
+            - button "GET /api/device/register 设备注册" [ref=e226]:
+              - generic [ref=e227]: GET
+              - generic [ref=e228]:
+                - link "/api/device/register" [ref=e230]:
+                  - /url: "#/设备管理/register_device_api_device_register_post"
+                  - generic [ref=e231]:
+                    - text: /api
+                    - text: /device
+                    - text: /register
+                - generic [ref=e232]: 设备注册
+            - generic "Copy to clipboard"
+            - button "get /api/device/register" [ref=e235]:
+              - img [ref=e236]
+          - generic [ref=e240] [cursor=pointer]:
+            - button "POST /api/device/register 设备注册" [ref=e241]:
+              - generic [ref=e242]: POST
+              - generic [ref=e243]:
+                - link "/api/device/register" [ref=e245]:
+                  - /url: "#/设备管理/register_device_api_device_register_post"
+                  - generic [ref=e246]:
+                    - text: /api
+                    - text: /device
+                    - text: /register
+                - generic [ref=e247]: 设备注册
+            - generic "Copy to clipboard"
+            - button "post /api/device/register" [ref=e250]:
+              - img [ref=e251]
+          - generic [ref=e255] [cursor=pointer]:
+            - button "GET /api/device/heartbeat 设备心跳" [ref=e256]:
+              - generic [ref=e257]: GET
+              - generic [ref=e258]:
+                - link "/api/device/heartbeat" [ref=e260]:
+                  - /url: "#/设备管理/send_heartbeat_api_device_heartbeat_post"
+                  - generic [ref=e261]:
+                    - text: /api
+                    - text: /device
+                    - text: /heartbeat
+                - generic [ref=e262]: 设备心跳
+            - generic "Copy to clipboard"
+            - button "get /api/device/heartbeat" [ref=e265]:
+              - img [ref=e266]
+          - generic [ref=e270] [cursor=pointer]:
+            - button "POST /api/device/heartbeat 设备心跳" [ref=e271]:
+              - generic [ref=e272]: POST
+              - generic [ref=e273]:
+                - link "/api/device/heartbeat" [ref=e275]:
+                  - /url: "#/设备管理/send_heartbeat_api_device_heartbeat_post"
+                  - generic [ref=e276]:
+                    - text: /api
+                    - text: /device
+                    - text: /heartbeat
+                - generic [ref=e277]: 设备心跳
+            - generic "Copy to clipboard"
+            - button "post /api/device/heartbeat" [ref=e280]:
+              - img [ref=e281]
+          - generic [ref=e285] [cursor=pointer]:
+            - button "GET /api/devices 获取设备列表" [ref=e286]:
+              - generic [ref=e287]: GET
+              - generic [ref=e288]:
+                - link "/api/devices" [ref=e290]:
+                  - /url: "#/设备管理/get_devices_api_devices_get"
+                  - generic [ref=e291]:
+                    - text: /api
+                    - text: /devices
+                - generic [ref=e292]: 获取设备列表
+            - generic "Copy to clipboard"
+            - button "get /api/devices" [ref=e295]:
+              - img [ref=e296]
+          - generic [ref=e300] [cursor=pointer]:
+            - button "POST /api/devices 创建设备" [ref=e301]:
+              - generic [ref=e302]: POST
+              - generic [ref=e303]:
+                - link "/api/devices" [ref=e305]:
+                  - /url: "#/设备管理/create_device_api_devices_post"
+                  - generic [ref=e306]:
+                    - text: /api
+                    - text: /devices
+                - generic [ref=e307]: 创建设备
+            - generic "Copy to clipboard"
+            - button "post /api/devices" [ref=e310]:
+              - img [ref=e311]
+      - generic [ref=e314]:
+        - heading "文件管理 远程文件浏览、读写、复制、移动、删除等操作 Collapse operation" [level=3] [ref=e315] [cursor=pointer]:
+          - link "文件管理" [ref=e316]:
+            - /url: "#/文件管理"
+          - paragraph [ref=e319]: 远程文件浏览、读写、复制、移动、删除等操作
+          - button "Collapse operation" [expanded] [ref=e320]:
+            - img [ref=e321]
+        - generic [ref=e324]:
+          - generic [ref=e327] [cursor=pointer]:
+            - button "GET /api/files 列出目录文件" [ref=e328]:
+              - generic [ref=e329]: GET
+              - generic [ref=e330]:
+                - link "/api/files" [ref=e332]:
+                  - /url: "#/文件管理/list_files_api_files_get"
+                  - generic [ref=e333]:
+                    - text: /api
+                    - text: /files
+                - generic [ref=e334]: 列出目录文件
+            - generic "Copy to clipboard"
+            - button "get /api/files" [ref=e337]:
+              - img [ref=e338]
+          - generic [ref=e342] [cursor=pointer]:
+            - button "POST /api/files/rename 重命名文件" [ref=e343]:
+              - generic [ref=e344]: POST
+              - generic [ref=e345]:
+                - link "/api/files/rename" [ref=e347]:
+                  - /url: "#/文件管理/rename_file_api_files_rename_post"
+                  - generic [ref=e348]:
+                    - text: /api
+                    - text: /files
+                    - text: /rename
+                - generic [ref=e349]: 重命名文件
+            - generic "Copy to clipboard"
+            - button "post /api/files/rename" [ref=e352]:
+              - img [ref=e353]
+          - generic [ref=e357] [cursor=pointer]:
+            - button "POST /api/files/delete 删除文件或文件夹" [ref=e358]:
+              - generic [ref=e359]: POST
+              - generic [ref=e360]:
+                - link "/api/files/delete" [ref=e362]:
+                  - /url: "#/文件管理/delete_file_api_files_delete_post"
+                  - generic [ref=e363]:
+                    - text: /api
+                    - text: /files
+                    - text: /delete
+                - generic [ref=e364]: 删除文件或文件夹
+            - generic "Copy to clipboard"
+            - button "post /api/files/delete" [ref=e367]:
+              - img [ref=e368]
+          - generic [ref=e372] [cursor=pointer]:
+            - button "POST /api/files/copy 复制文件" [ref=e373]:
+              - generic [ref=e374]: POST
+              - generic [ref=e375]:
+                - link "/api/files/copy" [ref=e377]:
+                  - /url: "#/文件管理/copy_file_api_files_copy_post"
+                  - generic [ref=e378]:
+                    - text: /api
+                    - text: /files
+                    - text: /copy
+                - generic [ref=e379]: 复制文件
+            - generic "Copy to clipboard"
+            - button "post /api/files/copy" [ref=e382]:
+              - img [ref=e383]
+          - generic [ref=e387] [cursor=pointer]:
+            - button "POST /api/files/move 移动文件" [ref=e388]:
+              - generic [ref=e389]: POST
+              - generic [ref=e390]:
+                - link "/api/files/move" [ref=e392]:
+                  - /url: "#/文件管理/move_file_api_files_move_post"
+                  - generic [ref=e393]:
+                    - text: /api
+                    - text: /files
+                    - text: /move
+                - generic [ref=e394]: 移动文件
+            - generic "Copy to clipboard"
+            - button "post /api/files/move" [ref=e397]:
+              - img [ref=e398]
+          - generic [ref=e402] [cursor=pointer]:
+            - button "POST /api/files/create-folder 创建文件夹" [ref=e403]:
+              - generic [ref=e404]: POST
+              - generic [ref=e405]:
+                - link "/api/files/create-folder" [ref=e407]:
+                  - /url: "#/文件管理/create_folder_api_files_create_folder_post"
+                  - generic [ref=e408]:
+                    - text: /api
+                    - text: /files
+                    - text: /create-folder
+                - generic [ref=e409]: 创建文件夹
+            - generic "Copy to clipboard"
+            - button "post /api/files/create-folder" [ref=e412]:
+              - img [ref=e413]
+          - generic [ref=e417] [cursor=pointer]:
+            - button "POST /api/files/create-file 创建空文件" [ref=e418]:
+              - generic [ref=e419]: POST
+              - generic [ref=e420]:
+                - link "/api/files/create-file" [ref=e422]:
+                  - /url: "#/文件管理/create_file_api_files_create_file_post"
+                  - generic [ref=e423]:
+                    - text: /api
+                    - text: /files
+                    - text: /create-file
+                - generic [ref=e424]: 创建空文件
+            - generic "Copy to clipboard"
+            - button "post /api/files/create-file" [ref=e427]:
+              - img [ref=e428]
+          - generic [ref=e432] [cursor=pointer]:
+            - button "POST /api/files/save 保存文件内容" [ref=e433]:
+              - generic [ref=e434]: POST
+              - generic [ref=e435]:
+                - link "/api/files/save" [ref=e437]:
+                  - /url: "#/文件管理/save_file_api_files_save_post"
+                  - generic [ref=e438]:
+                    - text: /api
+                    - text: /files
+                    - text: /save
+                - generic [ref=e439]: 保存文件内容
+            - generic "Copy to clipboard"
+            - button "post /api/files/save" [ref=e442]:
+              - img [ref=e443]
+          - generic [ref=e447] [cursor=pointer]:
+            - button "POST /api/files/read 读取文件内容" [ref=e448]:
+              - generic [ref=e449]: POST
+              - generic [ref=e450]:
+                - link "/api/files/read" [ref=e452]:
+                  - /url: "#/文件管理/read_file_api_files_read_post"
+                  - generic [ref=e453]:
+                    - text: /api
+                    - text: /files
+                    - text: /read
+                - generic [ref=e454]: 读取文件内容
+            - generic "Copy to clipboard"
+            - button "post /api/files/read" [ref=e457]:
+              - img [ref=e458]
+      - generic [ref=e461]:
+        - heading "SSH 连接 SSH 远程服务器配置与连接状态管理 Collapse operation" [level=3] [ref=e462] [cursor=pointer]:
+          - link "SSH 连接" [ref=e463]:
+            - /url: "#/SSH%20连接"
+          - paragraph [ref=e466]: SSH 远程服务器配置与连接状态管理
+          - button "Collapse operation" [expanded] [ref=e467]:
+            - img [ref=e468]
+        - generic [ref=e471]:
+          - generic [ref=e474] [cursor=pointer]:
+            - button "GET /api/ssh/status 查询 SSH 连接状态" [ref=e475]:
+              - generic [ref=e476]: GET
+              - generic [ref=e477]:
+                - link "/api/ssh/status" [ref=e479]:
+                  - /url: "#/SSH%20连接/ssh_connection_status_api_ssh_status_get"
+                  - generic [ref=e480]:
+                    - text: /api
+                    - text: /ssh
+                    - text: /status
+                - generic [ref=e481]: 查询 SSH 连接状态
+            - generic "Copy to clipboard"
+            - button "get /api/ssh/status" [ref=e484]:
+              - img [ref=e485]
+          - generic [ref=e489] [cursor=pointer]:
+            - button "POST /api/ssh/configure 配置 SSH 连接" [ref=e490]:
+              - generic [ref=e491]: POST
+              - generic [ref=e492]:
+                - link "/api/ssh/configure" [ref=e494]:
+                  - /url: "#/SSH%20连接/ssh_configure_api_ssh_configure_post"
+                  - generic [ref=e495]:
+                    - text: /api
+                    - text: /ssh
+                    - text: /configure
+                - generic [ref=e496]: 配置 SSH 连接
+            - generic "Copy to clipboard"
+            - button "post /api/ssh/configure" [ref=e499]:
+              - img [ref=e500]
+      - generic [ref=e503]:
+        - heading "系统管理 用户设置、磁盘用量监控、健康检查 Collapse operation" [level=3] [ref=e504] [cursor=pointer]:
+          - link "系统管理" [ref=e505]:
+            - /url: "#/系统管理"
+          - paragraph [ref=e508]: 用户设置、磁盘用量监控、健康检查
+          - button "Collapse operation" [expanded] [ref=e509]:
+            - img [ref=e510]
+        - generic [ref=e513]:
+          - generic [ref=e516] [cursor=pointer]:
+            - button "GET /api/settings 获取用户设置" [ref=e517]:
+              - generic [ref=e518]: GET
+              - generic [ref=e519]:
+                - link "/api/settings" [ref=e521]:
+                  - /url: "#/系统管理/get_settings_api_settings_get"
+                  - generic [ref=e522]:
+                    - text: /api
+                    - text: /settings
+                - generic [ref=e523]: 获取用户设置
+            - generic "Copy to clipboard"
+            - button "get /api/settings" [ref=e526]:
+              - img [ref=e527]
+          - generic [ref=e531] [cursor=pointer]:
+            - button "POST /api/settings 更新用户设置" [ref=e532]:
+              - generic [ref=e533]: POST
+              - generic [ref=e534]:
+                - link "/api/settings" [ref=e536]:
+                  - /url: "#/系统管理/update_settings_api_settings_post"
+                  - generic [ref=e537]:
+                    - text: /api
+                    - text: /settings
+                - generic [ref=e538]: 更新用户设置
+            - generic "Copy to clipboard"
+            - button "post /api/settings" [ref=e541]:
+              - img [ref=e542]
+          - generic [ref=e546] [cursor=pointer]:
+            - button "GET /api/disk_usage 获取磁盘用量" [ref=e547]:
+              - generic [ref=e548]: GET
+              - generic [ref=e549]:
+                - link "/api/disk_usage" [ref=e551]:
+                  - /url: "#/系统管理/get_disk_usage_api_api_disk_usage_get"
+                  - generic [ref=e552]:
+                    - text: /api
+                    - text: /disk_usage
+                - generic [ref=e553]: 获取磁盘用量
+            - generic "Copy to clipboard"
+            - button "get /api/disk_usage" [ref=e556]:
+              - img [ref=e557]
+          - generic [ref=e561] [cursor=pointer]:
+            - button "GET /api/health 健康检查" [ref=e562]:
+              - generic [ref=e563]: GET
+              - generic [ref=e564]:
+                - link "/api/health" [ref=e566]:
+                  - /url: "#/系统管理/health_check_api_health_get"
+                  - generic [ref=e567]:
+                    - text: /api
+                    - text: /health
+                - generic [ref=e568]: 健康检查
+            - generic "Copy to clipboard"
+            - button "get /api/health" [ref=e571]:
+              - img [ref=e572]
+    - generic [ref=e576]:
+      - heading "Schemas" [level=4] [ref=e577] [cursor=pointer]:
+        - button "Schemas" [expanded] [ref=e578]:
+          - generic [ref=e579]: Schemas
+          - img [ref=e580]
+      - generic [ref=e582]:
+        - article [ref=e583]:
+          - generic [ref=e584]:
+            - button "ApiResponse" [ref=e585] [cursor=pointer]:
+              - generic [ref=e587]: ApiResponse
+              - img [ref=e589]
+            - button "Expand all" [ref=e591] [cursor=pointer]
+            - strong [ref=e592]: object
+        - article [ref=e593]:
+          - generic [ref=e594]:
+            - button "ChangePasswordRequest" [ref=e595] [cursor=pointer]:
+              - generic [ref=e597]: ChangePasswordRequest
+              - img [ref=e599]
+            - button "Expand all" [ref=e601] [cursor=pointer]
+            - strong [ref=e602]: object
+        - article [ref=e603]:
+          - generic [ref=e604]:
+            - button "FileCopyRequest" [ref=e605] [cursor=pointer]:
+              - generic [ref=e607]: FileCopyRequest
+              - img [ref=e609]
+            - button "Expand all" [ref=e611] [cursor=pointer]
+            - strong [ref=e612]: object
+        - article [ref=e613]:
+          - generic [ref=e614]:
+            - button "FileCreateRequest" [ref=e615] [cursor=pointer]:
+              - generic [ref=e617]: FileCreateRequest
+              - img [ref=e619]
+            - button "Expand all" [ref=e621] [cursor=pointer]
+            - strong [ref=e622]: object
+        - article [ref=e623]:
+          - generic [ref=e624]:
+            - button "FileDeleteRequest" [ref=e625] [cursor=pointer]:
+              - generic [ref=e627]: FileDeleteRequest
+              - img [ref=e629]
+            - button "Expand all" [ref=e631] [cursor=pointer]
+            - strong [ref=e632]: object
+        - article [ref=e633]:
+          - generic [ref=e634]:
+            - button "FileMoveRequest" [ref=e635] [cursor=pointer]:
+              - generic [ref=e637]: FileMoveRequest
+              - img [ref=e639]
+            - button "Expand all" [ref=e641] [cursor=pointer]
+            - strong [ref=e642]: object
+        - article [ref=e643]:
+          - generic [ref=e644]:
+            - button "FileReadRequest" [ref=e645] [cursor=pointer]:
+              - generic [ref=e647]: FileReadRequest
+              - img [ref=e649]
+            - button "Expand all" [ref=e651] [cursor=pointer]
+            - strong [ref=e652]: object
+        - article [ref=e653]:
+          - generic [ref=e654]:
+            - button "FileRenameRequest" [ref=e655] [cursor=pointer]:
+              - generic [ref=e657]: FileRenameRequest
+              - img [ref=e659]
+            - button "Expand all" [ref=e661] [cursor=pointer]
+            - strong [ref=e662]: object
+        - article [ref=e663]:
+          - generic [ref=e664]:
+            - button "FileSaveRequest" [ref=e665] [cursor=pointer]:
+              - generic [ref=e667]: FileSaveRequest
+              - img [ref=e669]
+            - button "Expand all" [ref=e671] [cursor=pointer]
+            - strong [ref=e672]: object
+        - article [ref=e673]:
+          - generic [ref=e674]:
+            - button "ForgotPasswordSendCodeRequest" [ref=e675] [cursor=pointer]:
+              - generic [ref=e677]: ForgotPasswordSendCodeRequest
+              - img [ref=e679]
+            - button "Expand all" [ref=e681] [cursor=pointer]
+            - strong [ref=e682]: object
+        - article [ref=e683]:
+          - generic [ref=e684]:
+            - button "ForgotPasswordVerifyRequest" [ref=e685] [cursor=pointer]:
+              - generic [ref=e687]: ForgotPasswordVerifyRequest
+              - img [ref=e689]
+            - button "Expand all" [ref=e691] [cursor=pointer]
+            - strong [ref=e692]: object
+        - article [ref=e693]:
+          - generic [ref=e694]:
+            - button "GlobalSettings" [ref=e695] [cursor=pointer]:
+              - generic [ref=e697]: GlobalSettings
+              - img [ref=e699]
+            - button "Expand all" [ref=e701] [cursor=pointer]
+            - strong [ref=e702]: object
+        - article [ref=e703]:
+          - generic [ref=e704]:
+            - button "HTTPValidationError" [ref=e705] [cursor=pointer]:
+              - generic [ref=e707]: HTTPValidationError
+              - img [ref=e709]
+            - button "Expand all" [ref=e711] [cursor=pointer]
+            - strong [ref=e712]: object
+        - article [ref=e713]:
+          - generic [ref=e714]:
+            - button "LoginBySmsRequest" [ref=e715] [cursor=pointer]:
+              - generic [ref=e717]: LoginBySmsRequest
+              - img [ref=e719]
+            - button "Expand all" [ref=e721] [cursor=pointer]
+            - strong [ref=e722]: object
+        - article [ref=e723]:
+          - generic [ref=e724]:
+            - button "LoginRequest" [ref=e725] [cursor=pointer]:
+              - generic [ref=e727]: LoginRequest
+              - img [ref=e729]
+            - button "Expand all" [ref=e731] [cursor=pointer]
+            - strong [ref=e732]: object
+        - article [ref=e733]:
+          - generic [ref=e734]:
+            - button "RegisterRequest" [ref=e735] [cursor=pointer]:
+              - generic [ref=e737]: RegisterRequest
+              - img [ref=e739]
+            - button "Expand all" [ref=e741] [cursor=pointer]
+            - strong [ref=e742]: object
+        - article [ref=e743]:
+          - generic [ref=e744]:
+            - button "ResetPasswordRequest" [ref=e745] [cursor=pointer]:
+              - generic [ref=e747]: ResetPasswordRequest
+              - img [ref=e749]
+            - button "Expand all" [ref=e751] [cursor=pointer]
+            - strong [ref=e752]: object
+        - article [ref=e753]:
+          - generic [ref=e754]:
+            - button "SendCodeRequest" [ref=e755] [cursor=pointer]:
+              - generic [ref=e757]: SendCodeRequest
+              - img [ref=e759]
+            - button "Expand all" [ref=e761] [cursor=pointer]
+            - strong [ref=e762]: object
+        - article [ref=e763]:
+          - generic [ref=e764]:
+            - button "SshConfigData" [ref=e765] [cursor=pointer]:
+              - generic [ref=e767]: SshConfigData
+              - img [ref=e769]
+            - button "Expand all" [ref=e771] [cursor=pointer]
+            - strong [ref=e772]: object
+        - article [ref=e773]:
+          - generic [ref=e774]:
+            - button "TokenVerifyRequest" [ref=e775] [cursor=pointer]:
+              - generic [ref=e777]: TokenVerifyRequest
+              - img [ref=e779]
+            - button "Expand all" [ref=e781] [cursor=pointer]
+            - strong [ref=e782]: object
+        - article [ref=e783]:
+          - generic [ref=e784]:
+            - button "UserDefaultSettings" [ref=e785] [cursor=pointer]:
+              - generic [ref=e787]: UserDefaultSettings
+              - img [ref=e789]
+            - button "Expand all" [ref=e791] [cursor=pointer]
+            - strong [ref=e792]: object
+        - article [ref=e793]:
+          - generic [ref=e794]:
+            - button "ValidationError" [ref=e795] [cursor=pointer]:
+              - generic [ref=e797]: ValidationError
+              - img [ref=e799]
+            - button "Expand all" [ref=e801] [cursor=pointer]
+            - strong [ref=e802]: object

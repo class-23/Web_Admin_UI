@@ -1,0 +1,64 @@
+<h2>技术实现方案</h2>
+<p class="subtitle">涉及的文件和改动点</p>
+
+<div class="section">
+  <h3>文件清单</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <tr style="background:#f8fafc;">
+      <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e2e8f0;">文件</th>
+      <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e2e8f0;">操作</th>
+      <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e2e8f0;">说明</th>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;"><code>main.py</code></td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">新增路由</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">添加 <code>@app.get("/tutorial")</code>，返回模板</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;"><code>templates/tutorial.html</code></td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">新建</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">独立模板，自包含样式（不继承 base.html）</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;"><code>static/css/tutorial.css</code></td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">新建</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">教程页专属样式</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;"><code>templates/index.html</code></td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">小改</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">"使用教程"卡片 onclick 改为跳转 <code>/tutorial</code></td>
+    </tr>
+  </table>
+</div>
+
+<div class="section">
+  <h3>路由设计</h3>
+  <div class="mockup">
+    <div class="mockup-body" style="font-family:monospace;font-size:12px;">
+      <span style="color:#94a3b8;"># main.py 新增路由（放在 /setting 路由附近）</span><br>
+      <span style="color:#3b82f6;">@app</span>.<span style="color:#e11d48;">get</span>(<span style="color:#22c55e;">"/tutorial"</span>, response_class=HTMLResponse, include_in_schema=<span style="color:#f97316;">False</span>)<br>
+      <span style="color:#3b82f6;">async def</span> <span style="color:#8b5cf6;">tutorial_page</span>():<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#3b82f6;">return</span> templates.TemplateResponse(<span style="color:#22c55e;">"tutorial.html"</span>, {<span style="color:#22c55e;">"request"</span>: request})
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>关键设计决策</h3>
+  <ul style="line-height:1.8;">
+    <li><strong>不继承 base.html</strong> — 首页是独立浅色系风格，首页也没有用 base.html，教程页保持一致</li>
+    <li><strong>零 JS 逻辑</strong> — 纯静态内容页，不需要交互。视频用 iframe 直接嵌入</li>
+    <li><strong>图片用 OSS 外链</strong> — 你已上传阿里云，模板中直接用 URL 引用</li>
+    <li><strong>Tailwind + Remix Icon CDN</strong> — 与 index.html 保持一致</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>不需要做的</h3>
+  <ul style="line-height:1.8;color:#64748b;">
+    <li>不需要登录鉴权（教程页对未登录用户也可访问）</li>
+    <li>不需要后端 API、数据库改动</li>
+    <li>不需要 JS 交互逻辑</li>
+  </ul>
+</div>
