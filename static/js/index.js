@@ -440,10 +440,18 @@ async function performDelete(mac) {
     clearTimeout(confirmTimer);
     pendingDeleteMac = null;
     try {
-        var response = await apiFetch('/api/devices/' + encodeURIComponent(mac), { method: 'DELETE' });
-        if (!response || !response.ok) {
-            var data = response ? await response.json() : {};
-            throw new Error(data.message || '删除失败');
+        var response = await fetch('/api/devices/' + encodeURIComponent(mac), {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (response.status === 401) {
+            showToast('请先登录后再删除设备', 'warning');
+            renderDevices(cachedDevices);
+            return;
+        }
+        if (!response.ok) {
+            var data = await response.json().catch(function() { return {}; });
+            throw new Error(data.message || '删除失败（状态码：' + response.status + '）');
         }
         showToast('设备已删除', 'success');
         fetchDevices();
