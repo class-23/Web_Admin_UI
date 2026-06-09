@@ -541,6 +541,15 @@ class DatabaseManager:
 
         return self.with_db(_get_status)
 
+    def delete_device(self, mac: str) -> dict[str, Any]:
+        """删除指定 MAC 的设备"""
+        def _delete(conn):
+            cur = conn.cursor()
+            cur.execute("DELETE FROM devices WHERE mac = %s", (mac,))
+            conn.commit()
+            return {"deleted": cur.rowcount > 0}
+        return self.with_db(_delete)
+
     def health_check(self) -> dict[str, Any]:
         """数据库健康检查"""
         try:

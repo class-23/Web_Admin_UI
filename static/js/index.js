@@ -1,6 +1,8 @@
 var cachedDevices = [];
 var selectedDeviceMac = '';
 var probeInProgress = false;
+var pendingDeleteMac = null;
+var confirmTimer = null;
 
 function getDisplayDeviceName(device, index) {
     return device.hostname || device.mac || ('设备' + (index + 1));
@@ -214,10 +216,14 @@ function renderDevices(devices) {
                     '</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="px-5 py-3 border-t border-slate-100 bg-slate-50/50">' +
-                '<button onclick="fetchDevices()" class="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:text-rose-600 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow hover:border-rose-200 transition-all active:scale-[0.98]">' +
-                    '<i class="ri-refresh-line text-lg leading-none"></i> 刷新设备信息' +
+            '<div class="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex gap-2">' +
+                '<button onclick="fetchDevices()" class="flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:text-rose-600 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow hover:border-rose-200 transition-all active:scale-[0.98]">' +
+                    '<i class="ri-refresh-line text-lg leading-none"></i> 刷新' +
                 '</button>' +
+                (pendingDeleteMac === mac
+                    ? '<button onclick="performDelete(\'' + mac + '\')" class="flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 border border-red-500 rounded-xl shadow-sm transition-all active:scale-[0.98]"><i class="ri-alert-line text-lg leading-none"></i> 确认删除</button>'
+                    : '<button onclick="handleDeleteDevice(\'' + mac + '\')" class="py-2.5 px-3 flex items-center justify-center text-sm text-slate-400 hover:text-red-500 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow hover:border-red-200 transition-all active:scale-[0.98]"><i class="ri-delete-bin-line text-lg leading-none"></i></button>'
+                ) +
             '</div>' +
         '</div>';
     });
@@ -414,6 +420,36 @@ async function init() {
         setInterval(fetchDevices, 30000);
     } else {
         renderError('登录后可查看设备信息');
+    }
+}
+
+function handleDeleteDevice(mac) {
+    if (pendingDeleteMac === mac) {
+        return;
+    }
+    pendingDeleteMac = mac;
+    clearTimeout(confirmTimer);
+    confirmTimer = setTimeout(function() {
+        pendingDeleteMac = null;
+        renderDevices(cachedDevices);
+    }, 3000);
+    renderDevices(cachedDevices);
+}
+
+async function performDelete(mac) {
+    clearTimeout(confirmTimer);
+    pendingDeleteMac = null;
+    try {
+        var response = await apiFetch('/api/devices/' + encodeURIComponent(mac), { method: 'DELETE' });
+        if (!response || !response.ok) {
+            var data = response ? await response.json() : {};
+            throw new Error(data.message || '删除失败');
+        }
+        showToast('设备已删除', 'success');
+        fetchDevices();
+    } catch (error) {
+        showToast('删除失败: ' + error.message, 'error');
+        renderDevices(cachedDevices);
     }
 }
 

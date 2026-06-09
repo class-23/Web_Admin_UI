@@ -291,7 +291,11 @@ class QuantClawDeviceManager:
             设备列表
         """
         return self.db_manager.get_devices_list(user_phone=user_phone)
-    
+
+    async def delete_device(self, mac: str) -> dict[str, Any]:
+        """删除指定 MAC 的设备"""
+        return self.db_manager.delete_device(mac)
+
     async def health_check(self) -> dict[str, Any]:
         """
         健康检查

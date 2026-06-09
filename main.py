@@ -912,6 +912,17 @@ async def get_devices(
     return {"code": 0, "message": "ok", "data": devices}
 
 
+@app.delete("/api/devices/{mac}", tags=["设备管理"], summary="删除设备",
+            description="删除指定 MAC 地址的设备。支持 Cookie 登录或手机号+API Key 认证。")
+async def delete_device(
+    mac: str,
+    user = Depends(require_auth_or_api_key),
+    db = Depends(get_db),
+):
+    result = await device_manager.delete_device(mac)
+    return {"code": 0, "message": "ok", "data": result}
+
+
 @app.get("/api/health", tags=["系统管理"], summary="健康检查", description="服务健康检查端点，返回数据库连接状态和设备接收器运行状态。无需认证。")
 async def health_check():
     return await device_manager.health_check()
