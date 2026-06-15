@@ -48,20 +48,19 @@
 | 权限值 | 角色名称 | 登录权限 | 说明 |
 |--------|----------|----------|------|
 | `role_usr_8f7d` | 普通用户 | ✅ 本网站可登录 | 正常注册用户，可使用本网站全部功能 |
-| `role_adm_3k9p` | 管理员用户 | ❌ 本网站不可登录 | 仅可通过管理员网站登录，本网站拒绝登录 |
-| `role_spv_7m2x` | 特殊权限用户 | ✅ 本网站可登录 | 同时具备管理员和普通用户身份，双端均可登录 |
+| `role_adm_3k9p` | 管理员用户 | ✅ 本网站可登录 | 管理员用户，既能登录本网站，也能登录管理员网站（后续实现） |
 
 #### 权限值设计说明
 
 采用"前缀_角色标识_随机后缀"的结构：
 - **前缀**：固定为 `role_`，便于识别
-- **角色标识**：`usr`=普通用户，`adm`=管理员，`spv`=特殊用户
+- **角色标识**：`usr`=普通用户，`adm`=管理员
 - **随机后缀**：4位字母数字组合，增强不可预测性
 
 #### 权限验证规则
 
 - **注册默认值**：新注册用户 `role` 字段默认为 `role_usr_8f7d`（普通用户）
-- **本网站登录**：仅允许 `role=role_usr_8f7d` 或 `role=role_spv_7m2x` 的用户登录，`role=role_adm_3k9p` 用户返回权限不足提示
+- **本网站登录**：仅允许 `role` 属于白名单 `('role_usr_8f7d', 'role_adm_3k9p')` 的用户登录，其他角色一律拒绝
 - **向后兼容**：现有用户 `role` 字段默认设为 `role_usr_8f7d`，不影响正常使用
 - **预留接口**：为后续管理员网站提供用户权限 CRUD 操作接口
 
@@ -86,7 +85,7 @@
 
 - `role` 字段使用 VARCHAR(32) 类型，默认值为 `'role_usr_8f7d'`
 - 权限值采用"前缀_角色标识_随机后缀"结构，增强安全性和不可预测性
-- 权限值定义：`role_usr_8f7d`=普通用户，`role_adm_3k9p`=管理员用户，`role_spv_7m2x`=特殊权限用户
+- 权限值定义：`role_usr_8f7d`=普通用户，`role_adm_3k9p`=管理员用户
 - 现有用户数据迁移时，`role` 字段默认设为 `'role_usr_8f7d'`
 - 预留管理接口：后续可通过管理员网站更新用户 `role` 字段
 
@@ -412,7 +411,7 @@ CREATE TABLE settings (
 | 错误策略 | 数据库不可用 → 系统拒绝启动 |
 | 迁移工具 | 暂不做 |
 | 缓存 | Redis（短信验证码，5 分钟 TTL） |
-| 角色权限 | 实现三级权限体系（role字段：role_usr_8f7d-普通用户，role_adm_3k9p-管理员，role_spv_7m2x-特殊用户） |
+| 角色权限 | 实现两级权限体系（role字段：role_usr_8f7d-普通用户，role_adm_3k9p-管理员，均可登录本网站） |
 | 软删除 | 不实现 |
 | `USERS` 字典 | 完全删除 |
 | UDP 广播 | **保留**，`quantclaw_receiver/` 模块适配 PostgreSQL |
@@ -873,8 +872,7 @@ def get_db():
 | role 值 | 角色 | 登录权限 | 用途 |
 |---------|------|----------|------|
 | `role_usr_8f7d` | 普通用户 | ✅ 本网站可登录 | 正常注册用户 |
-| `role_adm_3k9p` | 管理员用户 | ❌ 本网站不可登录 | 仅管理员网站使用 |
-| `role_spv_7m2x` | 特殊权限用户 | ✅ 本网站可登录 | 双端均可登录 |
+| `role_adm_3k9p` | 管理员用户 | ✅ 本网站可登录 | 管理员用户，本网站与管理员网站均可登录 |
 
 ### 13.3 权限值设计安全说明
 
@@ -908,27 +906,19 @@ VALUES (%s, %s, %s, 'role_usr_8f7d', ...)
 **验证流程**：
 1. 用户输入手机号/用户名 + 密码
 2. 查询数据库验证密码
-3. **新增步骤**：检查 `users.role` 字段
-4. 若 `role='role_adm_3k9p'` → 返回权限不足错误
-5. 若 `role='role_usr_8f7d'` 或 `role='role_spv_7m2x'` → 正常登录并颁发 JWT
+3. 调用 `UserRoles.can_login_here(user.role)` 校验：仅白名单 `('role_usr_8f7d', 'role_adm_3k9p')` 通过
+4. 校验通过 → 颁发 JWT 并设置 Cookie
 
-**伪代码示例**：
+**实际实现**（`login/routers/auth_router.py:login` / `login_by_sms`）：
 ```python
-# login/auth.py 或 login/routers/auth_router.py
-user = get_user_by_phone_or_username(identifier)
-if not user:
-    return 401
-if not verify_password(password, user.password):
-    return 401
-# 新增权限验证
-if user.role == 'role_adm_3k9p':
-    return HTTPException(
-        status_code=403,
-        detail="权限不足：管理员账户请通过管理员网站登录"
-    )
-# 正常登录流程
-token = create_access_token(user.id)
-return {"access_token": token, ...}
+if user is None or not verify_password(req.password, user["password"]):
+    return ApiResponse(code=401, message="手机号/用户名或密码错误")
+
+if not UserRoles.can_login_here(user["role"]):
+    return ApiResponse(code=403, message="权限不足,无法登录本网站")
+
+set_auth_cookie(response, {"sub": str(user["id"]), "username": user["username"]})
+return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})
 ```
 
 ### 13.6 向后兼容性保证
@@ -944,14 +934,17 @@ return {"access_token": token, ...}
 ```python
 # login/constants.py
 class UserRoles:
-    REGULAR = "role_usr_8f7d"
-    ADMIN = "role_adm_3k9p"
-    SPECIAL = "role_spv_7m2x"
-    
+    """用户权限常量定义"""
+    REGULAR = "role_usr_8f7d"  # 普通用户 - 仅本网站可登录,不可登录管理员网站
+    ADMIN = "role_adm_3k9p"    # 管理员用户 - 本网站与管理员网站均可登录
+
+    # 所有合法角色白名单(系统只允许以下两种角色,严格控制登录权限边界)
+    ALL_ROLES = (REGULAR, ADMIN)
+
     @classmethod
     def can_login_here(cls, role: str) -> bool:
-        """判断是否允许在本网站登录"""
-        return role in (cls.REGULAR, cls.SPECIAL)
+        """判断是否允许在本网站登录(仅普通用户和管理员可以登录)"""
+        return role in cls.ALL_ROLES
 ```
 
 ### 13.8 预留管理员接口（暂不实现）
