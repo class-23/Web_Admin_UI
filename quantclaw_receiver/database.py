@@ -208,70 +208,56 @@ class DatabaseManager:
 
         def _register(conn) -> dict[str, Any]:
             cur = conn.cursor()
-            cur.execute(
-                "SELECT id FROM devices WHERE mac = %s AND user_id = %s",
-                (mac, 1),
-            )
-            row = cur.fetchone()
-            is_new = row is None
             ttyd = as_bool(payload.get("ttydEnabled"))
             ttyd_port = as_int(payload.get("ttydPort"), 7681)
             http_port = as_int(payload.get("httpPort"), 80)
 
             phone = str(payload.get("phone", ""))[:20]
 
-            if is_new:
-                cur.execute(
-                    """
-                    INSERT INTO devices (
-                      mac, phone, hostname, model, firmware_version, ip, ssid,
-                      internet_available, status, heartbeat_interval_sec,
-                      ttyd_enabled, ttyd_port, mdns_host, http_port, access_scope,
-                      first_seen_at, last_seen_at, created_at, updated_at, user_id
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, FALSE, 'unknown', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    """,
-                    (
-                        mac,
-                        phone,
-                        str(payload.get("hostname", ""))[:128],
-                        str(payload.get("model", ""))[:128],
-                        str(payload.get("firmwareVersion", ""))[:64],
-                        str(payload.get("ip", ""))[:64],
-                        str(payload.get("ssid", ""))[:128],
-                        self.config.heartbeat_interval_sec,
-                        ttyd,
-                        ttyd_port,
-                        str(payload.get("mdnsHost", ""))[:128],
-                        http_port,
-                        str(payload.get("accessScope", "lan"))[:32],
-                        st, st, st, st, 1,
-                    ),
-                )
-            else:
-                cur.execute(
-                    """
-                    UPDATE devices SET
-                      phone = CASE WHEN %s = '' THEN phone ELSE %s END,
-                      hostname = %s, model = %s, firmware_version = %s, ip = %s,
-                      ssid = %s, ttyd_enabled = %s, ttyd_port = %s, mdns_host = %s,
-                      http_port = %s, access_scope = %s, heartbeat_interval_sec = %s,
-                      last_seen_at = %s, updated_at = %s
-                    WHERE mac = %s AND user_id = %s
-                    """,
-                    (
-                        phone, phone,
-                        str(payload.get("hostname", ""))[:128],
-                        str(payload.get("model", ""))[:128],
-                        str(payload.get("firmwareVersion", ""))[:64],
-                        str(payload.get("ip", ""))[:64],
-                        str(payload.get("ssid", ""))[:128],
-                        ttyd, ttyd_port,
-                        str(payload.get("mdnsHost", ""))[:128],
-                        http_port,
-                        str(payload.get("accessScope", "lan"))[:32],
-                        self.config.heartbeat_interval_sec, st, st, mac, 1,
-                    ),
-                )
+            cur.execute(
+                """
+                INSERT INTO devices (
+                  mac, phone, hostname, model, firmware_version, ip, ssid,
+                  internet_available, status, heartbeat_interval_sec,
+                  ttyd_enabled, ttyd_port, mdns_host, http_port, access_scope,
+                  first_seen_at, last_seen_at, created_at, updated_at, user_id
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, FALSE, 'unknown', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (mac) DO UPDATE SET
+                  phone = CASE WHEN EXCLUDED.phone = '' THEN devices.phone ELSE EXCLUDED.phone END,
+                  hostname = EXCLUDED.hostname,
+                  model = EXCLUDED.model,
+                  firmware_version = EXCLUDED.firmware_version,
+                  ip = EXCLUDED.ip,
+                  ssid = EXCLUDED.ssid,
+                  ttyd_enabled = EXCLUDED.ttyd_enabled,
+                  ttyd_port = EXCLUDED.ttyd_port,
+                  mdns_host = EXCLUDED.mdns_host,
+                  http_port = EXCLUDED.http_port,
+                  access_scope = EXCLUDED.access_scope,
+                  heartbeat_interval_sec = EXCLUDED.heartbeat_interval_sec,
+                  last_seen_at = EXCLUDED.last_seen_at,
+                  updated_at = EXCLUDED.updated_at
+                RETURNING (xmax = 0) AS is_new
+                """,
+                (
+                    mac,
+                    phone,
+                    str(payload.get("hostname", ""))[:128],
+                    str(payload.get("model", ""))[:128],
+                    str(payload.get("firmwareVersion", ""))[:64],
+                    str(payload.get("ip", ""))[:64],
+                    str(payload.get("ssid", ""))[:128],
+                    self.config.heartbeat_interval_sec,
+                    ttyd,
+                    ttyd_port,
+                    str(payload.get("mdnsHost", ""))[:128],
+                    http_port,
+                    str(payload.get("accessScope", "lan"))[:32],
+                    st, st, st, st, 1,
+                ),
+            )
+            row = cur.fetchone()
+            is_new = bool(row[0]) if row else True
             conn.commit()
 
             return {
@@ -315,6 +301,20 @@ class DatabaseManager:
                       ttyd_enabled, ttyd_port, mdns_host, http_port, access_scope,
                       first_seen_at, last_seen_at, created_at, updated_at, user_id
                     ) VALUES (%s, %s, '', '', %s, %s, %s, %s, %s, 60, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (mac) DO UPDATE SET
+                      phone = CASE WHEN EXCLUDED.phone = '' THEN devices.phone ELSE EXCLUDED.phone END,
+                      firmware_version = EXCLUDED.firmware_version,
+                      ip = EXCLUDED.ip,
+                      ssid = EXCLUDED.ssid,
+                      internet_available = EXCLUDED.internet_available,
+                      status = EXCLUDED.status,
+                      ttyd_enabled = EXCLUDED.ttyd_enabled,
+                      ttyd_port = EXCLUDED.ttyd_port,
+                      mdns_host = EXCLUDED.mdns_host,
+                      http_port = EXCLUDED.http_port,
+                      access_scope = EXCLUDED.access_scope,
+                      last_seen_at = EXCLUDED.last_seen_at,
+                      updated_at = EXCLUDED.updated_at
                     """,
                     (
                         mac,

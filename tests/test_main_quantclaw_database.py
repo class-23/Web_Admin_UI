@@ -81,7 +81,6 @@ class FakeCursor:
 
         if "insert into devices" in sql_norm:
             self._handle_insert(sql_norm, params)
-            self.result = None
             return
 
         if "update devices set" in sql_norm:
@@ -107,14 +106,38 @@ class FakeCursor:
         self.result = None
 
     def _handle_insert(self, sql_norm: str, params):
+        is_upsert = "on conflict (mac) do update" in sql_norm
+
         if "values (%s, %s, %s, %s, %s, %s, %s, false, 'unknown'" in sql_norm:
-            # register_device insert
+            # register_device upsert
             (
                 mac, phone, hostname, model, firmware, ip, ssid,
                 heartbeat_interval_sec, ttyd_enabled, ttyd_port, mdns_host,
                 http_port, access_scope, first_seen_at, last_seen_at,
                 created_at, updated_at, user_id,
             ) = params
+
+            if is_upsert and mac in self.state.devices:
+                row = self.state.devices[mac]
+                if phone != "":
+                    row["phone"] = phone
+                row.update({
+                    "hostname": hostname,
+                    "model": model,
+                    "firmware_version": firmware,
+                    "ip": ip,
+                    "ssid": ssid,
+                    "ttyd_enabled": bool(ttyd_enabled),
+                    "ttyd_port": ttyd_port,
+                    "mdns_host": mdns_host,
+                    "http_port": http_port,
+                    "access_scope": access_scope,
+                    "heartbeat_interval_sec": heartbeat_interval_sec,
+                    "last_seen_at": last_seen_at,
+                    "updated_at": updated_at,
+                })
+                self.result = (False,)  # is_new = False
+                return
 
             self.state.devices[mac] = {
                 "id": self.state.new_device_id(),
@@ -138,15 +161,36 @@ class FakeCursor:
                 "created_at": created_at,
                 "updated_at": updated_at,
             }
+            self.result = (True,) if is_upsert else None
             return
 
         if "values (%s, %s, '', '', %s, %s, %s, %s, %s, 60" in sql_norm:
-            # process_heartbeat implicit insert
+            # process_heartbeat implicit upsert
             (
                 mac, phone, firmware, ip, ssid, internet_available, status,
                 ttyd_enabled, ttyd_port, mdns_host, http_port, access_scope,
                 first_seen_at, last_seen_at, created_at, updated_at, user_id,
             ) = params
+
+            if is_upsert and mac in self.state.devices:
+                row = self.state.devices[mac]
+                if phone != "":
+                    row["phone"] = phone
+                row.update({
+                    "firmware_version": firmware,
+                    "ip": ip,
+                    "ssid": ssid,
+                    "internet_available": bool(internet_available),
+                    "status": status,
+                    "ttyd_enabled": bool(ttyd_enabled),
+                    "ttyd_port": ttyd_port,
+                    "mdns_host": mdns_host,
+                    "http_port": http_port,
+                    "access_scope": access_scope,
+                    "last_seen_at": last_seen_at,
+                    "updated_at": updated_at,
+                })
+                return
 
             self.state.devices[mac] = {
                 "id": self.state.new_device_id(),
