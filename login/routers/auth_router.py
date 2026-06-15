@@ -84,9 +84,9 @@ def login(request: Request, response: Response, req: LoginRequest, db = Depends(
     if user is None or not verify_password(req.password, user["password"]):
         return ApiResponse(code=401, message="手机号/用户名或密码错误")
 
-    # 权限校验：管理员账户不允许在本网站登录
+    # 权限校验:仅允许普通用户和管理员登录本网站,其他角色一律拒绝
     if not UserRoles.can_login_here(user["role"]):
-        return ApiResponse(code=403, message="权限不足：管理员账户请通过管理员网站登录")
+        return ApiResponse(code=403, message="权限不足,无法登录本网站")
 
     set_auth_cookie(response, {"sub": str(user["id"]), "username": user["username"]})
     return ApiResponse(code=0, message="登录成功", data={"username": user["username"]})
@@ -111,9 +111,9 @@ def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, d
         # 用户不存在，不消费验证码，前端会跳转注册页复用
         return ApiResponse(code=404, message="该手机号未注册，请先注册")
 
-    # 权限校验：管理员账户不允许在本网站登录
+    # 权限校验:仅允许普通用户和管理员登录本网站,其他角色一律拒绝
     if not UserRoles.can_login_here(user["role"]):
-        return ApiResponse(code=403, message="权限不足：管理员账户请通过管理员网站登录")
+        return ApiResponse(code=403, message="权限不足,无法登录本网站")
 
     # 用户存在，才消费验证码
     if req.code != "888888":
