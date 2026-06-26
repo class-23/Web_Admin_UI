@@ -1,5 +1,8 @@
 """
-QuantClaw UDP广播接收器模块
+QuantClaw UDP广播接收器模块 — DEPRECATED FACADE
+
+⚠️ DEPRECATED: canonical 实现位于 `app.utils.quantclaw_receiver.udp_receiver`。
+   本文件保留仅为兼容历史测试，Phase-3 删除。详见 `docs/adr/0001-architecture-unification.md`。
 
 处理设备发送的UDP广播消息，支持设备注册和心跳。
 """
