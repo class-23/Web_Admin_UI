@@ -201,11 +201,22 @@
       });
     }
 
+    // Auto-expand parent sub-group if the active sub-link is inside one.
+    function expandActiveParentGroup() {
+      var active = $$('.toc-link.active')[0];
+      if (!active) return;
+      var parentGroup = active.closest('.toc-subgroup');
+      if (parentGroup && parentGroup.classList.contains('collapsed')) {
+        parentGroup.classList.remove('collapsed');
+      }
+    }
+
     var ticking = false;
     window.addEventListener('scroll', function () {
       if (!ticking) {
         window.requestAnimationFrame(function () {
           updateActiveLink();
+          expandActiveParentGroup();
           ticking = false;
         });
         ticking = true;
@@ -222,6 +233,17 @@
         if (!section) return;
         e.preventDefault();
         switchSection(section, { scrollToTop: true });
+      });
+    });
+
+    // Sub-group title -> toggle collapse
+    $$('.toc-subgroup-title').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var group = btn.closest('.toc-subgroup');
+        if (!group) return;
+        group.classList.toggle('collapsed');
       });
     });
 

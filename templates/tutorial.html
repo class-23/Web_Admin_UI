@@ -50,7 +50,7 @@
                 <p class="text-slate-500">从基础入门到高级玩法,系统化掌握龙虾盒子使用方式</p>
             </div>
 
-            <!-- Mobile Section Selector (visible < md) -->
+            <!-- Mobile Section Selector -->
             <div class="tutorial-mobile-bar md:hidden">
                 <button id="tutorial-mobile-toggle" class="tutorial-mobile-trigger" type="button" aria-expanded="false">
                     <span id="tutorial-mobile-label">基础功能教程</span>
@@ -67,19 +67,118 @@
                     <div class="tutorial-sidebar-inner">
                         <nav class="tutorial-toc" aria-label="教程目录">
 
+                            <!-- ============================================ -->
+                            <!-- 基础功能教程 (7 大类分组)                     -->
+                            <!-- ============================================ -->
                             <div class="toc-group" data-section="basic">
                                 <a href="#basic" class="toc-group-title" data-section-link="basic">
                                     <i class="ri-book-2-line"></i>
                                     <span>基础功能教程</span>
                                 </a>
                                 <ul class="toc-list">
-                                    <li><a href="#basic-intro" class="toc-link" data-section-link="basic">入门指引</a></li>
-                                    <li><a href="#basic-model" class="toc-link" data-section-link="basic">模型配置</a></li>
-                                    <li><a href="#basic-chat" class="toc-link" data-section-link="basic">对话管理</a></li>
-                                    <li><a href="#basic-settings" class="toc-link" data-section-link="basic">系统设置</a></li>
+
+                                    <!-- 二级组 1: 账户与登录 -->
+                                    <li class="toc-subgroup" data-subgroup="basic-account">
+                                        <button class="toc-subgroup-title" data-toggle="basic-account" type="button">
+                                            <i class="ri-arrow-right-s-line toc-subgroup-arrow"></i>
+                                            <span>账户与登录</span>
+                                        </button>
+                                        <ul class="toc-sublist">
+                                            <li><a href="#basic-account" class="toc-link" data-section-link="basic">登录与账户</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- 二级组 2: 对话与渠道 -->
+                                    <li class="toc-subgroup" data-subgroup="basic-chat">
+                                        <button class="toc-subgroup-title" data-toggle="basic-chat" type="button">
+                                            <i class="ri-arrow-right-s-line toc-subgroup-arrow"></i>
+                                            <span>对话与渠道</span>
+                                        </button>
+                                        <ul class="toc-sublist">
+                                            <li><a href="#basic-chat" class="toc-link" data-section-link="basic">AI 对话</a></li>
+                                            <li><a href="#basic-global-agent" class="toc-link" data-section-link="basic">全局 Agent</a></li>
+                                            <li><a href="#basic-history" class="toc-link" data-section-link="basic">历史会话</a></li>
+                                            <li><a href="#basic-group-chat" class="toc-link" data-section-link="basic">群聊</a></li>
+                                            <li><a href="#basic-channels" class="toc-link" data-section-link="basic">平台渠道</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- 二级组 3: 模型与配置 -->
+                                    <li class="toc-subgroup" data-subgroup="basic-models">
+                                        <button class="toc-subgroup-title" data-toggle="basic-models" type="button">
+                                            <i class="ri-arrow-right-s-line toc-subgroup-arrow"></i>
+                                            <span>模型与配置</span>
+                                        </button>
+                                        <ul class="toc-sublist">
+                                            <li><a href="#basic-models" class="toc-link" data-section-link="basic">模型管理</a></li>
+                                            <li><a href="#basic-profiles" class="toc-link" data-section-link="basic">配置 Profile</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- 二级组 4: 工具与协作 -->
+                                    <li class="toc-subgroup" data-subgroup="basic-tools">
+                                        <button class="toc-subgroup-title" data-toggle="basic-tools" type="button">
+                                            <i class="ri-arrow-right-s-line toc-subgroup-arrow"></i>
+                                            <span>工具与协作</span>
+                                        </button>
+                                        <ul class="toc-sublist">
+                                            <li><a href="#basic-files" class="toc-link" data-section-link="basic">文件浏览</a></li>
+                                            <li><a href="#basic-jobs" class="toc-link" data-section-link="basic">定时任务</a></li>
+                                            <li><a href="#basic-kanban" class="toc-link" data-section-link="basic">看板</a></li>
+                                            <li><a href="#basic-workflow" class="toc-link" data-section-link="basic">工作流</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- 二级组 5: Agent 能力 -->
+                                    <li class="toc-subgroup" data-subgroup="basic-agent">
+                                        <button class="toc-subgroup-title" data-toggle="basic-agent" type="button">
+                                            <i class="ri-arrow-right-s-line toc-subgroup-arrow"></i>
+                                            <span>Agent 能力</span>
+                                        </button>
+                                        <ul class="toc-sublist">
+                                            <li><a href="#basic-experts" class="toc-link" data-section-link="basic">专家中心</a></li>
+                                            <li><a href="#basic-coding-agents" class="toc-link" data-section-link="basic">编码代理</a></li>
+                                            <li><a href="#basic-skills" class="toc-link" data-section-link="basic">技能</a></li>
+                                            <li><a href="#basic-skills-usage" class="toc-link" data-section-link="basic">技能使用记录</a></li>
+                                            <li><a href="#basic-plugins" class="toc-link" data-section-link="basic">插件</a></li>
+                                            <li><a href="#basic-memory" class="toc-link" data-section-link="basic">记忆</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- 二级组 6: 数据与统计 -->
+                                    <li class="toc-subgroup" data-subgroup="basic-data">
+                                        <button class="toc-subgroup-title" data-toggle="basic-data" type="button">
+                                            <i class="ri-arrow-right-s-line toc-subgroup-arrow"></i>
+                                            <span>数据与统计</span>
+                                        </button>
+                                        <ul class="toc-sublist">
+                                            <li><a href="#basic-usage" class="toc-link" data-section-link="basic">使用统计</a></li>
+                                            <li><a href="#basic-performance" class="toc-link" data-section-link="basic">性能监控</a></li>
+                                            <li><a href="#basic-logs" class="toc-link" data-section-link="basic">日志</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- 二级组 7: 设置与高级 -->
+                                    <li class="toc-subgroup" data-subgroup="basic-admin">
+                                        <button class="toc-subgroup-title" data-toggle="basic-admin" type="button">
+                                            <i class="ri-arrow-right-s-line toc-subgroup-arrow"></i>
+                                            <span>设置与高级</span>
+                                        </button>
+                                        <ul class="toc-sublist">
+                                            <li><a href="#basic-settings" class="toc-link" data-section-link="basic">设置</a></li>
+                                            <li><a href="#basic-terminal" class="toc-link" data-section-link="basic">Web 终端</a></li>
+                                            <li><a href="#basic-devices" class="toc-link" data-section-link="basic">设备发现</a></li>
+                                            <li><a href="#basic-mcp" class="toc-link" data-section-link="basic">MCP 管理</a></li>
+                                            <li><a href="#basic-version-preview" class="toc-link" data-section-link="basic">版本预览</a></li>
+                                        </ul>
+                                    </li>
+
                                 </ul>
                             </div>
 
+                            <!-- ============================================ -->
+                            <!-- 扩展玩法教程 (保留)                           -->
+                            <!-- ============================================ -->
                             <div class="toc-group" data-section="extension">
                                 <a href="#extension" class="toc-group-title" data-section-link="extension">
                                     <i class="ri-rocket-2-line"></i>
@@ -92,6 +191,9 @@
                                 </ul>
                             </div>
 
+                            <!-- ============================================ -->
+                            <!-- 配网教程 (保留)                               -->
+                            <!-- ============================================ -->
                             <div class="toc-group" data-section="network">
                                 <a href="#network" class="toc-group-title" data-section-link="network">
                                     <i class="ri-wifi-line"></i>
@@ -121,62 +223,551 @@
                             </div>
                             <div>
                                 <h2 class="section-title">hermes-web 基础功能教程</h2>
-                                <p class="section-desc">系统化掌握 hermes-web 的核心功能与日常使用</p>
+                                <p class="section-desc">覆盖 hermes-web Web 控制台全部 26 个模块的操作指南</p>
                             </div>
                         </header>
 
-                        <div id="basic-intro" class="content-card">
+                        <!-- ========== 二级组 1: 账户与登录 ========== -->
+                        <div class="content-group-divider">
+                            <i class="ri-user-line"></i>
+                            <span>账户与登录</span>
+                        </div>
+
+                        <div id="basic-account" class="content-card">
                             <h3 class="content-title">
                                 <span class="content-title-bar" style="background:#3b82f6;"></span>
-                                入门指引
+                                登录与账户
                             </h3>
-                            <p class="content-text">介绍 hermes-web 的整体架构、主要功能区划分,以及首次使用的基本流程。</p>
-                            <div class="placeholder-card">
-                                <i class="ri-edit-2-line"></i>
-                                <span>内容待补充</span>
+                            <p class="content-text"><strong>位置</strong>:根路径 <code>/</code>(公开页面)</p>
+                            <h4 class="content-subtitle">两种登录方式</h4>
+                            <p class="content-text">打开 Web 控制台后,默认进入登录页。系统支持以下两种登录入口,根据你的部署情况选其一即可:</p>
+                            <ol class="content-list">
+                                <li><strong>令牌登录</strong>:把管理员提供的访问令牌粘贴到登录框 → 点「登录」。</li>
+                                <li><strong>用户名 / 密码登录</strong>:默认账户信息由管理员在系统初始化时设定(首次登录后系统会强制提示你修改)。连续输错密码会被临时锁定,过几分钟再试或联系管理员。</li>
+                            </ol>
+                            <h4 class="content-subtitle">登录后立即要做的两件事</h4>
+                            <ul class="content-list">
+                                <li><strong>修改默认账户</strong>:登录后会弹出「请修改默认账户和密码」横幅 → 点「去修改」进入 <code>设置 → 账户</code>,修改用户名与密码。</li>
+                                <li><strong>切换语言</strong>:左下角主题切换区域旁的语言下拉,或浏览器右上角地球图标(支持中 / 英 / 日 / 韩 / 法 / 德 / 西 / 葡 / 俄 / 繁中等)。</li>
+                            </ul>
+                            <div class="step-tip" style="border-left-color: #3b82f6;">
+                                <i class="ri-lightbulb-line mr-1" style="color:#3b82f6;"></i> 忘记密码 / 被锁定:联系超级管理员,让其进入 <code>设置 → 账户管理</code> 重置你的密码,或在 <code>设置</code> 中为你的账户重新启用。
                             </div>
                         </div>
 
-                        <div id="basic-model" class="content-card">
-                            <h3 class="content-title">
-                                <span class="content-title-bar" style="background:#3b82f6;"></span>
-                                模型配置
-                            </h3>
-                            <p class="content-text">在 hermes-web 中为设备添加、切换与管理 AI 模型。</p>
-                            <div class="placeholder-card">
-                                <i class="ri-edit-2-line"></i>
-                                <span>内容待补充</span>
-                            </div>
+                        <!-- ========== 二级组 2: 对话与渠道 ========== -->
+                        <div class="content-group-divider">
+                            <i class="ri-chat-3-line"></i>
+                            <span>对话与渠道</span>
                         </div>
 
                         <div id="basic-chat" class="content-card">
                             <h3 class="content-title">
                                 <span class="content-title-bar" style="background:#3b82f6;"></span>
-                                对话管理
+                                AI 对话
                             </h3>
-                            <p class="content-text">对话记录的查看、导出、删除与会话分组管理。</p>
-                            <div class="placeholder-card">
-                                <i class="ri-edit-2-line"></i>
-                                <span>内容待补充</span>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/chat</code>(或带 sessionId 的会话详情)</p>
+                            <h4 class="content-subtitle">主界面分区</h4>
+                            <table class="content-table">
+                                <thead><tr><th>区域</th><th>说明</th></tr></thead>
+                                <tbody>
+                                    <tr><td>左侧会话列表</td><td>所有本地会话,按来源(Telegram/Discord/Slack 等)分组折叠</td></tr>
+                                    <tr><td>中间消息流</td><td>Markdown 渲染、代码高亮、工具调用折叠</td></tr>
+                                    <tr><td>底部输入框</td><td>多行输入、文件拖拽、语音输入、Slash 命令</td></tr>
+                                </tbody>
+                            </table>
+                            <h4 class="content-subtitle">关键操作</h4>
+                            <ul class="content-list">
+                                <li><strong>新建会话</strong>:点左下角「+」按钮 → 自动选默认 profile/模型。</li>
+                                <li><strong>切换模型</strong>:输入框上方下拉;不同 profile 下能看到的模型不同。</li>
+                                <li><strong>上传文件</strong>:拖拽文件到聊天区,或点输入框旁的回形针图标。</li>
+                                <li><strong>下载文件</strong>:点击消息中由 Agent 生成的「文件链接」,支持本地 / Docker / SSH / Singularity 后端按路径下载。</li>
+                                <li><strong>工具调用详情</strong>:每条 Agent 回复下方的「工具调用」可展开参数和返回结果。</li>
+                                <li><strong>中断运行</strong>:回复生成中可点「停止」按钮。</li>
+                                <li><strong>会话搜索</strong>:按 <code>Ctrl + K</code> 唤起搜索框,只搜本地 Web UI 会话库。</li>
+                                <li><strong>侧边操作</strong>:右键会话列表项 → 重命名 / 删除 / 切换 profile。</li>
+                            </ul>
+                            <p class="content-text content-text-muted">顶部标签页标题会自动切换为该会话的标题,便于多任务切换。</p>
+                        </div>
+
+                        <div id="basic-global-agent" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                全局 Agent
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/global-agent</code></p>
+                            <p class="content-text">与「AI 对话」共用 ChatPanel 组件,但绑定到一个 <strong>共享的全局会话上下文</strong>:</p>
+                            <ul class="content-list">
+                                <li>所有用户/会话在同一全局会话池中可被 Agent 检索和引用。</li>
+                                <li>适合做「跨会话长期记忆 + 检索增强」的场景。</li>
+                                <li>操作方式与会话页一致:新建全局会话、消息收发、文件上传、会话搜索均通用。</li>
+                            </ul>
+                            <p class="content-text content-text-muted">详见 <a href="#basic-chat" class="content-link">AI 对话</a> 章节的操作清单。</p>
+                        </div>
+
+                        <div id="basic-history" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                历史会话
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/history</code></p>
+                            <p class="content-text">浏览 Hermes Agent 在各平台(Telegram / Discord / Slack / 桌面端等)产生过的全部历史会话(只读浏览,不可编辑)。</p>
+                            <h4 class="content-subtitle">功能</h4>
+                            <ul class="content-list">
+                                <li>按来源(Telegram / Discord / Slack / CLI / Web 等)分组展示。</li>
+                                <li>点击会话查看完整历史消息(含工具调用)。</li>
+                                <li><strong>导入到本地</strong>:将某条 Hermes 历史会话复制到本地 Web UI 会话库,便于继续编辑。</li>
+                                <li><strong>批量删除</strong>:勾选多个会话一次性删除。</li>
+                                <li><strong>大纲侧栏</strong>:长会话自动生成章节大纲(OutlinePanel)便于跳转。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-group-chat" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                群聊
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/group-chat</code>(或带 roomId 进入指定房间)</p>
+                            <p class="content-text">多 Agent 聊天室,支持多个 Agent 在同一房间协作回答。</p>
+                            <h4 class="content-subtitle">操作步骤</h4>
+                            <ol class="content-list">
+                                <li><strong>创建房间</strong>:点「+ 新建房间」→ 输入房间名 → 创建。</li>
+                                <li><strong>添加 Agent</strong>:进入房间 → 右上角「成员管理」→ 选择已有 Agent 并绑定其 profile。</li>
+                                <li><strong>邀请码</strong>:房间设置中可生成邀请码分享给他人加入。</li>
+                                <li><strong>@提及</strong>:在消息中使用 <code>@agent-name</code> 触发指定 Agent 回复;未 @ 时所有 Agent 可见但不主动回复。</li>
+                                <li><strong>上下文压缩</strong>:当历史超过 token 阈值时自动摘要(可在「设置 → 压缩」调整阈值)。</li>
+                                <li><strong>实时反馈</strong>:输入 / 打字 / 回复进度指示器实时显示。</li>
+                                <li><strong>删除房间</strong>:房主可在设置中解散。</li>
+                            </ol>
+                        </div>
+
+                        <div id="basic-channels" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                平台渠道
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/channels</code></p>
+                            <p class="content-text">统一管理 <strong>8 个外部平台</strong> 的接入凭证与行为设置。所有改动在页面点「保存」后立即生效。</p>
+                            <table class="content-table">
+                                <thead><tr><th>平台</th><th>关键配置</th><th>备注</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Telegram</td><td>Bot Token、@提及控制、Reaction、自由回复</td><td>需先在 Telegram 创建 Bot 并取得 Token</td></tr>
+                                    <tr><td>Discord</td><td>Bot Token、@提及、自动开 Thread、Reaction、频道白/黑名单</td><td></td></tr>
+                                    <tr><td>Slack</td><td>Bot Token、@提及、机器人消息处理</td><td></td></tr>
+                                    <tr><td>WhatsApp</td><td>启用开关、@提及控制、提及正则</td><td></td></tr>
+                                    <tr><td>Matrix</td><td>Access Token、Home Server、自动 Thread、私信 @ 线程</td><td></td></tr>
+                                    <tr><td>飞书 (Lark)</td><td>App ID / Secret、@提及控制</td><td></td></tr>
+                                    <tr><td>微信</td><td>浏览器扫码登录 → 自动保存凭证</td><td>仅桌面端可用</td></tr>
+                                    <tr><td>企业微信</td><td>Bot ID / Secret</td><td></td></tr>
+                                </tbody>
+                            </table>
+                            <h4 class="content-subtitle">状态指示</h4>
+                            <p class="content-text">每个平台卡片顶部会显示「已配置 / 未配置」,未配置时只需填写对应字段 → 点保存即可激活。</p>
+                        </div>
+
+                        <!-- ========== 二级组 3: 模型与配置 ========== -->
+                        <div class="content-group-divider">
+                            <i class="ri-cpu-line"></i>
+                            <span>模型与配置</span>
+                        </div>
+
+                        <div id="basic-models" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                模型管理
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/models</code></p>
+                            <h4 class="content-subtitle">两个子面板</h4>
+                            <h5 class="content-h5">1. Providers(提供商)</h5>
+                            <ul class="content-list">
+                                <li>列出当前 profile 可见的所有模型提供商(预设 + 自定义 OpenAI 兼容)。</li>
+                                <li>操作:新增 / 编辑 / 删除提供商;自定义 URL(自动识别 <code>/v1</code>、<code>/v4</code> 等非 v1 版本)。</li>
+                                <li>OAuth 一键登录:OpenAI Codex、Nous Portal、GitHub Copilot。</li>
+                            </ul>
+                            <h5 class="content-h5">2. Auxiliary Models(辅助模型)</h5>
+                            <ul class="content-list">
+                                <li>默认/备用模型选择;分组管理同一提供商的多个模型。</li>
+                                <li>点选切换该 provider 下的默认模型。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-profiles" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                配置(Profile)
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/profiles</code> · <strong>权限</strong>:仅超级管理员</p>
+                            <p class="content-text">Hermes 的「工作环境」概念。每个 profile 是独立的配置 + 缓存 + 上传 + 会话 + 任务等容器。</p>
+                            <table class="content-table">
+                                <thead><tr><th>操作</th><th>步骤</th></tr></thead>
+                                <tbody>
+                                    <tr><td>新建</td><td>右上角「创建」→ 输入名称 → 创建</td></tr>
+                                    <tr><td>重命名</td><td>行内菜单「重命名」</td></tr>
+                                    <tr><td>克隆</td><td>行内菜单「克隆」→ 输入新名字(继承所有配置与缓存)</td></tr>
+                                    <tr><td>删除</td><td>行内菜单「删除」→ 二次确认</td></tr>
+                                    <tr><td>导入</td><td>右上角「导入」→ 选择压缩包文件(来自其他部署或备份)</td></tr>
+                                    <tr><td>导出</td><td>行内菜单「导出」→ 下载压缩包文件用于迁移/备份</td></tr>
+                                    <tr><td>切换</td><td>点击左侧 profile 名(顶部 sidebar 的头像区也可切换)</td></tr>
+                                </tbody>
+                            </table>
+                            <div class="step-tip" style="border-left-color: #3b82f6;">
+                                <i class="ri-lightbulb-line mr-1" style="color:#3b82f6;"></i> 切换 profile 后,会话、模型、上传、看板、任务全部切换到对应 profile。<strong>普通管理员</strong>只能看到与自己账户绑定的 profile;<strong>超级管理员</strong>可见全部。
                             </div>
+                        </div>
+
+                        <!-- ========== 二级组 4: 工具与协作 ========== -->
+                        <div class="content-group-divider">
+                            <i class="ri-tools-line"></i>
+                            <span>工具与协作</span>
+                        </div>
+
+                        <div id="basic-files" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                文件浏览
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/files</code></p>
+                            <p class="content-text">支持多种后端的文件管理:本地 / Docker / SSH / Singularity。</p>
+                            <h4 class="content-subtitle">操作清单</h4>
+                            <ul class="content-list">
+                                <li>浏览树 + 平铺切换;面包屑跳转。</li>
+                                <li><strong>新建文件 / 新建文件夹</strong>:右键空白区域或工具栏按钮。</li>
+                                <li><strong>重命名 / 复制 / 移动 / 删除</strong>:右键文件行。</li>
+                                <li><strong>上传</strong>:工具栏「上传」→ 选择多个文件,落到当前 profile 的 upload 目录。</li>
+                                <li><strong>下载</strong>:直接点文件名(路径解析式下载,可下载上传目录之外的 Agent 生成产物)。</li>
+                                <li><strong>预览</strong>:内置代码高亮、图片预览、文本查看器;右键可「编辑器」中修改保存。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-jobs" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                定时任务
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/jobs</code></p>
+                            <p class="content-text">Cron 表达式驱动的自动化任务(绑定到当前 profile)。</p>
+                            <h4 class="content-subtitle">操作流程</h4>
+                            <ol class="content-list">
+                                <li>右上角「新建任务」→ 填写:名称、描述、Cron 表达式(提供「每小时 / 每天 / 每周」等快捷预设)、触发时要发送给 Agent 的提示词。</li>
+                                <li><strong>列表视图</strong>:每个任务卡片展示状态、上下次执行时间。</li>
+                                <li><strong>立即执行</strong>:点「▶ 运行」可手动触发,不等 Cron。</li>
+                                <li><strong>暂停 / 恢复</strong>:行内切换按钮。</li>
+                                <li><strong>编辑 / 删除</strong>:行内操作。</li>
+                                <li><strong>运行历史</strong>:下方面板展示每次执行的开始时间、耗时、结果摘要。</li>
+                                <li><strong>排序</strong>:顶部可按名称 / 时间排序。</li>
+                            </ol>
+                        </div>
+
+                        <div id="basic-kanban" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                看板
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/kanban</code></p>
+                            <p class="content-text">Agent 任务规划与跟踪看板(profile 隔离)。</p>
+                            <h4 class="content-subtitle">默认九个状态列</h4>
+                            <p class="content-text"><code>triage</code> → <code>todo</code> → <code>scheduled</code> → <code>ready</code> → <code>running</code> → <code>blocked</code> → <code>review</code> → <code>done</code> → <code>archived</code></p>
+                            <h4 class="content-subtitle">操作</h4>
+                            <ul class="content-list">
+                                <li><strong>新建任务</strong>:右上角「+ 新建」→ 填标题、描述、指派人、初始状态。</li>
+                                <li><strong>拖拽</strong>:在状态列之间拖动卡片改变状态。</li>
+                                <li><strong>点开卡片</strong>:右侧抽屉显示详情 + 评论 + 子任务。</li>
+                                <li><strong>创建看板</strong>:默认看板不可删,可创建自己的副板(顶部「看板」下拉切换)。</li>
+                                <li><strong>多看板切换</strong>:URL <code>?board=xxx</code> 或顶部下拉。</li>
+                                <li><strong>自动刷新</strong>:默认定时刷新任务状态(可关)。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-workflow" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                工作流
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/workflow</code></p>
+                            <p class="content-text">可视化多 Agent 协作流程图编辑器(基于 Vue Flow)。</p>
+                            <h4 class="content-subtitle">核心能力</h4>
+                            <ul class="content-list">
+                                <li><strong>节点类型</strong>:起始、Agent、工具、条件、结束等。</li>
+                                <li><strong>连线</strong>:拖拽节点边框到目标节点建连接,附带条件表达式。</li>
+                                <li><strong>侧边聊天</strong>:右侧抽屉集成聊天面板,可在编辑时直接对 Agent 调试节点。</li>
+                                <li><strong>保存 / 另存为新版本</strong>:每次保存生成版本号。</li>
+                                <li><strong>立即运行</strong>:点工具栏「▶ 运行」触发;实时查看节点状态、Token 用量。</li>
+                                <li><strong>运行记录</strong>:下方面板可看历史 run,从指定节点重新运行(rerun-from-node)。</li>
+                                <li><strong>停止运行</strong>:运行中可手动终止。</li>
+                                <li><strong>批量操作</strong>:多选后批量删除工作流。</li>
+                            </ul>
+                        </div>
+
+                        <!-- ========== 二级组 5: Agent 能力 ========== -->
+                        <div class="content-group-divider">
+                            <i class="ri-robot-line"></i>
+                            <span>Agent 能力</span>
+                        </div>
+
+                        <div id="basic-experts" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                专家中心
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/experts</code>、<code>/hermes/experts/:slug</code></p>
+                            <p class="content-text">浏览 / 安装 / 使用官方或社区专家(Expert)和团队(Team)配置。</p>
+                            <h4 class="content-subtitle">三个 Tab</h4>
+                            <ol class="content-list">
+                                <li><strong>Published(已发布)</strong>:线上专家市场,可按分类筛选、搜索。</li>
+                                <li><strong>Team(团队)</strong>:已购买的团队方案。</li>
+                                <li><strong>Installed(已安装)</strong>:本地已安装的专家/团队。</li>
+                            </ol>
+                            <h4 class="content-subtitle">单个专家详情页</h4>
+                            <ul class="content-list">
+                                <li>顶部 Hero 区:封面、描述、技能列表、推荐启动提示词。</li>
+                                <li>点「对话」按钮 → 直接以该专家人设开启新会话。</li>
+                                <li>点「安装 / 卸载」管理本地安装状态。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-coding-agents" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                编码代理
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/coding-agents</code></p>
+                            <p class="content-text">在 Web 中启动并监控本地 <strong>Claude Code / Codex</strong> 编码 Agent。</p>
+                            <h4 class="content-subtitle">配置流程</h4>
+                            <ol class="content-list">
+                                <li>顶部选择 Claude Code 或 Codex。</li>
+                                <li><strong>API 模式</strong>:自动 / Anthropic 兼容 / OpenAI 兼容 三选一。</li>
+                                <li><strong>配置文件</strong>:可视化编辑该工具的 config 文件(保存立即生效)。</li>
+                                <li><strong>启动</strong>:选择本地终端或内置终端面板启动。</li>
+                                <li>运行中:实时显示 stdout/stderr、推理过程(reasoning);超时与重启策略可调。</li>
+                                <li><strong>会话保存</strong>:每次会话的输出与推理元数据会自动保留,可在历史列表中随时回看。</li>
+                            </ol>
+                        </div>
+
+                        <div id="basic-skills" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                技能
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/skills</code></p>
+                            <p class="content-text">浏览当前 profile 下安装的所有 Hermes Skills。</p>
+                            <h4 class="content-subtitle">功能</h4>
+                            <ul class="content-list">
+                                <li><strong>分类侧栏</strong>:按目录展示;可搜索。</li>
+                                <li><strong>目标切换</strong>:顶部「Hermes / Claude / Codex」切换不同 Agent 看到的技能集合。</li>
+                                <li><strong>详情抽屉</strong>:点技能 → 看说明、关联文件、依赖。</li>
+                                <li><strong>导入</strong>:右上角「导入」→ 上传技能压缩包文件。</li>
+                                <li><strong>外部目录</strong>:可添加外部技能目录路径。</li>
+                                <li><strong>Pending Write Approvals</strong>:底部徽标显示等待写权限审批的数量(来自 Write Gate),点开抽屉可批量批准或拒绝。</li>
+                                <li><strong>已归档</strong>:底部 <code>.archive</code> 分类查看历史版本。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-skills-usage" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                技能使用记录
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/skills-usage</code></p>
+                            <p class="content-text">统计每个技能在最近会话中 <strong>被调用次数、成功率、平均耗时</strong> 等指标,用于评估技能实用度。</p>
+                        </div>
+
+                        <div id="basic-plugins" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                插件
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/plugins</code></p>
+                            <p class="content-text">查看当前 profile 已安装的 Hermes 插件。</p>
+                            <h4 class="content-subtitle">列表字段</h4>
+                            <ul class="content-list">
+                                <li>来源(bundled / marketplace / 自定义)</li>
+                                <li>类型(kind)</li>
+                                <li>有效状态:<code>enabled</code> / <code>auto-active</code> / <code>inactive</code> / <code>disabled</code> / <code>provider-managed</code></li>
+                                <li>搜索 + 多维筛选。</li>
+                            </ul>
+                            <p class="content-text">顶部摘要卡片显示:总数、激活数、未激活数、禁用数、Provider 管理数。</p>
+                        </div>
+
+                        <div id="basic-memory" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                记忆
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/memory</code></p>
+                            <p class="content-text">维护 Agent 的长期记忆(三段 Markdown):</p>
+                            <table class="content-table">
+                                <thead><tr><th>段落</th><th>用途</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>memory</code></td><td>通用长期事实</td></tr>
+                                    <tr><td><code>user</code></td><td>用户偏好与画像</td></tr>
+                                    <tr><td><code>soul</code></td><td>Agent 人设与价值观</td></tr>
+                                </tbody>
+                            </table>
+                            <h4 class="content-subtitle">操作</h4>
+                            <ul class="content-list">
+                                <li>只读浏览:默认折叠为卡片预览。</li>
+                                <li>点「编辑」进入 Markdown 编辑器 → 保存立即生效。</li>
+                                <li>切换 profile 后看到的是该 profile 独立的记忆文件。</li>
+                            </ul>
+                        </div>
+
+                        <!-- ========== 二级组 6: 数据与统计 ========== -->
+                        <div class="content-group-divider">
+                            <i class="ri-bar-chart-line"></i>
+                            <span>数据与统计</span>
+                        </div>
+
+                        <div id="basic-usage" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                使用统计
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/usage</code></p>
+                            <p class="content-text">查看当前 profile 的 Token 用量与会话成本。</p>
+                            <h4 class="content-subtitle">指标</h4>
+                            <ul class="content-list">
+                                <li><strong>总览卡片</strong>:总 Token(输入 / 输出)、会话总数、日均会话、预估成本、缓存命中率。</li>
+                                <li><strong>模型分布饼图</strong>:每个模型占用比例。</li>
+                                <li><strong>每日趋势</strong>:支持 7d / 30d / 90d / 365d 切换;柱状图 + 下方明细表。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-performance" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                性能监控
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/performance</code> · <strong>权限</strong>:仅超级管理员</p>
+                            <p class="content-text">实时观察 Web UI 后端 + Hermes Agent Bridge 的运行时状态。</p>
+                            <h4 class="content-subtitle">显示项</h4>
+                            <ul class="content-list">
+                                <li>Web UI 进程 RSS 内存、CPU。</li>
+                                <li>Bridge Broker 进程内存、活跃 Worker 数。</li>
+                                <li>Socket.IO 连接数。</li>
+                                <li>自动刷新开关。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-logs" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                日志
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/logs</code></p>
+                            <p class="content-text">统一查看 Web 控制台与 Hermes Agent 在运行过程中产生的所有日志条目。</p>
+                            <h4 class="content-subtitle">操作</h4>
+                            <ul class="content-list">
+                                <li><strong>日志文件下拉</strong>:选择 <code>agent</code> / <code>server</code> / <code>error</code> 等文件,显示大小与最后修改时间。</li>
+                                <li><strong>行数</strong>:50 / 100 / 200 / 500。</li>
+                                <li><strong>级别过滤</strong>:ERROR / WARNING / INFO / DEBUG。</li>
+                                <li><strong>关键字搜索</strong>:对消息内容做大小写不敏感过滤。</li>
+                                <li><strong>HTTP 访问日志高亮</strong>:结构化识别并加色。</li>
+                            </ul>
+                        </div>
+
+                        <!-- ========== 二级组 7: 设置与高级 ========== -->
+                        <div class="content-group-divider">
+                            <i class="ri-settings-3-line"></i>
+                            <span>设置与高级</span>
                         </div>
 
                         <div id="basic-settings" class="content-card">
                             <h3 class="content-title">
                                 <span class="content-title-bar" style="background:#3b82f6;"></span>
-                                系统设置
+                                设置
                             </h3>
-                            <p class="content-text">账户信息、主题语言、通知偏好等个人化设置。</p>
-                            <div class="placeholder-card">
-                                <i class="ri-edit-2-line"></i>
-                                <span>内容待补充</span>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/settings</code>(多 Tab,通过 URL <code>?tab=xxx</code> 切换)</p>
+                            <table class="content-table">
+                                <thead><tr><th>Tab</th><th>说明</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>account</code></td><td>当前账户改名 / 改密码 / 移除密码登录</td></tr>
+                                    <tr><td><code>users</code></td><td><strong>仅超级管理员</strong>:用户管理(增删、改角色、绑 profile、启用/禁用)</td></tr>
+                                    <tr><td><code>display</code></td><td>流式输出、紧凑模式、是否展示推理、是否展示成本</td></tr>
+                                    <tr><td><code>agent</code></td><td>最大回合数、超时、强制工具调用策略</td></tr>
+                                    <tr><td><code>gateway</code></td><td>网关自启动策略</td></tr>
+                                    <tr><td><code>memory</code></td><td>记忆开关、字符上限</td></tr>
+                                    <tr><td><code>compression</code></td><td>长上下文自动压缩阈值、压缩模型</td></tr>
+                                    <tr><td><code>session</code></td><td>会话空闲超时、定时重置</td></tr>
+                                    <tr><td><code>privacy</code></td><td>PII 脱敏规则</td></tr>
+                                    <tr><td><code>models</code></td><td>默认模型 + 默认提供商</td></tr>
+                                    <tr><td><code>voice</code></td><td>TTS / STT 提供商、声音、克隆参考音频</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="basic-terminal" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                Web 终端
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/terminal</code> · <strong>权限</strong>:仅超级管理员</p>
+                            <p class="content-text">基于 xterm.js + node-pty 的浏览器内终端。</p>
+                            <h4 class="content-subtitle">操作</h4>
+                            <ul class="content-list">
+                                <li><strong>多会话</strong>:可同时开多个终端面板,顶部下拉切换。</li>
+                                <li><strong>主题切换</strong>:Default / Solarized Dark 等内置主题。</li>
+                                <li><strong>自适应大小</strong>:浏览器窗口缩放自动 resize PTY。</li>
+                                <li><strong>关闭会话</strong>:点 X 关闭,确认后会结束对应的终端面板连接并释放资源。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-devices" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                设备发现
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/devices</code></p>
+                            <p class="content-text">局域网内 Hermes 设备的发现、配对、远程命令。</p>
+                            <h4 class="content-subtitle">功能</h4>
+                            <ul class="content-list">
+                                <li><strong>扫描</strong>:点「扫描」按钮搜索局域网内可发现的 Hermes 设备。</li>
+                                <li><strong>配对</strong>:选中设备 → 「配对」→ 输入验证码 / 扫码 → 设备出现在列表中。</li>
+                                <li><strong>手动配对</strong>:粘贴对端提供的 Pairing URL 完成远端加入。</li>
+                                <li><strong>审批 / 拒绝 / 屏蔽</strong>:列表行内操作。</li>
+                                <li><strong>历史请求</strong>:抽屉显示收到的远端请求与已执行命令。</li>
+                                <li><strong>复制配对链接</strong>:便于发给其他机器。</li>
+                            </ul>
+                        </div>
+
+                        <div id="basic-mcp" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                MCP 管理
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/mcp</code> · <strong>权限</strong>:仅超级管理员</p>
+                            <p class="content-text">管理本地 MCP(Model Context Protocol)服务器,供所有 Agent 调用工具。</p>
+                            <h4 class="content-subtitle">操作</h4>
+                            <ol class="content-list">
+                                <li><strong>新增服务器</strong>:右上角「+」→ 选择 JSON / YAML 输入模式 → 填入 <code>command</code> / <code>args</code> / <code>env</code> 等。</li>
+                                <li><strong>测试连接</strong>:保存前点「测试」验证服务可启动。</li>
+                                <li><strong>工具可见性</strong>:点「工具」按钮 → 选择 all / include / exclude + 具体工具名,控制暴露给 Agent 的工具集。</li>
+                                <li><strong>热重载</strong>:点「Reload」让所有 Agent 重新读取 MCP 工具清单。</li>
+                                <li><strong>删除</strong>:行内「删除」按钮。</li>
+                            </ol>
+                        </div>
+
+                        <div id="basic-version-preview" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                版本预览
+                            </h3>
+                            <p class="content-text"><strong>路由</strong>:<code>/hermes/version-preview</code> · <strong>权限</strong>:仅超级管理员</p>
+                            <p class="content-text">在不破坏当前主版本的前提下,试用 GitHub 上某个 commit / PR 的预编译版本。</p>
+                            <h4 class="content-subtitle">操作</h4>
+                            <ul class="content-list">
+                                <li>填入 GitHub 引用(branch / tag / commit SHA / PR 号)。</li>
+                                <li>点「拉取并启动预览」→ 后台下载并并行启动预览实例,不影响主服务。</li>
+                                <li>预览结束后可一键回滚。</li>
+                            </ul>
+                            <div class="step-tip" style="border-left-color: #3b82f6;">
+                                <i class="ri-lightbulb-line mr-1" style="color:#3b82f6;"></i> 适合 QA、回归测试、给客户演示未发布特性。
                             </div>
                         </div>
 
                     </section>
 
                     <!-- ============================================ -->
-                    <!-- SECTION 2: 扩展玩法教程                       -->
+                    <!-- SECTION 2: 扩展玩法教程 (保留占位)              -->
                     <!-- ============================================ -->
                     <section id="section-extension" class="tutorial-section hidden" data-section="extension">
 
@@ -229,7 +820,7 @@
                     </section>
 
                     <!-- ============================================ -->
-                    <!-- SECTION 3: 配网教程 (现有内容整体平移)         -->
+                    <!-- SECTION 3: 配网教程 (现有内容整体保留)         -->
                     <!-- ============================================ -->
                     <section id="section-network" class="tutorial-section hidden" data-section="network">
 
@@ -271,7 +862,6 @@
                             </h3>
                             <div class="flex flex-col gap-5">
 
-                                <!-- Step 1: 连接设备热点 -->
                                 <div class="step-card" style="border-left: 4px solid #e11d48;">
                                     <div class="step-number" style="background: #e11d48;">1</div>
                                     <div class="flex-1 min-w-0">
@@ -294,7 +884,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 2: 填写配网信息 -->
                                 <div class="step-card" style="border-left: 4px solid #f97316;">
                                     <div class="step-number" style="background: #f97316;">2</div>
                                     <div class="flex-1 min-w-0">
@@ -318,7 +907,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 3: 配网成功 -->
                                 <div class="step-card" style="border-left: 4px solid #22c55e;">
                                     <div class="step-number" style="background: #22c55e;">3</div>
                                     <div class="flex-1 min-w-0">
@@ -341,7 +929,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 4: 进入管理平台 -->
                                 <div class="step-card" style="border-left: 4px solid #3b82f6;">
                                     <div class="step-number" style="background: #3b82f6;">4</div>
                                     <div class="flex-1 min-w-0">
@@ -364,7 +951,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 5: Hermes 使用界面 -->
                                 <div class="step-card" style="border-left: 4px solid #8b5cf6;">
                                     <div class="step-number" style="background: #8b5cf6;">5</div>
                                     <div class="flex-1 min-w-0">
@@ -378,7 +964,7 @@
                                             <ol>
                                                 <li>界面展示了设备的管理与对话功能区。</li>
                                                 <li>在此可以管理设备模型、查看对话记录等。</li>
-                                                <li>如需为设备配置 AI 模型,请参考<strong>基础功能教程 → 模型配置</strong>。</li>
+                                                <li>如需为设备配置 AI 模型,请参考<strong>基础功能教程 → 模型管理</strong>。</li>
                                             </ol>
                                             <div class="step-tip" style="border-left-color: #8b5cf6;">
                                                 <i class="ri-lightbulb-line mr-1" style="color:#8b5cf6;"></i> Hermes 是量迹座舱的核心管理界面,后续所有模型配置与对话均在此完成。
