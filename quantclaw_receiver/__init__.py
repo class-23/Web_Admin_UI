@@ -1,9 +1,5 @@
 """
-QuantClaw 设备管理服务封装模块 — DEPRECATED FACADE
-
-⚠️ DEPRECATED: 此包为 legacy 接缝层，已迁移到 `app.utils.quantclaw_receiver`。
-   本包保留仅为兼容 `main.py` 旧调用方与历史测试，新代码请直接 import canonical 路径。
-   详见 `docs/adr/0001-architecture-unification.md`。
+QuantClaw 设备管理服务封装模块
 
 提供设备注册、心跳处理、设备列表查询等功能，
 完全兼容原脚本的所有行为和数据格式。

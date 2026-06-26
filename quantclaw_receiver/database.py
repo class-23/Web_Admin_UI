@@ -1,9 +1,5 @@
 """
-QuantClaw 数据库操作模块 — DEPRECATED FACADE
-
-⚠️ DEPRECATED: canonical 实现位于 `app.utils.quantclaw_receiver.database`。
-   此处保留 legacy psycopg2 直连实现，仅为兼容 `main.py` 与历史测试。
-   Phase-3 将随 `main.py` 迁移一并删除。详见 `docs/adr/0001-architecture-unification.md`。
+QuantClaw 数据库操作模块
 
 封装所有与PostgreSQL数据库的交互，提供线程安全的数据库访问。
 """

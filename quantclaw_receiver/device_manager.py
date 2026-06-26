@@ -1,10 +1,5 @@
 """
-QuantClaw 核心设备管理类 — DEPRECATED FACADE
-
-⚠️ DEPRECATED: canonical 实现位于 `app.utils.quantclaw_receiver.device_manager`。
-   canonical 版 `__init__` 要求传入 SQLAlchemy `session_factory`，
-   legacy 版本兼容无 `session_factory` 的旧调用方（用于 `main.py`）。
-   Phase-3 迁移 `main.py` 完成后删除本文件。详见 `docs/adr/0001-architecture-unification.md`。
+QuantClaw 核心设备管理类
 
 提供统一的设备管理接口，整合数据库操作和UDP接收器。
 """

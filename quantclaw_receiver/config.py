@@ -1,11 +1,5 @@
 """
-QuantClaw 配置管理模块 — DEPRECATED FACADE
-
-⚠️ DEPRECATED: 此 `QuantClawConfig` 含 legacy `pg_*` 字段（psycopg2 直连）。
-   canonical 版本位于 `app.utils.quantclaw_receiver.config`（使用 SQLAlchemy session，
-   字段集为 `db_path / heartbeat_interval_sec / udp_* / ...`，无 `pg_*`）。
-   此文件保留以兼容 `main.py` 的 `QuantClawConfig(pg_host=...)` 调用；
-   Phase-3 将迁移 `main.py` 后删除本文件。详见 `docs/adr/0001-architecture-unification.md`。
+QuantClaw 配置管理模块
 
 提供类型安全的配置类，支持从环境变量和命令行参数加载配置。
 """

@@ -1,8 +1,5 @@
 """
-QuantClaw 工具函数模块 — DEPRECATED FACADE
-
-⚠️ DEPRECATED: canonical 实现位于 `app.utils.quantclaw_receiver.utils`。
-   本文件保留仅为兼容历史测试，Phase-3 删除。详见 `docs/adr/0001-architecture-unification.md`。
+QuantClaw 工具函数模块
 
 包含所有通用的工具函数，如签名验证、数据解析、MAC地址处理等。
 """

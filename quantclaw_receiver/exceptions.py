@@ -1,10 +1,6 @@
 
 """
-QuantClaw 自定义异常模块 — DEPRECATED FACADE
-
-⚠️ DEPRECATED: 此文件已迁移到 `app.utils.quantclaw_receiver.exceptions`。
-   本文件保留仅为向后兼容，新代码请直接 import canonical 路径。
-   详见 `docs/adr/0001-architecture-unification.md`。
+QuantClaw 自定义异常模块
 
 定义所有业务相关的异常类，提供统一的错误处理机制。
 """
