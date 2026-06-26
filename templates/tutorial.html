@@ -46,153 +46,354 @@
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-50 border border-rose-200 rounded-full text-sm font-bold text-rose-500 mb-4">
                     <i class="ri-book-read-line"></i> 使用教程
                 </div>
-                <h1 class="text-3xl font-bold text-slate-800 mb-2">快速配网指南</h1>
-                <p class="text-slate-500">跟随以下步骤，几分钟即可完成设备配网，开始使用龙虾盒子</p>
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">教程中心</h1>
+                <p class="text-slate-500">从基础入门到高级玩法,系统化掌握龙虾盒子使用方式</p>
             </div>
 
-            <!-- Video Section -->
-            <section class="mb-10">
-                <div class="bg-gradient-to-br from-rose-50 to-orange-50 rounded-2xl p-6 md:p-8 border border-rose-100">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center">
-                            <i class="ri-play-circle-line text-white text-xl"></i>
-                        </div>
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-lg">视频教程</h2>
-                            <p class="text-sm text-slate-500">观看配网操作演示</p>
-                        </div>
+            <!-- Mobile Section Selector (visible < md) -->
+            <div class="tutorial-mobile-bar md:hidden">
+                <button id="tutorial-mobile-toggle" class="tutorial-mobile-trigger" type="button" aria-expanded="false">
+                    <span id="tutorial-mobile-label">基础功能教程</span>
+                    <i class="ri-arrow-down-s-line"></i>
+                </button>
+                <ul id="tutorial-mobile-menu" class="tutorial-mobile-menu hidden"></ul>
+            </div>
+
+            <!-- Two-column Layout -->
+            <div class="tutorial-layout">
+
+                <!-- Sidebar TOC -->
+                <aside class="tutorial-sidebar">
+                    <div class="tutorial-sidebar-inner">
+                        <nav class="tutorial-toc" aria-label="教程目录">
+
+                            <div class="toc-group" data-section="basic">
+                                <a href="#basic" class="toc-group-title" data-section-link="basic">
+                                    <i class="ri-book-2-line"></i>
+                                    <span>基础功能教程</span>
+                                </a>
+                                <ul class="toc-list">
+                                    <li><a href="#basic-intro" class="toc-link" data-section-link="basic">入门指引</a></li>
+                                    <li><a href="#basic-model" class="toc-link" data-section-link="basic">模型配置</a></li>
+                                    <li><a href="#basic-chat" class="toc-link" data-section-link="basic">对话管理</a></li>
+                                    <li><a href="#basic-settings" class="toc-link" data-section-link="basic">系统设置</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="toc-group" data-section="extension">
+                                <a href="#extension" class="toc-group-title" data-section-link="extension">
+                                    <i class="ri-rocket-2-line"></i>
+                                    <span>扩展玩法教程</span>
+                                </a>
+                                <ul class="toc-list">
+                                    <li><a href="#extension-advanced" class="toc-link" data-section-link="extension">进阶玩法</a></li>
+                                    <li><a href="#extension-custom" class="toc-link" data-section-link="extension">自定义扩展</a></li>
+                                    <li><a href="#extension-integration" class="toc-link" data-section-link="extension">第三方集成</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="toc-group" data-section="network">
+                                <a href="#network" class="toc-group-title" data-section-link="network">
+                                    <i class="ri-wifi-line"></i>
+                                    <span>配网教程</span>
+                                </a>
+                                <ul class="toc-list">
+                                    <li><a href="#network-video" class="toc-link" data-section-link="network">视频教程</a></li>
+                                    <li><a href="#network-steps" class="toc-link" data-section-link="network">配网步骤</a></li>
+                                </ul>
+                            </div>
+
+                        </nav>
                     </div>
-                    <div class="video-wrapper shadow-lg">
-                        <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=116714746419798&bvid=BV18KEG6aEAJ&cid=38962661547&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
-                    </div>
+                </aside>
+
+                <!-- Content Area -->
+                <div class="tutorial-content">
+
+                    <!-- ============================================ -->
+                    <!-- SECTION 1: hermes-web 基础功能教程            -->
+                    <!-- ============================================ -->
+                    <section id="section-basic" class="tutorial-section" data-section="basic">
+
+                        <header class="section-header">
+                            <div class="section-icon" style="background:#3b82f6;">
+                                <i class="ri-book-2-line text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="section-title">hermes-web 基础功能教程</h2>
+                                <p class="section-desc">系统化掌握 hermes-web 的核心功能与日常使用</p>
+                            </div>
+                        </header>
+
+                        <div id="basic-intro" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                入门指引
+                            </h3>
+                            <p class="content-text">介绍 hermes-web 的整体架构、主要功能区划分,以及首次使用的基本流程。</p>
+                            <div class="placeholder-card">
+                                <i class="ri-edit-2-line"></i>
+                                <span>内容待补充</span>
+                            </div>
+                        </div>
+
+                        <div id="basic-model" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                模型配置
+                            </h3>
+                            <p class="content-text">在 hermes-web 中为设备添加、切换与管理 AI 模型。</p>
+                            <div class="placeholder-card">
+                                <i class="ri-edit-2-line"></i>
+                                <span>内容待补充</span>
+                            </div>
+                        </div>
+
+                        <div id="basic-chat" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                对话管理
+                            </h3>
+                            <p class="content-text">对话记录的查看、导出、删除与会话分组管理。</p>
+                            <div class="placeholder-card">
+                                <i class="ri-edit-2-line"></i>
+                                <span>内容待补充</span>
+                            </div>
+                        </div>
+
+                        <div id="basic-settings" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#3b82f6;"></span>
+                                系统设置
+                            </h3>
+                            <p class="content-text">账户信息、主题语言、通知偏好等个人化设置。</p>
+                            <div class="placeholder-card">
+                                <i class="ri-edit-2-line"></i>
+                                <span>内容待补充</span>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- ============================================ -->
+                    <!-- SECTION 2: 扩展玩法教程                       -->
+                    <!-- ============================================ -->
+                    <section id="section-extension" class="tutorial-section hidden" data-section="extension">
+
+                        <header class="section-header">
+                            <div class="section-icon" style="background:#8b5cf6;">
+                                <i class="ri-rocket-2-line text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="section-title">扩展玩法教程</h2>
+                                <p class="section-desc">探索龙虾盒子的高阶玩法与个性化扩展能力</p>
+                            </div>
+                        </header>
+
+                        <div id="extension-advanced" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#8b5cf6;"></span>
+                                进阶玩法
+                            </h3>
+                            <p class="content-text">解锁设备的高阶特性,发挥龙虾盒子的全部潜力。</p>
+                            <div class="placeholder-card">
+                                <i class="ri-edit-2-line"></i>
+                                <span>内容待补充</span>
+                            </div>
+                        </div>
+
+                        <div id="extension-custom" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#8b5cf6;"></span>
+                                自定义扩展
+                            </h3>
+                            <p class="content-text">通过自定义指令、Prompt 与插件,打造专属体验。</p>
+                            <div class="placeholder-card">
+                                <i class="ri-edit-2-line"></i>
+                                <span>内容待补充</span>
+                            </div>
+                        </div>
+
+                        <div id="extension-integration" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#8b5cf6;"></span>
+                                第三方集成
+                            </h3>
+                            <p class="content-text">与外部平台、API、智能家居生态的联动方案。</p>
+                            <div class="placeholder-card">
+                                <i class="ri-edit-2-line"></i>
+                                <span>内容待补充</span>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- ============================================ -->
+                    <!-- SECTION 3: 配网教程 (现有内容整体平移)         -->
+                    <!-- ============================================ -->
+                    <section id="section-network" class="tutorial-section hidden" data-section="network">
+
+                        <header class="section-header">
+                            <div class="section-icon" style="background:#e11d48;">
+                                <i class="ri-wifi-line text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="section-title">配网教程</h2>
+                                <p class="section-desc">跟随以下步骤,几分钟即可完成设备配网,开始使用龙虾盒子</p>
+                            </div>
+                        </header>
+
+                        <div id="network-video" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#e11d48;"></span>
+                                视频教程
+                            </h3>
+                            <div class="bg-gradient-to-br from-rose-50 to-orange-50 rounded-2xl p-6 md:p-8 border border-rose-100">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center">
+                                        <i class="ri-play-circle-line text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800 text-lg">视频教程</h4>
+                                        <p class="text-sm text-slate-500">观看配网操作演示</p>
+                                    </div>
+                                </div>
+                                <div class="video-wrapper shadow-lg">
+                                    <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=116714746419798&bvid=BV18KEG6aEAJ&cid=38962661547&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="network-steps" class="content-card">
+                            <h3 class="content-title">
+                                <span class="content-title-bar" style="background:#e11d48;"></span>
+                                配网步骤
+                            </h3>
+                            <div class="flex flex-col gap-5">
+
+                                <!-- Step 1: 连接设备热点 -->
+                                <div class="step-card" style="border-left: 4px solid #e11d48;">
+                                    <div class="step-number" style="background: #e11d48;">1</div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-slate-800 text-lg mb-1">连接设备热点</h4>
+                                        <p class="text-sm text-slate-500 mb-1">手机或电脑连接 QH 开头的 WiFi</p>
+                                        <div class="step-image">
+                                            <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/1.%E8%BF%9E%E6%8E%A5wifi.jpg" alt="连接WiFi热点" loading="lazy">
+                                        </div>
+                                        <div class="step-instructions mt-2">
+                                            <p class="text-sm text-slate-600 mb-2">设备接通电源后自动进入<strong>AP 模式</strong>,请按以下步骤操作:</p>
+                                            <ol>
+                                                <li>打开手机或电脑的 WiFi 设置,搜索可用网络。</li>
+                                                <li>找到名为 <strong>'QH' 开头</strong> 的 WiFi 热点,点击连接。</li>
+                                                <li>连接成功后,打开浏览器,在地址栏输入 <strong>192.168.4.1</strong> 进入配网页面。</li>
+                                            </ol>
+                                            <div class="step-tip" style="border-left-color: #e11d48;">
+                                                <i class="ri-lightbulb-line mr-1" style="color:#e11d48;"></i> 如果搜不到热点,请确认设备已接通电源。热点在设备开机后约 30 秒内出现。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: 填写配网信息 -->
+                                <div class="step-card" style="border-left: 4px solid #f97316;">
+                                    <div class="step-number" style="background: #f97316;">2</div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-slate-800 text-lg mb-1">填写配网信息</h4>
+                                        <p class="text-sm text-slate-500 mb-1">输入 Wi-Fi 名称、密码及手机号</p>
+                                        <div class="step-image">
+                                            <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/2.%E5%88%9D%E6%AC%A1%E9%85%8D%E7%BD%91.jpg" alt="初次配网" loading="lazy">
+                                        </div>
+                                        <div class="step-instructions mt-2">
+                                            <p class="text-sm text-slate-600 mb-2">进入配网界面后,请按照图中标注填写:</p>
+                                            <ol>
+                                                <li>在 <strong>Wi-Fi 名称</strong>栏中选择或输入您家中/公司的无线网络名称。</li>
+                                                <li>在 <strong>密码</strong>栏中输入对应的 Wi-Fi 密码。</li>
+                                                <li>在 <strong>电话号码</strong>栏中输入您的手机号(用于设备绑定)。</li>
+                                                <li>确认信息无误后,点击<strong>"保存并连接"</strong>按钮。</li>
+                                            </ol>
+                                            <div class="step-tip" style="border-left-color: #f97316;">
+                                                <i class="ri-lightbulb-line mr-1" style="color:#f97316;"></i> 请确保 Wi-Fi 密码输入正确,否则设备将无法连接网络。等待 5 至 10 秒即可完成。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: 配网成功 -->
+                                <div class="step-card" style="border-left: 4px solid #22c55e;">
+                                    <div class="step-number" style="background: #22c55e;">3</div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-slate-800 text-lg mb-1">配网成功</h4>
+                                        <p class="text-sm text-slate-500 mb-1">设备网络切换提醒</p>
+                                        <div class="step-image">
+                                            <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/3.%E9%85%8D%E7%BD%91%E6%88%90%E5%8A%9F.jpg" alt="配网成功" loading="lazy">
+                                        </div>
+                                        <div class="step-instructions mt-2">
+                                            <p class="text-sm text-slate-600 mb-2">点击"保存并连接"后等待 5 至 10 秒,会出现以下变化:</p>
+                                            <ol>
+                                                <li>页面显示<strong>设备网络切换提醒</strong>,表示设备正在切换到您配置的网络。</li>
+                                                <li>您的手机或电脑的 WiFi 会自动<strong>切回到家中/公司的网络</strong>。</li>
+                                                <li>以上现象即代表<strong>配网成功</strong>。</li>
+                                            </ol>
+                                            <div class="step-tip" style="border-left-color: #22c55e;">
+                                                <i class="ri-lightbulb-line mr-1" style="color:#22c55e;"></i> 配网成功后,设备会自动与您的账户绑定。后续所有管理操作均通过云端后台完成,无需重复配网。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4: 进入管理平台 -->
+                                <div class="step-card" style="border-left: 4px solid #3b82f6;">
+                                    <div class="step-number" style="background: #3b82f6;">4</div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-slate-800 text-lg mb-1">进入管理平台</h4>
+                                        <p class="text-sm text-slate-500 mb-1">访问 keli.quantclaw.vip</p>
+                                        <div class="step-image">
+                                            <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/4.%E5%B9%B3%E5%8F%B0%E5%92%8C%E8%B7%B3%E8%BD%AC.jpg" alt="管理平台" loading="lazy">
+                                        </div>
+                                        <div class="step-instructions mt-2">
+                                            <p class="text-sm text-slate-600 mb-2">配网成功后,在电脑或手机浏览器中进行以下操作:</p>
+                                            <ol>
+                                                <li>在浏览器地址栏输入 <strong>https://keli.quantclaw.vip</strong> 进入设备管理平台。</li>
+                                                <li>在管理平台右上角选择<strong>要使用的设备</strong>。</li>
+                                                <li>选择好设备后,点击右下角的<strong>"控制面板"</strong>按钮。</li>
+                                            </ol>
+                                            <div class="step-tip" style="border-left-color: #3b82f6;">
+                                                <i class="ri-lightbulb-line mr-1" style="color:#3b82f6;"></i> 请确保电脑/手机与设备处于同一网络环境下,否则无法正常访问管理平台。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 5: Hermes 使用界面 -->
+                                <div class="step-card" style="border-left: 4px solid #8b5cf6;">
+                                    <div class="step-number" style="background: #8b5cf6;">5</div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-slate-800 text-lg mb-1">Hermes 使用界面</h4>
+                                        <p class="text-sm text-slate-500 mb-1">进入智能管理界面</p>
+                                        <div class="step-image">
+                                            <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/5.%E4%BD%BF%E7%94%A8%E7%95%8C%E9%9D%A2.jpg" alt="Hermes使用界面" loading="lazy">
+                                        </div>
+                                        <div class="step-instructions mt-2">
+                                            <p class="text-sm text-slate-600 mb-2">点击"控制面板"后,即可进入 <strong>Hermes</strong> 使用界面:</p>
+                                            <ol>
+                                                <li>界面展示了设备的管理与对话功能区。</li>
+                                                <li>在此可以管理设备模型、查看对话记录等。</li>
+                                                <li>如需为设备配置 AI 模型,请参考<strong>基础功能教程 → 模型配置</strong>。</li>
+                                            </ol>
+                                            <div class="step-tip" style="border-left-color: #8b5cf6;">
+                                                <i class="ri-lightbulb-line mr-1" style="color:#8b5cf6;"></i> Hermes 是量迹座舱的核心管理界面,后续所有模型配置与对话均在此完成。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </section>
+
                 </div>
-            </section>
-
-            <!-- Step Cards -->
-            <section>
-                <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <span class="w-1.5 h-5 bg-rose-400 rounded-full"></span> 配网步骤
-                </h2>
-                <div class="flex flex-col gap-5">
-
-                    <!-- Step 1: 连接设备热点 -->
-                    <div class="step-card" style="border-left: 4px solid #e11d48;">
-                        <div class="step-number" style="background: #e11d48;">1</div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-slate-800 text-lg mb-1">连接设备热点</h3>
-                            <p class="text-sm text-slate-500 mb-1">手机或电脑连接 QH 开头的 WiFi</p>
-                            <div class="step-image">
-                                <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/1.%E8%BF%9E%E6%8E%A5wifi.jpg" alt="连接WiFi热点" loading="lazy">
-                            </div>
-                            <div class="step-instructions mt-2">
-                                <p class="text-sm text-slate-600 mb-2">设备接通电源后自动进入<strong>AP 模式</strong>，请按以下步骤操作：</p>
-                                <ol>
-                                    <li>打开手机或电脑的 WiFi 设置，搜索可用网络。</li>
-                                    <li>找到名为 <strong>'QH' 开头</strong> 的 WiFi 热点，点击连接。</li>
-                                    <li>连接成功后，打开浏览器，在地址栏输入 <strong>192.168.4.1</strong> 进入配网页面。</li>
-                                </ol>
-                                <div class="step-tip" style="border-left-color: #e11d48;">
-                                    <i class="ri-lightbulb-line mr-1" style="color:#e11d48;"></i> 如果搜不到热点，请确认设备已接通电源。热点在设备开机后约 30 秒内出现。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: 填写配网信息 -->
-                    <div class="step-card" style="border-left: 4px solid #f97316;">
-                        <div class="step-number" style="background: #f97316;">2</div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-slate-800 text-lg mb-1">填写配网信息</h3>
-                            <p class="text-sm text-slate-500 mb-1">输入 Wi-Fi 名称、密码及手机号</p>
-                            <div class="step-image">
-                                <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/2.%E5%88%9D%E6%AC%A1%E9%85%8D%E7%BD%91.jpg" alt="初次配网" loading="lazy">
-                            </div>
-                            <div class="step-instructions mt-2">
-                                <p class="text-sm text-slate-600 mb-2">进入配网界面后，请按照图中标注填写：</p>
-                                <ol>
-                                    <li>在 <strong>Wi-Fi 名称</strong>栏中选择或输入您家中/公司的无线网络名称。</li>
-                                    <li>在 <strong>密码</strong>栏中输入对应的 Wi-Fi 密码。</li>
-                                    <li>在 <strong>电话号码</strong>栏中输入您的手机号（用于设备绑定）。</li>
-                                    <li>确认信息无误后，点击<strong>"保存并连接"</strong>按钮。</li>
-                                </ol>
-                                <div class="step-tip" style="border-left-color: #f97316;">
-                                    <i class="ri-lightbulb-line mr-1" style="color:#f97316;"></i> 请确保 Wi-Fi 密码输入正确，否则设备将无法连接网络。等待 5 至 10 秒即可完成。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: 配网成功 -->
-                    <div class="step-card" style="border-left: 4px solid #22c55e;">
-                        <div class="step-number" style="background: #22c55e;">3</div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-slate-800 text-lg mb-1">配网成功</h3>
-                            <p class="text-sm text-slate-500 mb-1">设备网络切换提醒</p>
-                            <div class="step-image">
-                                <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/3.%E9%85%8D%E7%BD%91%E6%88%90%E5%8A%9F.jpg" alt="配网成功" loading="lazy">
-                            </div>
-                            <div class="step-instructions mt-2">
-                                <p class="text-sm text-slate-600 mb-2">点击"保存并连接"后等待 5 至 10 秒，会出现以下变化：</p>
-                                <ol>
-                                    <li>页面显示<strong>设备网络切换提醒</strong>，表示设备正在切换到您配置的网络。</li>
-                                    <li>您的手机或电脑的 WiFi 会自动<strong>切回到家中/公司的网络</strong>。</li>
-                                    <li>以上现象即代表<strong>配网成功</strong>。</li>
-                                </ol>
-                                <div class="step-tip" style="border-left-color: #22c55e;">
-                                    <i class="ri-lightbulb-line mr-1" style="color:#22c55e;"></i> 配网成功后，设备会自动与您的账户绑定。后续所有管理操作均通过云端后台完成，无需重复配网。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 4: 进入管理平台 -->
-                    <div class="step-card" style="border-left: 4px solid #3b82f6;">
-                        <div class="step-number" style="background: #3b82f6;">4</div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-slate-800 text-lg mb-1">进入管理平台</h3>
-                            <p class="text-sm text-slate-500 mb-1">访问 keli.quantclaw.vip</p>
-                            <div class="step-image">
-                                <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/4.%E5%B9%B3%E5%8F%B0%E5%92%8C%E8%B7%B3%E8%BD%AC.jpg" alt="管理平台" loading="lazy">
-                            </div>
-                            <div class="step-instructions mt-2">
-                                <p class="text-sm text-slate-600 mb-2">配网成功后，在电脑或手机浏览器中进行以下操作：</p>
-                                <ol>
-                                    <li>在浏览器地址栏输入 <strong>https://keli.quantclaw.vip</strong> 进入设备管理平台。</li>
-                                    <li>在管理平台右上角选择<strong>要使用的设备</strong>。</li>
-                                    <li>选择好设备后，点击右下角的<strong>"控制面板"</strong>按钮。</li>
-                                </ol>
-                                <div class="step-tip" style="border-left-color: #3b82f6;">
-                                    <i class="ri-lightbulb-line mr-1" style="color:#3b82f6;"></i> 请确保电脑/手机与设备处于同一网络环境下，否则无法正常访问管理平台。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 5: Hermes 使用界面 -->
-                    <div class="step-card" style="border-left: 4px solid #8b5cf6;">
-                        <div class="step-number" style="background: #8b5cf6;">5</div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-slate-800 text-lg mb-1">Hermes 使用界面</h3>
-                            <p class="text-sm text-slate-500 mb-1">进入智能管理界面</p>
-                            <div class="step-image">
-                                <img src="https://tangledup-ai-staging.oss-cn-shanghai.aliyuncs.com/H5_projectt/LongXiaZuoCang/specification/5.%E4%BD%BF%E7%94%A8%E7%95%8C%E9%9D%A2.jpg" alt="Hermes使用界面" loading="lazy">
-                            </div>
-                            <div class="step-instructions mt-2">
-                                <p class="text-sm text-slate-600 mb-2">点击"控制面板"后，即可进入 <strong>Hermes</strong> 使用界面：</p>
-                                <ol>
-                                    <li>界面展示了设备的管理与对话功能区。</li>
-                                    <li>在此可以管理设备模型、查看对话记录等。</li>
-                                    <li>如需为设备配置 AI 模型，请参考后续拓展教程。</li>
-                                </ol>
-                                <div class="step-tip" style="border-left-color: #8b5cf6;">
-                                    <i class="ri-lightbulb-line mr-1" style="color:#8b5cf6;"></i> Hermes 是量迹座舱的核心管理界面，后续所有模型配置与对话均在此完成。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
+            </div>
 
         </div>
     </main>
@@ -202,5 +403,6 @@
         <p>openclawbox &copy; 2026</p>
     </footer>
 
+    <script src="/static/js/tutorial.js"></script>
 </body>
 </html>
