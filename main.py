@@ -4,7 +4,9 @@ QuantClaw 设备管理后台
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException, Request, Response, Depends
+import re
+
+from fastapi import FastAPI, HTTPException, Request, Response, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import APIKeyHeader, APIKeyQuery
 from quantclaw_receiver import QuantClawDeviceManager, QuantClawConfig
@@ -926,6 +928,27 @@ async def delete_device(
 @app.get("/api/health", tags=["系统管理"], summary="健康检查", description="服务健康检查端点，返回数据库连接状态和设备接收器运行状态。无需认证。")
 async def health_check():
     return await device_manager.health_check()
+
+
+@app.get("/api/phone_search_device", tags=["设备管理"], summary="通过手机号查询绑定设备",
+         description="通过手机号查询该手机号关联绑定的所有设备信息。无需认证，仅需传入手机号作为查询参数。")
+async def phone_search_device(
+    phone: str = Query(..., description="中国大陆11位手机号，用于查询关联绑定的设备")
+):
+    """通过手机号查询绑定设备"""
+    # 手机号非空校验
+    if not phone or not phone.strip():
+        raise HTTPException(status_code=400, detail="手机号不能为空")
+
+    phone = phone.strip()
+
+    # 手机号格式校验
+    if not re.match(r"^1[3-9]\d{9}$", phone):
+        raise HTTPException(status_code=400, detail="手机号格式不正确，请输入中国大陆11位手机号")
+
+    result = await device_manager.get_devices_list(user_phone=phone)
+
+    return {"code": 0, "message": "ok", "data": result}
 
 
 class SshClientManager:
