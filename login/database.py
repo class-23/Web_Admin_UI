@@ -124,6 +124,51 @@ def init_db():
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
+        # 迁移：为 users 表添加 wechat_info 字段（JSONB 格式）
+        cur.execute("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'users' AND column_name = 'wechat_info'
+                ) THEN
+                    ALTER TABLE users ADD COLUMN wechat_info JSONB DEFAULT NULL;
+                END IF;
+            END
+            $$;
+        """)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_users_wechat_openid ON users ((wechat_info->>'openid'))")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_users_wechat_unionid ON users ((wechat_info->>'unionid'))")
+        # 迁移：添加 last_login_at 字段（如果不存在）— 微信登录记录用
+        cur.execute("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'users' AND column_name = 'last_login_at'
+                ) THEN
+                    ALTER TABLE users ADD COLUMN last_login_at TIMESTAMPTZ DEFAULT NULL;
+                END IF;
+            END
+            $$;
+        """)
+
+        # 创建登录审计日志表（用于微信登录风控）
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS login_audit_log (
+                id          SERIAL PRIMARY KEY,
+                openid      VARCHAR(128),
+                user_id     INTEGER REFERENCES users(id),
+                ip          VARCHAR(45) NOT NULL,
+                status      VARCHAR(20) NOT NULL,
+                method      VARCHAR(20) NOT NULL,
+                reason      TEXT DEFAULT '',
+                created_at  TIMESTAMPTZ DEFAULT NOW()
+            )
+        """)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_login_audit_openid_time ON login_audit_log (openid, created_at DESC)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_login_audit_ip_time ON login_audit_log (ip, created_at DESC)")
+
         _ensure_timestamptz_columns(cur)
         conn.commit()
         cur.close()

@@ -25,3 +25,9 @@ SMS_SIGN_NAME = "叠加态科技云南"
 
 AUTH_COOKIE_NAME = "auth_token"
 AUTH_COOKIE_MAX_AGE = 2592000
+
+# ---------- 微信开放平台 ----------
+WECHAT_APPID = os.getenv("WECHAT_APPID", "")
+WECHAT_SECRET = os.getenv("WECHAT_SECRET", "")
+WECHAT_REDIRECT_URI = os.getenv("WECHAT_REDIRECT_URI", "http://localhost:8082/api/wechat/callback")
+WECHAT_QR_SIGN_SECRET = os.getenv("WECHAT_QR_SIGN_SECRET", "")

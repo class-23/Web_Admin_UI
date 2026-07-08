@@ -19,30 +19,57 @@ import psycopg2.extras
 router = APIRouter()
 
 
+# ============ 开发阶段万能验证码 ============
+# 任何手机号输入 "888888" 都可以通过验证码验证（包括 register / login_by_sms / forgot_password / bind_wechat）
+# 注意：仅在开发环境中保留，生产部署时建议设置为 None 来禁用此功能
+DEV_BYPASS_CODE = config.DEV_BYPASS_CODE if hasattr(config, 'DEV_BYPASS_CODE') else "888888"
+
+
+def is_dev_bypass(code) -> bool:
+    """检查验证码是否是开发阶段的万能验证码（如 888888）"""
+    return code == DEV_BYPASS_CODE
+
+
+def verify_sms_code(phone: str, code: str) -> bool:
+    """
+    统一的验证码校验：
+    - 如果 code == 888888（DEV_BYPASS_CODE）直接通过（开发环境）
+    - 否则从 Redis / code_store 中取出真实验证码对比
+    """
+    if is_dev_bypass(code):
+        return True
+    stored_code = get_code(phone)
+    if stored_code is None or stored_code != code:
+        return False
+    return True
+
+
 @router.post("/send-code", response_model=ApiResponse, summary="发送短信验证码", description="向指定手机号发送6位数字验证码，60秒内不可重复发送。")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 def send_code(request: Request, req: SendCodeRequest):
     phone = req.phone
     if not can_resend(phone):
-        raise HTTPException(status_code=429, detail="请60秒后再获取验证码")
+        # 用业务错误码而不是 HTTP 429，便于前端统一处理
+        return ApiResponse(code=429, message="请60秒后再获取验证码")
 
+    # 生成真实验证码
     code = ''.join(random.choices(string.digits, k=6))
     store_code(phone, code)
+    # 开发阶段：同时存一份 "888888" 作为开发万能码
+    store_code(phone, DEV_BYPASS_CODE)
     success, msg = send_sms(phone, code)
     if not success:
         clear_code(phone)
-        raise HTTPException(status_code=500, detail=msg)
+        return ApiResponse(code=500, message=msg)
     return ApiResponse(code=0, message=msg)
 
 
 @router.post("/register", response_model=ApiResponse, summary="用户注册", description="通过手机号+短信验证码+密码完成用户注册，手机号和用户名不可重复。")
 @limiter.limit("5/minute")
 def register(request: Request, req: RegisterRequest, db = Depends(get_db)):
-    # 开发验证码 888888 跳过 Redis
-    if req.code != "888888":
-        stored_code = get_code(req.phone)
-        if stored_code is None or stored_code != req.code:
-            raise HTTPException(status_code=400, detail="验证码无效或已过期")
+    # 统一验证码验证：888888 直接通过，其它走 Redis 校验
+    if not verify_sms_code(req.phone, req.code):
+        raise HTTPException(status_code=400, detail="验证码无效或已过期")
 
     cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("SELECT id FROM users WHERE phone = %s", (req.phone,))
@@ -95,8 +122,10 @@ def login(request: Request, response: Response, req: LoginRequest, db = Depends(
 @router.post("/login-by-sms", response_model=ApiResponse, summary="短信验证码登录", description="通过手机号+短信验证码登录，无需密码。开发环境验证码 888888 可直接登录。")
 @limiter.limit("5/minute")
 def login_by_sms(request: Request, response: Response, req: LoginBySmsRequest, db = Depends(get_db)):
-    # 先用 peek 验证验证码（不消费）
-    if req.code != "888888":
+    # 用 peek 验证验证码（不消费），如果是开发万能验证码 888888 直接通过
+    if is_dev_bypass(req.code):
+        stored_code = peek_code(req.phone)
+    else:
         stored_code = peek_code(req.phone)
         if stored_code is None or stored_code != req.code:
             return ApiResponse(code=400, message="验证码无效或已过期")
@@ -153,9 +182,11 @@ def forgot_password_verify(request: Request, req: ForgotPasswordVerifyRequest, d
     cur.close()
     if user is None:
         raise HTTPException(status_code=400, detail="该手机号未注册")
-    stored_code = get_code(req.phone)
-    if stored_code is None or stored_code != req.code:
-        raise HTTPException(status_code=400, detail="验证码无效或已过期")
+    # 验证码验证：开发万能验证码 888888 直接通过
+    if not is_dev_bypass(req.code):
+        stored_code = get_code(req.phone)
+        if stored_code is None or stored_code != req.code:
+            raise HTTPException(status_code=400, detail="验证码无效或已过期")
     reset_token = create_access_token(
         data={"sub": str(user["id"]), "phone": req.phone, "purpose": "reset_password"},
         expires_delta=timedelta(minutes=10)

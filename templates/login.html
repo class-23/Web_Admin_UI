@@ -71,6 +71,257 @@ body {
   color: #4a5568;
 }
 
+/* 微信登录分割线 */
+.wechat-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 16px;
+  color: #a0aec0;
+  font-size: 13px;
+}
+
+.wechat-divider::before,
+.wechat-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.wechat-divider span {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-wechat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f7fafc;
+  color: #2d3748;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+  margin-bottom: 20px;
+}
+
+.btn-wechat svg {
+  flex-shrink: 0;
+}
+
+.btn-wechat:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.btn-wechat:active {
+  background: #e2e8f0;
+}
+
+.btn-wechat:disabled {
+  color: #a0aec0;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  opacity: 0.6;
+}
+
+/* 二维码弹窗 */
+.wechat-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.wechat-modal-overlay.show {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wechat-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 32px 28px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from { transform: translateY(16px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.wechat-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #a0aec0;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.wechat-modal-close:hover {
+  color: #4a5568;
+}
+
+.wechat-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.wechat-modal-subtitle {
+  font-size: 13px;
+  color: #718096;
+  margin-bottom: 20px;
+}
+
+.wechat-qr-container {
+  /* 容器 = WxLogin iframe 大小（300x400）。
+     不裁切任何东西。让二维码按 WxLogin 默认居中显示。
+     href CSS 强制二维码 img 为 280x280，撑满容器中间区域。 */
+  width: 300px;
+  height: 300px;
+  margin: 0 auto 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+
+/* iframe 父元素跟容器一致 */
+#wechatQrIframe {
+  width: 300px;
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+#wechatQrIframe iframe {
+  width: 300px !important;
+  height: 400px !important;
+  border: 0 !important;
+  display: block !important;
+}
+
+.wechat-qr-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #a0aec0;
+  font-size: 13px;
+}
+
+.wechat-qr-loading .spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.wechat-qr-status {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.95);
+  justify-content: center;
+}
+
+.wechat-qr-status.show { display: flex; }
+
+.wechat-qr-status .status-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.wechat-qr-status .status-icon.success { background: #c6f6d5; color: #276749; }
+.wechat-qr-status .status-icon.expired { background: #fed7d7; color: #9b2c2c; }
+
+.wechat-qr-status .status-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.wechat-qr-status .status-desc {
+  font-size: 13px;
+  color: #718096;
+}
+
+.wechat-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: 1.5px solid #667eea;
+  border-radius: 8px;
+  background: #fff;
+  color: #667eea;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 4px;
+}
+
+.wechat-refresh-btn:hover {
+  background: #667eea;
+  color: #fff;
+}
+
+.wechat-modal-tip {
+  font-size: 12px;
+  color: #a0aec0;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+@media (max-width: 480px) {
+  .wechat-modal { padding: 28px 20px; border-radius: 12px; }
+  .wechat-qr-container { width: 310px; height: 320px; }
+}
+
 /* 表单面板 */
 .tab-panel {
   display: none;
@@ -312,13 +563,118 @@ body {
     </form>
   </div>
 
+  <!-- 微信登录 -->
+  <div class="wechat-divider"><span>或</span></div>
+
+  <button type="button" id="btnWechatLogin" class="btn-wechat" aria-label="微信扫码登录">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8.5 13.5C9.32843 13.5 10 12.8284 10 12C10 11.1716 9.32843 10.5 8.5 10.5C7.67157 10.5 7 11.1716 7 12C7 12.8284 7.67157 13.5 8.5 13.5Z" fill="#07C160"/>
+      <path d="M15.5 13.5C16.3284 13.5 17 12.8284 17 12C17 11.1716 16.3284 10.5 15.5 10.5C14.6716 10.5 14 11.1716 14 12C14 12.8284 14.6716 13.5 15.5 13.5Z" fill="#07C160"/>
+      <path d="M12 1.5C6.20101 1.5 1.5 5.25397 1.5 9.75C1.5 12.2556 2.84772 14.5286 4.839 16.057L4.5 22.5L9.23873 19.0795C10.5431 19.5264 11.9435 19.7625 13.5 19.7625C18.672 19.7625 22.5 16.2056 22.5 12C22.5 7.74603 18.672 1.5 12 1.5Z" fill="#07C160"/>
+    </svg>
+    <span>微信扫码登录</span>
+  </button>
+
   <div class="footer-links">
     <a href="/forgot-password">忘记密码？</a>
     <a href="/register">注册账号</a>
   </div>
 </div>
 
+<!-- 微信二维码弹窗 -->
+<div id="wechatModalOverlay" class="wechat-modal-overlay" role="dialog" aria-modal="true" aria-label="微信扫码登录">
+  <div class="wechat-modal">
+    <button type="button" class="wechat-modal-close" id="wechatModalClose" aria-label="关闭">✕</button>
+    <div class="wechat-modal-title">微信扫码登录</div>
+    <div class="wechat-modal-subtitle">请使用微信扫描二维码登录</div>
+
+    <div class="wechat-qr-container" id="wechatQrContainer">
+      <!-- 二维码加载中 -->
+      <div class="wechat-qr-loading" id="wechatQrLoading">
+        <div class="spinner"></div>
+        <span>正在获取二维码...</span>
+      </div>
+      <!-- 状态覆盖层：扫码成功 -->
+      <div class="wechat-qr-status" id="wechatQrScanned">
+        <div class="status-icon success">✓</div>
+        <div class="status-text">扫码成功</div>
+        <div class="status-desc">请在手机上确认登录</div>
+      </div>
+      <!-- 状态覆盖层：已过期 -->
+      <div class="wechat-qr-status" id="wechatQrExpired">
+        <div class="status-icon expired">↻</div>
+        <div class="status-text">二维码已过期</div>
+        <div class="status-desc">点击图片即可刷新</div>
+        <button type="button" class="wechat-refresh-btn" id="wechatQrRefresh">重新获取二维码</button>
+      </div>
+      <!-- WxLogin iframe 插入位置 -->
+      <div id="wechatQrIframe" style="width:100%;height:100%;"></div>
+    </div>
+
+    <div class="wechat-modal-tip">
+      首次登录需绑定手机号<br>
+      如已授权可直接登录
+    </div>
+  </div>
+</div>
+
 <script>
+// 监听来自微信 callback iframe 的 postMessage 通知（modal 弹窗模式）
+window.addEventListener('message', function(event) {
+  if (!event.data || typeof event.data !== 'object') return;
+
+  if (event.data.type === 'wechat_login_callback' && event.data.action === 'redirect') {
+    console.log('[WeChat] 收到 callback postMessage:', event.data.url);
+
+    // 标记 done（避免 status poll 重复跳转）
+    window.__wechatLoginDone = true;
+
+    // 停止 status 轮询
+    try { stopWechatStatusPoll && stopWechatStatusPoll(); } catch (e) {}
+
+    // 关闭 modal 弹窗
+    try { closeQrModal && closeQrModal(); } catch (e) {}
+    try {
+      var modalOverlay = document.getElementById('wechatModalOverlay');
+      if (modalOverlay) modalOverlay.classList.remove('show');
+    } catch (e) {}
+
+    // modal 模式：直接跳转到目标 URL
+    if (window.__wechatNavigated) {
+      console.log('[WeChat] 已经在跳转中，跳过');
+      return;
+    }
+    window.__wechatNavigated = true;
+    window.location.href = event.data.url || '/';
+  }
+});
+
+// 重新获取当前登录用户信息（用于登录成功后跳转）
+// 保留全局句柄，方便 postMessage 监听器和 popupClosedTimer 都能调用
+function fetchCurrentUser() {
+  if (window.__wechatLoggingIn) {
+    console.log('[WeChat] fetchCurrentUser 已在进行中，跳过');
+    return;
+  }
+  window.__wechatLoggingIn = true;
+  fetch('/api/current_user', { credentials: 'include' })
+    .then(function(res) { return res.json(); })
+    .then(function(userData) {
+      window.__wechatLoggingIn = false;
+      console.log('[WeChat] fetchCurrentUser 结果', userData);
+      if (userData.code === 0 && userData.data) {
+        // 已经登录，跳到 / 让 layout 显示头像
+        window.location.href = '/';
+      } else {
+        console.warn('[WeChat] 仍未登录');
+      }
+    })
+    .catch(function(err) {
+      window.__wechatLoggingIn = false;
+      console.error('[WeChat] fetchCurrentUser 失败', err);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   var messageBox = document.getElementById('messageBox');
 
@@ -335,6 +691,14 @@ document.addEventListener('DOMContentLoaded', function () {
     showMessage('您的密码被修改，请重新登录', 'error');
   } else if (urlParams.get('reason') === 'session_expired') {
     showMessage('登录已过期，请重新登录', 'error');
+  } else if (urlParams.get('error') === 'auth_failed') {
+    showMessage('微信授权失败，请重试', 'error');
+  } else if (urlParams.get('error') === 'rate_limited') {
+    showMessage('操作过于频繁，请稍后再试', 'error');
+  } else if (urlParams.get('error') === 'risk_blocked') {
+    showMessage('登录环境异常，已被风控拦截', 'error');
+  } else if (urlParams.get('error') === 'invalid_request') {
+    showMessage('请求参数异常，请重试', 'error');
   }
   if (urlParams.toString()) {
     window.history.replaceState({}, '', window.location.pathname);
@@ -418,7 +782,329 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ---- 验证码登录 ----
+  // ---- 微信扫码登录 ----
+  var WECHAT_APPID = '{{WECHAT_APPID}}';
+  var WECHAT_REDIRECT_URI = '{{WECHAT_REDIRECT_URI}}';
+
+  console.log('[WeChat] AppID:', JSON.stringify(WECHAT_APPID), '长度:', WECHAT_APPID.length);
+  console.log('[WeChat] RedirectURI:', JSON.stringify(WECHAT_REDIRECT_URI));
+  console.log('[WeChat] 当前页面域名:', window.location.origin);
+
+  var btnWechatLogin = document.getElementById('btnWechatLogin');
+  var modalOverlay = document.getElementById('wechatModalOverlay');
+  var modalClose = document.getElementById('wechatModalClose');
+  var wechatQrLoading = document.getElementById('wechatQrLoading');
+  var wechatQrIframe = document.getElementById('wechatQrIframe');
+  var wechatQrScanned = document.getElementById('wechatQrScanned');
+  var wechatQrExpired = document.getElementById('wechatQrExpired');
+
+  // 保存 session_id 和 signature，供轮询使用
+  var wechatCurrentSession = { id: null, signature: null, fp: null };
+  var wechatRefreshBtn = document.getElementById('wechatQrRefresh');
+
+
+  // 检测是否在微信内置浏览器中
+  var isWechatBrowser = /MicroMessenger/i.test(navigator.userAgent);
+
+  // 校验 AppID：必须为 18 位以 wx 开头的字符串（避免空值或截断）
+  var WECHAT_CONFIGURED = !!(WECHAT_APPID && /^wx[0-9a-f]{16}$/i.test(WECHAT_APPID));
+
+  // WxLogin 二维码容器最小尺寸要求（官方文档）
+  // 按官方文档说明：二维码区域至少预留 220px * 220px，建议容器高度 280px
+  var WECHAT_QR_HEIGHT = 280;
+
+  if (!WECHAT_CONFIGURED) {
+    btnWechatLogin.disabled = true;
+    btnWechatLogin.title = '微信登录未配置或 AppID 格式错误';
+    if (WECHAT_APPID) {
+      console.warn('[WeChat] AppID 格式异常:', JSON.stringify(WECHAT_APPID),
+                   '长度=', WECHAT_APPID.length);
+    } else {
+      console.warn('[WeChat] WECHAT_APPID 为空，未配置');
+    }
+  }
+
+  // 打开弹窗
+  btnWechatLogin.addEventListener('click', function () {
+    if (!WECHAT_CONFIGURED) {
+      showMessage('微信登录暂未配置', 'error');
+      return;
+    }
+    // 打开页面内的二维码弹窗（modal 模式）
+    openQrModal();
+  });
+
+
+  // 关闭弹窗
+  modalClose.addEventListener('click', closeQrModal);
+  modalOverlay.addEventListener('click', function (e) {
+    if (e.target === modalOverlay) closeQrModal();
+  });
+
+  function openQrModal() {
+    modalOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    resetQrState();
+    loadWxLogin();
+  }
+
+  function closeQrModal() {
+    modalOverlay.classList.remove('show');
+    document.body.style.overflow = '';
+    wechatStopCountdown();
+    stopWechatStatusPoll();
+    resetQrState();
+  }
+
+  function resetQrState() {
+    wechatQrLoading.style.display = 'flex';
+    wechatQrScanned.classList.remove('show');
+    wechatQrExpired.classList.remove('show');
+    wechatQrIframe.innerHTML = '';
+  }
+
+  function loadWxLogin() {
+    console.log('[WeChat] loadWxLogin() start');
+    // 加载 WxLogin JS SDK
+    if (typeof WxLogin === 'undefined') {
+      var script = document.createElement('script');
+      script.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js';
+      script.onload = function () {
+        console.log('[WeChat] wxLogin.js loaded');
+        initQrSession();
+      };
+      script.onerror = function () {
+        console.error('[WeChat] wxLogin.js 加载失败');
+        wechatQrLoading.style.display = 'none';
+        wechatQrExpired.classList.add('show');
+      };
+      document.head.appendChild(script);
+    } else {
+      console.log('[WeChat] WxLogin 已存在，直接初始化');
+      initQrSession();
+    }
+  }
+
+  function initQrSession() {
+    var sessionId, signature, fp;
+
+    // 生成设备指纹
+    fp = 'fp_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now();
+    console.log('[WeChat] initQrSession start, fp=', fp);
+
+    fetch('/api/wechat/qr-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ device_fp: fp })
+    })
+    .then(function (res) {
+      console.log('[WeChat] /qr-session status:', res.status);
+      if (!res.ok) {
+        return res.text().then(function(t) { throw new Error('HTTP ' + res.status + ': ' + t.substring(0,200)); });
+      }
+      return res.json();
+    })
+    .then(function (data) {
+      console.log('[WeChat] /qr-session data:', data);
+      if (data.code !== 0) {
+        throw new Error(data.message || '获取二维码失败');
+      }
+
+      sessionId = data.data.session_id;
+      signature = data.data.signature;
+
+      wechatCurrentSession.id = sessionId;
+      wechatCurrentSession.signature = signature;
+      wechatCurrentSession.fp = fp;
+
+      startWechatStatusPoll();
+
+      wechatQrLoading.style.display = 'none';
+
+      var qrIframeId = 'wx_login_iframe_' + Date.now();
+      wechatQrIframe.innerHTML = '<div id="' + qrIframeId + '"></div>';
+
+      console.log('[WeChat] WxLogin params:', {
+        self_redirect: false,
+        id: qrIframeId,
+        appid: WECHAT_APPID,
+        scope: 'snsapi_login',
+        redirect_uri: WECHAT_REDIRECT_URI,
+        state: data.data.state
+      });
+
+      new WxLogin({
+        self_redirect: false,
+        id: qrIframeId,
+        appid: WECHAT_APPID,
+        scope: 'snsapi_login',
+        // 重要：WxLogin JS SDK 内部直接拼接 redirect_uri 到 URL 上，不再 encode。
+        // 所以应该传已经 urlEncode 后的值（按官方文档要求）
+        redirect_uri: encodeURIComponent(WECHAT_REDIRECT_URI),
+        state: data.data.state,
+        style: 'white',
+        stylelite: '',     // 旧版样式，可以通过 href 注入 CSS 强制二维码大小
+        fast_login: 0,
+        // href CSS 用 base64 编码（WxLogin 明确要求 base64 格式）
+        href: 'data:text/css;base64,LmltcG93ZXJCb3ggLnFyY29kZXt3aWR0aDozMDBweCFpbXBvcnRhbnQ7aGVpZ2h0OjMwMHB4IWltcG9ydGFudDttYXJnaW46MCFpbXBvcnRhbnQ7cGFkZGluZzowIWltcG9ydGFudDtib3JkZXI6MCFpbXBvcnRhbnR9LmltcG93ZXJCb3ggLnFyY29kZSBpbWd7d2lkdGg6MzAwcHghaW1wb3J0YW50O2hlaWdodDozMDBweCFpbXBvcnRhbnQ7ZGlzcGxheTpibG9jayFpbXBvcnRhbnQ7cGFkZGluZzowIWltcG9ydGFudDttYXJnaW46MCFpbXBvcnRhbnQ7bWF4LXdpZHRoOjMwMHB4IWltcG9ydGFudDttYXgtaGVpZ2h0OjMwMHB4IWltcG9ydGFudH0uaW1wb3dlckJveCAudGl0bGV7ZGlzcGxheTpub25lIWltcG9ydGFudDtoZWlnaHQ6MCFpbXBvcnRhbnR9LmltcG93ZXJCb3ggLmluZm97ZGlzcGxheTpub25lIWltcG9ydGFudDtoZWlnaHQ6MCFpbXBvcnRhbnR9LmltcG93ZXJCb3ggLnN0YXR1c3tkaXNwbGF5Om5vbmUhaW1wb3J0YW50fS5pbXBvd2VyQm94IC53cnBfY29kZXttYXJnaW46MCFpbXBvcnRhbnQ7cGFkZGluZzowIWltcG9ydGFudH0='
+      });
+      console.log('[WeChat] WxLogin 渲染完成');
+
+      // JS 不再修改 iframe 内部元素（之前 overrideIframeSize 的尺寸
+        // 调整会和 CSS hover 冲突，让浏览器使用 CSS 自然显示）。
+        // href CSS 已经在 WxLogin 内部强制 qrcode img 为 200x200。
+        // 这里空操作，只设置启动倒计时。
+        void function(){}();
+
+      // 显示倒计时（已隐藏，直接显示二维码）
+      wechatQrExpired.classList.remove('show');
+    })
+    .catch(function (err) {
+      console.error('[WeChat] initQrSession error:', err);
+      wechatQrLoading.style.display = 'none';
+      wechatQrExpired.classList.add('show');
+      showMessage(err.message || '获取二维码失败', 'error');
+    });
+  }
+
+  // ===== 微信 status 轮询（捕获扫码成功后的服务端跳转 URL） =====
+  var statusPollTimer = null;
+
+  function startWechatStatusPoll() {
+    stopWechatStatusPoll();
+    var pollCount = 0;
+    var maxPolls = 60; // 最多轮询 60 次（2 秒一次 = 120 秒 = 与二维码有效期一致）
+
+    statusPollTimer = setInterval(function () {
+      pollCount++;
+      if (pollCount > maxPolls) {
+        stopWechatStatusPoll();
+        return;
+      }
+
+      if (!wechatCurrentSession.id || !wechatCurrentSession.signature || !wechatCurrentSession.fp) {
+        return;
+      }
+
+      var url = '/api/wechat/qr-session/' + wechatCurrentSession.id +
+                '/status?device_fp=' + encodeURIComponent(wechatCurrentSession.fp) +
+                '&signature=' + encodeURIComponent(wechatCurrentSession.signature);
+
+      fetch(url)
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.code !== 0) return;
+        var status = data.data.status;
+        var redirectUrl = data.data.redirect_url;
+        var bindToken = data.data.bind_token;
+
+        console.log('[WeChat] status poll:', status, redirectUrl, 'bind_token=' + bindToken);
+
+        if (status === 'scanned') {
+          // 用户已扫码，展示"扫码成功"覆盖层
+          wechatQrScanned.classList.add('show');
+          wechatStopCountdown();
+        }
+
+        if (status === 'bound' && redirectUrl) {
+          // 已绑定用户 → 关闭弹窗 + 跳转到首页
+          stopWechatStatusPoll();
+          wechatStopCountdown();
+          console.log('[WeChat] 服务端已登录，跳转到:', redirectUrl);
+          // 关闭 modal 弹窗
+          try { closeQrModal && closeQrModal(); } catch (e) {}
+          try {
+            var modalOverlay = document.getElementById('wechatModalOverlay');
+            if (modalOverlay) modalOverlay.classList.remove('show');
+          } catch (e) {}
+          // 直接跳转首页（status poll 自有上下文，跳转不与 postMessage 重复）
+          try { window.location.replace(redirectUrl); } catch (e) {}
+          setTimeout(function() {
+            try { window.location.href = redirectUrl; } catch (e) {}
+          }, 100);
+        }
+
+        if (status === 'need_bind' && bindToken) {
+          // 未绑定 → 跳转到绑定页
+          stopWechatStatusPoll();
+          wechatStopCountdown();
+
+          // 优先方案：直接把 bind_token 写到 localStorage 和 sessionStorage
+          // 然后跳转 /bind-wechat（无 query），让 main.py 从 storage 读
+          try {
+            sessionStorage.setItem('wechat_bind_token', bindToken);
+            localStorage.setItem('wechat_bind_token', bindToken);
+          } catch (e) {}
+
+          // 方案 A：用 POST 跳转（不会丢失参数）
+          var form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '/bind-wechat';
+          form.style.display = 'none';
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'bind_token';
+          input.value = bindToken;
+          form.appendChild(input);
+          document.body.appendChild(form);
+          form.submit();
+        }
+      })
+      .catch(function (err) {
+        console.warn('[WeChat] status poll error:', err);
+      });
+    }, 2000);
+  }
+
+  function stopWechatStatusPoll() {
+    if (statusPollTimer) {
+      clearInterval(statusPollTimer);
+      statusPollTimer = null;
+    }
+  }
+
+  // 安全停止微信倒计时（倒计时已禁用，函数保留以兼容其它调用）
+  function wechatStopCountdown() {
+    // no-op
+  }
+
+  // 重新获取二维码
+  function refreshWechatQr() {
+    resetQrState();
+    wechatQrLoading.style.display = 'flex';
+    loadWxLogin();
+  }
+  wechatRefreshBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    refreshWechatQr();
+  });
+  // 点击过期 overlay 整体也能刷新（点击图片任意位置）
+  wechatQrExpired.addEventListener('click', function () {
+    refreshWechatQr();
+  });
+  wechatQrExpired.style.cursor = 'pointer';
+
+  // 键盘关闭弹窗 (ESC)
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modalOverlay.classList.contains('show')) {
+      closeQrModal();
+    }
+  });
+
+  // 在微信内置浏览器中降级为手动跳转
+  if (isWechatBrowser) {
+    btnWechatLogin.addEventListener('click', function () {
+      if (!WECHAT_CONFIGURED) {
+        showMessage('微信登录暂未配置', 'error');
+        return;
+      }
+      var state = 'wx_' + Math.random().toString(36).substring(2, 10);
+      var authUrl = 'https://open.weixin.qq.com/connect/qrconnect?appid=' + WECHAT_APPID + '&redirect_uri=' + encodeURIComponent(WECHAT_REDIRECT_URI) + '&response_type=code&scope=snsapi_login&state=' + state + '#wechat_redirect';
+      window.location.href = authUrl;
+    });
+  }
+
   var smsForm = document.getElementById('smsForm');
   var btnSendCode = document.getElementById('btnSendCode');
   var btnSmsLogin = document.getElementById('btnSmsLogin');

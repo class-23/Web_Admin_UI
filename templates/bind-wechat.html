@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绑定手机号</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                   "Microsoft YaHei", "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      background: #f5f5f5;
+      background-image: radial-gradient(circle, #ededed 1px, transparent 1px);
+      background-size: 20px 20px;
+      display: flex;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      padding: 40px 36px;
+      width: 100%; max-width: 420px;
+    }
+    .wechat-avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%; object-fit: cover;
+      border: 3px solid #667eea;
+      display: block; margin: 0 auto;
+    }
+    .wechat-nickname {
+      text-align: center;
+      font-size: 16px; font-weight: 600;
+      color: #2d3748; margin-top: 8px;
+    }
+    .page-title {
+      text-align: center;
+      font-size: 20px; font-weight: 700;
+      color: #2d3748; margin: 20px 0 8px;
+    }
+    .bind-hint {
+      text-align: center;
+      font-size: 14px; color: #718096;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .toast-bind {
+      position: fixed; top: 20px; left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      z-index: 9999;
+      padding: 12px 24px; border-radius: 10px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      max-width: 90vw;
+    }
+    .toast-bind.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-bind.success { background: #c6f6d5; color: #276749; }
+    .toast-bind.error { background: #fed7d7; color: #9b2c2c; }
+    .toast-bind.info { background: #bee3f8; color: #2b6cb0; }
+    .form-group { margin-bottom: 18px; position: relative; }
+    .form-group label {
+      display: block; font-size: 14px;
+      color: #4a5568; margin-bottom: 6px; font-weight: 500;
+    }
+    .input-wrapper { position: relative; }
+    .input-wrapper input {
+      width: 100%; height: 44px; padding: 0 14px;
+      border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 15px; color: #2d3748; outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      background: #f7fafc;
+    }
+    .input-wrapper input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+      background: #fff;
+    }
+    .input-wrapper input.error {
+      border-color: #fc8181;
+      box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.15);
+    }
+    .input-wrapper input:disabled { background: #edf2f7; cursor: not-allowed; }
+    .input-loading {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      width: 16px; height: 16px;
+      border: 2px solid #e2e8f0; border-top-color: #667eea;
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    .input-loading.active { display: block; }
+    @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+    .code-row { display: flex; gap: 10px; }
+    .code-row .input-wrapper { flex: 1; }
+    .btn-code {
+      height: 44px; padding: 0 16px; min-width: 110px;
+      border: 1.5px solid #667eea; border-radius: 10px;
+      background: #fff; color: #667eea;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s, opacity 0.2s;
+    }
+    .btn-code:hover:not(:disabled) { background: #667eea; color: #fff; }
+    .btn-code:disabled {
+      border-color: #a0aec0; color: #a0aec0;
+      cursor: not-allowed; opacity: 0.7;
+    }
+    .btn-submit {
+      width: 100%; height: 46px; border: none; border-radius: 10px;
+      background: #667eea; color: #fff; font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-top: 8px;
+      transition: background 0.25s, opacity 0.25s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover:not(:disabled) { background: #5a67d8; }
+    .btn-submit:disabled { background: #a0aec0; cursor: not-allowed; opacity: 0.8; }
+    .btn-spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    .btn-spinner.active { display: inline-block; }
+    .footer-links { display: flex; justify-content: center; margin-top: 20px; font-size: 14px; }
+    .footer-links a { color: #667eea; text-decoration: none; font-weight: 500; }
+    .footer-links a:hover { color: #5a67d8; }
+    @media (max-width: 480px) { .card { padding: 28px 20px; border-radius: 12px; } }
+  </style>
+</head>
+<body>
+  <div id="toastBind" class="toast-bind"></div>
+
+  <div class="card">
+    <img id="wechatAvatar" class="wechat-avatar"
+         src="{{WECHAT_AVATAR}}" alt="微信头像"
+         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23e2e8f0%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%23a0aec0%22>微</text></svg>'">
+    <div class="wechat-nickname" id="wechatNickname">{{WECHAT_NICKNAME}}</div>
+
+    <div class="page-title">绑定手机号</div>
+    <p class="bind-hint">首次使用微信登录，请绑定您的手机号</p>
+
+    <form id="bindForm" novalidate>
+      <input type="hidden" id="bindToken" value="{{BIND_TOKEN}}">
+
+      <div class="form-group">
+        <label for="bindPhone">手机号</label>
+        <div class="input-wrapper">
+          <input type="tel" id="bindPhone" placeholder="请输入手机号"
+                 maxlength="11" autocomplete="tel">
+          <div id="phoneLoading" class="input-loading"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="bindCode">验证码</label>
+        <div class="code-row">
+          <div class="input-wrapper">
+            <input type="text" id="bindCode" placeholder="请输入6位验证码"
+                   maxlength="6" inputmode="numeric">
+          </div>
+          <button type="button" id="btnSendBindCode" class="btn-code">
+            获取验证码
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" id="btnBind" class="btn-submit">
+        <span class="btn-spinner" id="btnBindSpinner"></span>
+        <span id="btnBindText">完成绑定</span>
+      </button>
+    </form>
+
+    <div class="footer-links">
+      <a href="/login" id="backToLogin">返回登录</a>
+    </div>
+  </div>
+
+  <script>
+    var Toast = (function() {
+      var el = document.getElementById('toastBind');
+      var timer = null;
+      function show(text, type) {
+        el.textContent = text;
+        el.className = 'toast-bind ' + type + ' show';
+        clearTimeout(timer);
+        timer = setTimeout(function() { el.className = 'toast-bind'; }, 4000);
+      }
+      return {
+        success: function(t) { show(t, 'success'); },
+        error:   function(t) { show(t, 'error'); },
+        info:    function(t) { show(t, 'info'); }
+      };
+    })();
+
+    function debounce(fn, delay) {
+      var timer = null;
+      return function() {
+        var self = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function() { fn.apply(self, args); }, delay);
+      };
+    }
+
+    function throttle(fn, interval) {
+      var last = 0;
+      return function() {
+        var now = Date.now();
+        if (now - last >= interval) {
+          last = now;
+          fn.apply(this, arguments);
+        }
+      };
+    }
+
+    function setButtonLoading(btn, loading) {
+      if (loading) {
+        btn.disabled = true;
+        btn.querySelector('.btn-spinner').classList.add('active');
+        btn.querySelector('#btnBindText').textContent = '绑定中...';
+      } else {
+        btn.disabled = false;
+        btn.querySelector('.btn-spinner').classList.remove('active');
+        btn.querySelector('#btnBindText').textContent = '完成绑定';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var bindToken   = document.getElementById('bindToken').value;
+      var bindPhone   = document.getElementById('bindPhone');
+      var bindCode    = document.getElementById('bindCode');
+      var btnSendCode = document.getElementById('btnSendBindCode');
+      var btnBind     = document.getElementById('btnBind');
+      var phoneLoading = document.getElementById('phoneLoading');
+
+      var countdown = 0;
+      var countdownTimer = null;
+      var phoneVerified = false;
+
+      bindPhone.addEventListener('input', debounce(function() {
+        var phone = this.value.trim();
+        phoneVerified = false;
+        btnSendCode.disabled = true;
+
+        if (/^1[3-9]\d{9}$/.test(phone)) {
+          btnSendCode.disabled = false;
+          this.classList.remove('error');
+        } else {
+          if (phone.length >= 11) this.classList.add('error');
+        }
+      }, 300));
+
+      var sendCodeThrottled = throttle(function() {
+        var phone = bindPhone.value.trim();
+
+        if (!/^1[3-9]\d{9}$/.test(phone)) {
+          Toast.error('请输入正确的手机号');
+          bindPhone.classList.add('error');
+          btnSendCode.disabled = false;
+          return;
+        }
+
+        btnSendCode.disabled = true;
+        btnSendCode.textContent = '校验中...';
+        phoneLoading.classList.add('active');
+
+        fetch('/api/wechat/check-phone?phone=' + encodeURIComponent(phone))
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            phoneLoading.classList.remove('active');
+
+            if (data.code === 0 && data.data && data.data.registered === true) {
+              btnSendCode.textContent = '发送中...';
+
+              return fetch('/api/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone })
+              }).then(function(r) { return r.json(); });
+            } else {
+              Toast.error('请使用你在本网站注册的手机号来绑定该微信号');
+              bindPhone.value = '';
+              bindPhone.focus();
+              bindCode.value = '';
+              phoneVerified = false;
+              btnSendCode.disabled = false;
+              btnSendCode.textContent = '获取验证码';
+              return Promise.reject('phone_not_registered');
+            }
+          })
+          .then(function(data) {
+            if (data && data.code === 0) {
+              Toast.success('验证码已发送');
+              phoneVerified = true;
+              startCountdown();
+            } else if (data) {
+              Toast.error(data.message || '发送失败');
+              btnSendCode.disabled = false;
+              btnSendCode.textContent = '获取验证码';
+            }
+          })
+          .catch(function(err) {
+            if (err === 'phone_not_registered') return;
+            Toast.error('网络错误，请稍后重试');
+            btnSendCode.disabled = false;
+            btnSendCode.textContent = '获取验证码';
+            phoneLoading.classList.remove('active');
+          });
+      }, 3000);
+
+      btnSendCode.addEventListener('click', function() {
+        sendCodeThrottled();
+      });
+
+      function startCountdown() {
+        countdown = 60;
+        btnSendCode.textContent = countdown + 's';
+        clearInterval(countdownTimer);
+        countdownTimer = setInterval(function() {
+          countdown--;
+          if (countdown <= 0) {
+            clearInterval(countdownTimer);
+            btnSendCode.disabled = false;
+            btnSendCode.textContent = '获取验证码';
+          } else {
+            btnSendCode.textContent = countdown + 's';
+          }
+        }, 1000);
+      }
+
+      document.getElementById('bindForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var phone = bindPhone.value.trim();
+        var code  = bindCode.value.trim();
+
+        if (!phone) { Toast.error('请输入手机号'); return; }
+        if (!/^1[3-9]\d{9}$/.test(phone)) { Toast.error('请输入正确的手机号'); return; }
+        if (!code) { Toast.error('请输入验证码'); return; }
+        if (!/^\d{6}$/.test(code)) { Toast.error('验证码必须是6位数字'); return; }
+
+        setButtonLoading(btnBind, true);
+
+        fetch('/api/wechat/bind', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bind_token: bindToken,
+            phone: phone,
+            code: code
+          }),
+          redirect: 'follow'  // 跟随后端返回的 redirect
+        })
+        .then(function(res) {
+          // 如果是 redirect（3xx），直接走浏览器跳转
+          if (res.redirected) {
+            window.location.href = res.url;
+            return null;
+          }
+          return res.json();
+        })
+        .then(function(data) {
+          if (!data) return;
+          setButtonLoading(btnBind, false);
+
+          if (data.code === 0) {
+            Toast.success('绑定成功，正在跳转...');
+            setTimeout(function() {
+              window.location.replace('/');
+            }, 600);
+          } else {
+            var errorMsg = data.message || '绑定失败';
+            Toast.error(errorMsg);
+
+            if (errorMsg.indexOf('未注册') !== -1 || errorMsg.indexOf('你在本网站注册') !== -1) {
+              bindPhone.value = '';
+              bindCode.value = '';
+              btnSendCode.disabled = true;
+              phoneVerified = false;
+              bindPhone.focus();
+            } else if (errorMsg.indexOf('验证码') !== -1 || errorMsg.indexOf('过期') !== -1) {
+              bindCode.value = '';
+              bindCode.focus();
+            } else if (errorMsg.indexOf('绑定令牌') !== -1) {
+              btnSendCode.disabled = true;
+              setTimeout(function() { window.location.href = '/login'; }, 2000);
+            } else if (errorMsg.indexOf('已被其他') !== -1 || data.code === 409) {
+              // 绑定冲突：禁用按钮让用户思考下一步
+              // 不清空字段，让用户可以选择改手机号重试
+              bindPhone.focus();
+            }
+          }
+        })
+        .catch(function(err) {
+          setButtonLoading(btnBind, false);
+          Toast.error('网络错误，请稍后重试');
+          console.error('[Bind] error:', err);
+        });
+      });
+
+      bindPhone.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (btnSendCode.disabled === false) { btnSendCode.click(); }
+        }
+      });
+      bindCode.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          btnBind.click();
+        }
+      });
+
+      document.getElementById('backToLogin').addEventListener('click', function(e) {
+        if (!confirm('确定返回登录页？绑定信息将丢失，需重新扫码。')) {
+          e.preventDefault();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

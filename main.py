@@ -32,8 +32,12 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from login.limiter import limiter
 from login.routers.auth_router import router as auth_router
+from login.wechat_router import router as wechat_router
+from login.wechat_service import WeChatService
 from login.auth import require_auth, require_auth_or_api_key, verify_api_key_and_phone
 from login.database import get_db, init_db as login_init_db
+from login import config as login_config
+from jose import jwt, JWTError
 
 config = QuantClawConfig(
     pg_host=os.getenv("PG_HOST", "localhost"),
@@ -180,6 +184,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api", tags=["认证"])
+app.include_router(wechat_router, prefix="/api", tags=["微信登录"])
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -260,9 +265,34 @@ async def root():
 
 
 @app.get("/login", response_class=HTMLResponse, include_in_schema=False)
-async def login():
+async def login(request: Request):
     with open("templates/login.html", "r", encoding="utf-8") as f:
-        return f.read()
+        html = f.read()
+    # 注入微信配置
+    import logging
+    log = logging.getLogger("wechat")
+    log.info(f"[Inject] WECHAT_APPID={login_config.WECHAT_APPID!r} (len={len(login_config.WECHAT_APPID or '')})")
+
+    # WECHAT_REDIRECT_URI 自动使用当前页面的域名（而不是 .env 中写死的值）
+    # 这样在生产（keli.quantclaw.vip）和本地（localhost:8082）都能正常工作
+    scheme = "https" if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https" else request.url.scheme
+    # 从 host header 解析（注意去掉端口号）
+    raw_host = request.headers.get("x-forwarded-host") or request.headers.get("host") or request.url.netloc or ""
+    host = raw_host.split(":")[0]  # 去掉端口
+
+    # 优先使用 .env 中配置的精确值（避免动态生成时的格式问题）
+    # 如果 .env 中没有或非 HTTPS，则动态生成
+    env_uri = login_config.WECHAT_REDIRECT_URI or ""
+    if env_uri and env_uri.startswith("https://"):
+        redirect_uri = env_uri
+    else:
+        redirect_uri = f"{scheme}://{host}/api/wechat/callback"
+
+    log.info(f"[Inject] 当前域名: {scheme}://{host}")
+    log.info(f"[Inject] WECHAT_REDIRECT_URI={redirect_uri!r}")
+    html = html.replace("{{WECHAT_APPID}}", login_config.WECHAT_APPID)
+    html = html.replace("{{WECHAT_REDIRECT_URI}}", redirect_uri)
+    return HTMLResponse(content=html)
 
 
 @app.get("/register", response_class=HTMLResponse, include_in_schema=False)
@@ -271,10 +301,90 @@ async def register():
         return f.read()
 
 
+@app.get("/bind-wechat", response_class=HTMLResponse, include_in_schema=False)
+async def bind_wechat_page(
+    request: Request,
+    bind_token: str = Query(default=""),
+):
+    """微信账号绑定页面（短 key 模式：保持 10 分钟有效，绑定后自动失效）
+
+    支持多种来源获取 bind_token：
+    1. URL query 参数（?bind_token=xxx）
+    2. Cookie（wechat_bind_token）
+    """
+    return await _render_bind_wechat(request, bind_token)
+
+
+@app.post("/bind-wechat", response_class=HTMLResponse, include_in_schema=False)
+async def bind_wechat_page_post(request: Request):
+    """POST 方式接收 bind_token（避免 URL query 丢失场景）"""
+    form = await request.form()
+    bind_token = form.get("bind_token", "")
+    return await _render_bind_wechat(request, bind_token)
+
+
+async def _render_bind_wechat(request: Request, bind_token: str):
+    """渲染绑定页面的共用函数"""
+    wechat_service = WeChatService()
+
+    # 如果 URL 没带 bind_token，尝试从 cookie 拿
+    if not bind_token:
+        cookie_token = request.cookies.get("wechat_bind_token", "")
+        if cookie_token:
+            bind_token = cookie_token
+
+    if not bind_token:
+        return HTMLResponse(content=
+            "<h1 style='text-align:center;margin-top:80px;color:#9b2c2c;'>链接无效或绑定令牌丢失</h1>"
+            "<p style='text-align:center;margin-top:20px;'><a href='/login' style='color:#667eea;'>返回登录重新扫码</a></p>",
+            status_code=400)
+
+    bind_data = wechat_service.peek_bind_token(bind_token)
+    if not bind_data:
+        return HTMLResponse(content=
+            "<h1 style='text-align:center;margin-top:80px;color:#9b2c2c;'>绑定令牌已过期</h1>"
+            "<p style='text-align:center;margin-top:20px;'><a href='/login' style='color:#667eea;'>请重新扫码</a></p>",
+            status_code=400)
+
+    nickname = bind_data.get("nickname", "微信用户")
+    avatar = bind_data.get("headimgurl", "")
+
+    with open("templates/bind-wechat.html", "r", encoding="utf-8") as f:
+        html = f.read()
+    html = html.replace("{{BIND_TOKEN}}", bind_token)
+    html = html.replace("{{WECHAT_NICKNAME}}", nickname)
+    html = html.replace("{{WECHAT_AVATAR}}", avatar)
+    return HTMLResponse(content=html)
+
+
 @app.get("/forgot-password", response_class=HTMLResponse, include_in_schema=False)
 async def forgot_password():
     with open("templates/forgot-password.html", "r", encoding="utf-8") as f:
         return f.read()
+
+
+# 微信开放平台业务域名校验文件路由
+# 该文件必须能从 https://你的域名/63JKlMS3Rh.txt 访问到，否则微信开放平台会拒绝
+# 把下载的 MP_verify_xxx.txt 或随机文件名文件放到 templates 目录下即可
+import os as _os
+VERIFY_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "templates")
+
+
+def _serve_verify_file(filename: str):
+    """返回校验文件内容，如果存在"""
+    file_path = _os.path.join(VERIFY_DIR, filename)
+    if not _os.path.isfile(file_path):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="verify file not found")
+    from fastapi import Response
+    with open(file_path, "r", encoding="utf-8") as f:
+        return Response(content=f.read(), media_type="text/plain; charset=utf-8")
+
+
+@app.get("/63JKlMS3Rh.txt", include_in_schema=False)
+async def serve_wechat_verify_file():
+    """微信开放平台业务域名校验文件"""
+    return _serve_verify_file("63JKlMS3Rh.txt")
 
 
 @app.get("/reset-password", response_class=HTMLResponse, include_in_schema=False)
